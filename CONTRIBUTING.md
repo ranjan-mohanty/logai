@@ -1,6 +1,7 @@
 # Contributing to LogAI
 
-Thanks for your interest in contributing to LogAI! This document provides guidelines for contributing.
+Thanks for your interest in contributing to LogAI! This document provides
+guidelines for contributing.
 
 ## Getting Started
 
@@ -75,6 +76,7 @@ make check  # Runs fmt, lint, and test
 ```
 
 Or run individually:
+
 ```bash
 make fmt    # Format code
 make lint   # Run clippy
@@ -100,7 +102,8 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 - `chore:` - Maintenance tasks
 
 Examples:
-```
+
+```text
 feat: add support for syslog format
 fix: handle empty log files gracefully
 docs: update README with new examples
@@ -150,4 +153,5 @@ Open an issue or discussion on GitHub!
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing, you agree that your contributions will be licensed under the
+MIT License.

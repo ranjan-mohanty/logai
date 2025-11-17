@@ -1,12 +1,14 @@
 # LogAI Compatibility Guide
 
-This document outlines which log formats LogAI supports and any known limitations.
+This document outlines which log formats LogAI supports and any known
+limitations.
 
 ## ✅ Fully Supported Formats
 
 ### 1. JSON Logs (95% confidence)
 
 **Works with:**
+
 - Standard JSON with `level`, `message`, `timestamp` fields
 - Application logs from Node.js, Python, Go, Rust
 - Docker container logs in JSON format
@@ -14,11 +16,17 @@ This document outlines which log formats LogAI supports and any known limitation
 - Most modern logging frameworks
 
 **Example:**
+
 ```json
-{"level":"error","message":"Connection failed","timestamp":"2025-11-17T10:30:00Z"}
+{
+  "level": "error",
+  "message": "Connection failed",
+  "timestamp": "2025-11-17T10:30:00Z"
+}
 ```
 
 **Tested with:**
+
 - ✅ Node.js (Winston, Pino, Bunyan)
 - ✅ Python (structlog, python-json-logger)
 - ✅ Go (zap, logrus)
@@ -27,6 +35,7 @@ This document outlines which log formats LogAI supports and any known limitation
 ### 2. Plain Text Logs (85% confidence)
 
 **Works with:**
+
 - Standard format: `[timestamp] LEVEL message`
 - Java/Spring Boot logs
 - Python logging module
@@ -34,11 +43,13 @@ This document outlines which log formats LogAI supports and any known limitation
 - Basic syslog format
 
 **Example:**
+
 ```
 2025-11-17 10:30:00.123  ERROR 12345 --- [thread] Class : Message
 ```
 
 **Tested with:**
+
 - ✅ Spring Boot / Java logs
 - ✅ Python logging module
 - ✅ Nginx error logs
@@ -47,17 +58,20 @@ This document outlines which log formats LogAI supports and any known limitation
 ### 3. CloudWatch Logs (80% confidence)
 
 **Works with:**
+
 - Lambda function logs
 - ECS task logs
 - EC2 instance logs
 - CloudWatch Logs Insights output
 
 **Example:**
+
 ```
-2025-11-17T10:30:00.123Z	request-id	ERROR	Message
+2025-11-17T10:30:00.123Z request-id ERROR Message
 ```
 
 **Notes:**
+
 - Tab-separated format works
 - Request IDs are normalized automatically
 - Timestamps are parsed correctly
@@ -65,15 +79,18 @@ This document outlines which log formats LogAI supports and any known limitation
 ### 4. Nginx Logs (85% confidence)
 
 **Works with:**
+
 - Nginx error logs
 - Access logs with errors
 
 **Example:**
+
 ```
 2025/11/17 10:30:00 [error] 12345#12345: *67890 connect() failed
 ```
 
 **Notes:**
+
 - Process IDs and connection IDs are normalized
 - IP addresses are normalized
 - Groups similar connection errors
@@ -83,28 +100,33 @@ This document outlines which log formats LogAI supports and any known limitation
 ### 1. Multi-line Stack Traces (70% confidence)
 
 **Works if:**
+
 - Stack trace is in the message field (JSON)
 - Stack trace lines are indented (plain text)
 
 **Limitations:**
+
 - May not perfectly parse all stack trace formats
 - Some frameworks have custom formats
 
 **Example that works:**
+
 ```
 2025-11-17 10:30:00 ERROR Failed to process
-	at com.example.Service.method(Service.java:42)
-	at com.example.Controller.handle(Controller.java:89)
+ at com.example.Service.method(Service.java:42)
+ at com.example.Controller.handle(Controller.java:89)
 ```
 
 ### 2. Custom Application Logs (60% confidence)
 
 **Works if:**
+
 - Has recognizable timestamp
 - Has severity level (ERROR, WARN, etc.)
 - Has clear error message
 
 **May need adjustment for:**
+
 - Proprietary formats
 - Unusual timestamp formats
 - Non-standard severity levels
@@ -112,10 +134,12 @@ This document outlines which log formats LogAI supports and any known limitation
 ### 3. Syslog (75% confidence)
 
 **Works with:**
+
 - Basic syslog format
 - RFC 3164 format
 
 **Limitations:**
+
 - RFC 5424 format may need testing
 - Facility/priority codes are treated as text
 
@@ -136,6 +160,7 @@ This document outlines which log formats LogAI supports and any known limitation
 - zip archives
 
 **Workaround:** Decompress first:
+
 ```bash
 gunzip -c app.log.gz | logai investigate -
 zcat app.log.gz | logai investigate -
@@ -160,17 +185,17 @@ zcat app.log.gz | logai investigate -
 
 ### Real-world Log Sources Tested
 
-| Source | Format | Status | Notes |
-|--------|--------|--------|-------|
-| Docker containers | JSON | ✅ Works | Perfect |
-| Kubernetes pods | JSON | ✅ Works | Perfect |
-| Spring Boot | Plain text | ✅ Works | Groups correctly |
-| Node.js (Winston) | JSON | ✅ Works | Perfect |
-| Python (logging) | Plain text | ✅ Works | Good |
-| Nginx | Plain text | ✅ Works | Good |
-| CloudWatch Lambda | Tab-separated | ✅ Works | Good |
-| Rails | Plain text | 🟡 Partial | Needs testing |
-| Apache | Plain text | 🟡 Partial | Needs testing |
+| Source            | Format        | Status     | Notes            |
+| ----------------- | ------------- | ---------- | ---------------- |
+| Docker containers | JSON          | ✅ Works   | Perfect          |
+| Kubernetes pods   | JSON          | ✅ Works   | Perfect          |
+| Spring Boot       | Plain text    | ✅ Works   | Groups correctly |
+| Node.js (Winston) | JSON          | ✅ Works   | Perfect          |
+| Python (logging)  | Plain text    | ✅ Works   | Good             |
+| Nginx             | Plain text    | ✅ Works   | Good             |
+| CloudWatch Lambda | Tab-separated | ✅ Works   | Good             |
+| Rails             | Plain text    | 🟡 Partial | Needs testing    |
+| Apache            | Plain text    | 🟡 Partial | Needs testing    |
 
 ## Known Limitations
 
@@ -189,6 +214,7 @@ zcat app.log.gz | logai investigate -
 ### 3. Grouping Accuracy
 
 **Normalized automatically:**
+
 - ✅ UUIDs
 - ✅ Large numbers (5+ digits)
 - ✅ IP addresses
@@ -198,6 +224,7 @@ zcat app.log.gz | logai investigate -
 - ✅ Timestamps
 
 **May not normalize:**
+
 - Custom ID formats
 - Application-specific patterns
 - Unusual dynamic values
@@ -215,6 +242,7 @@ zcat app.log.gz | logai investigate -
 If your logs aren't grouping correctly:
 
 1. **Check the pattern:**
+
 ```bash
 logai investigate app.log -f json | jq '.[].pattern'
 ```

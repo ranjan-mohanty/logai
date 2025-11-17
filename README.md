@@ -6,11 +6,14 @@
 
 **AI-powered log analysis** - Parse, group, and understand your logs with AI.
 
-LogAI analyzes your application logs, groups similar errors, and uses AI to explain what went wrong and how to fix it.
+LogAI analyzes your application logs, groups similar errors, and uses AI to
+explain what went wrong and how to fix it.
 
 ## What is LogAI?
 
-LogAI is a CLI tool that analyzes application logs, groups similar errors, and provides intelligent suggestions for fixing issues. Stop manually searching through massive log files and let LogAI do the detective work.
+LogAI is a CLI tool that analyzes application logs, groups similar errors, and
+provides intelligent suggestions for fixing issues. Stop manually searching
+through massive log files and let LogAI do the detective work.
 
 ## Features
 
@@ -22,13 +25,14 @@ LogAI is a CLI tool that analyzes application logs, groups similar errors, and p
 ✅ Track error frequency and timing  
 ✅ AI-powered error explanations (OpenAI, Claude, Gemini, Ollama)  
 ✅ Solution suggestions with code examples  
-✅ Response caching to reduce API costs  
+✅ Response caching to reduce API costs
 
-## Coming Soon  
+## Coming Soon
+
 🚧 Stack Overflow and GitHub search integration  
 🚧 Watch mode for real-time analysis  
 🚧 HTML reports  
-🚧 Case history and caching  
+🚧 Case history and caching
 
 ## Quick Start
 
@@ -52,35 +56,42 @@ cargo install --path .
 
 ### Pre-built binaries
 
-Download from [GitHub Releases](https://github.com/ranjan-mohanty/logai/releases/latest):
+Download from
+[GitHub Releases](https://github.com/ranjan-mohanty/logai/releases/latest):
+
 - macOS (Intel & Apple Silicon)
 - Linux (x86_64 & ARM64)
 - Windows (x86_64)
 
-## Quick Start
+## Usage
 
 Analyze a log file:
+
 ```bash
 logai investigate app.log
 ```
 
 Analyze multiple files:
+
 ```bash
 logai investigate app.log error.log
 ```
 
 Pipe logs from stdin:
+
 ```bash
 tail -f app.log | logai investigate -
 cat error.log | logai investigate -
 ```
 
 Limit output:
+
 ```bash
 logai investigate app.log --limit 10
 ```
 
 JSON output:
+
 ```bash
 logai investigate app.log --format json
 ```
@@ -88,6 +99,7 @@ logai investigate app.log --format json
 ## AI-Powered Analysis
 
 Analyze with OpenAI:
+
 ```bash
 export OPENAI_API_KEY=sk-...
 logai investigate app.log --ai openai
@@ -95,6 +107,7 @@ logai investigate app.log --ai openai --model gpt-4
 ```
 
 Analyze with Claude:
+
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 logai investigate app.log --ai claude
@@ -102,6 +115,7 @@ logai investigate app.log --ai claude --model claude-3-5-sonnet-20241022
 ```
 
 Analyze with Gemini:
+
 ```bash
 export GEMINI_API_KEY=...
 logai investigate app.log --ai gemini
@@ -109,6 +123,7 @@ logai investigate app.log --ai gemini --model gemini-1.5-pro
 ```
 
 Analyze with Ollama (local, free):
+
 ```bash
 # Make sure Ollama is running: ollama serve
 logai investigate app.log --ai ollama
@@ -116,13 +131,14 @@ logai investigate app.log --ai ollama --model llama3.2
 ```
 
 Disable caching (force fresh analysis):
+
 ```bash
 logai investigate app.log --ai openai --no-cache
 ```
 
 ## Example Output
 
-```
+```text
 🤖 LogAI Analysis Report
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -134,7 +150,7 @@ logai investigate app.log --ai openai --no-cache
 
 🔴 Critical: Connection failed to database (3 occurrences)
    First seen: 5 minutes ago | Last seen: 4 minutes ago
-   
+
    📋 Example:
    Connection failed to database
    📍 Location: db.rs:42
@@ -143,42 +159,47 @@ logai investigate app.log --ai openai --no-cache
 
 🔴 Critical: Timeout waiting for response from <DYNAMIC> (3 occurrences)
    First seen: 1 minute ago | Last seen: 30 seconds ago
-   
+
    📋 Example:
    Timeout waiting for response from api.example.com
 ```
 
 ## Supported Log Formats
 
-- **JSON logs** - Structured logs with fields like `level`, `message`, `timestamp`
-- **Plain text logs** - Traditional text logs with timestamps and severity levels
+- **JSON logs** - Structured logs with fields like `level`, `message`,
+  `timestamp`
+- **Plain text logs** - Traditional text logs with timestamps and severity
+  levels
 - More formats coming soon (syslog, etc.)
 
 ## Development
 
 Build:
+
 ```bash
 cargo build
 ```
 
 Run tests:
+
 ```bash
 cargo test
 ```
 
 Run with sample logs:
+
 ```bash
 cargo run -- investigate tests/fixtures/sample.log
 ```
 
 ## Supported AI Providers
 
-| Provider | Models | Cost | Speed | Setup |
-|----------|--------|------|-------|-------|
-| **OpenAI** | GPT-4, GPT-4o-mini | Paid | Fast | API key required |
-| **Claude** | Claude 3.5 Sonnet/Haiku | Paid | Fast | API key required |
-| **Gemini** | Gemini 1.5 Flash/Pro | Paid | Fast | API key required |
-| **Ollama** | Llama 3.2, Mistral, etc. | Free | Medium | Local install |
+| Provider   | Models                   | Cost | Speed  | Setup            |
+| ---------- | ------------------------ | ---- | ------ | ---------------- |
+| **OpenAI** | GPT-4, GPT-4o-mini       | Paid | Fast   | API key required |
+| **Claude** | Claude 3.5 Sonnet/Haiku  | Paid | Fast   | API key required |
+| **Gemini** | Gemini 1.5 Flash/Pro     | Paid | Fast   | API key required |
+| **Ollama** | Llama 3.2, Mistral, etc. | Free | Medium | Local install    |
 
 ## How It Works
 
@@ -186,7 +207,7 @@ cargo run -- investigate tests/fixtures/sample.log
 2. **Group** - Clusters similar errors by normalizing dynamic values
 3. **Deduplicate** - Shows unique patterns with occurrence counts
 4. **Analyze** - Uses AI to explain errors and suggest fixes (optional)
-4. **Cache** - Stores AI responses locally to reduce costs
+5. **Cache** - Stores AI responses locally to reduce costs
 
 ## Roadmap
 
@@ -208,11 +229,13 @@ cargo run -- investigate tests/fixtures/sample.log
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for
+guidelines.
 
-## Roadmap
+## Future Plans
 
-See [GitHub Issues](https://github.com/ranjan-mohanty/logai/issues) for planned features and known issues.
+See [GitHub Issues](https://github.com/ranjan-mohanty/logai/issues) for planned
+features and known issues.
 
 ## License
 
@@ -234,6 +257,8 @@ If you find LogAI useful, please consider giving it a star ⭐
 
 ## Support
 
-- 🐛 [Report a bug](https://github.com/ranjan-mohanty/logai/issues/new?labels=bug)
-- 💡 [Request a feature](https://github.com/ranjan-mohanty/logai/issues/new?labels=enhancement)
+- 🐛
+  [Report a bug](https://github.com/ranjan-mohanty/logai/issues/new?labels=bug)
+- 💡
+  [Request a feature](https://github.com/ranjan-mohanty/logai/issues/new?labels=enhancement)
 - 💬 [Start a discussion](https://github.com/ranjan-mohanty/logai/discussions)

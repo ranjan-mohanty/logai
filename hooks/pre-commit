@@ -1,6 +1,6 @@
 #!/bin/sh
 # Pre-commit hook for LogAI
-# Install: cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# Auto-installed via Makefile
 
 set -e
 
@@ -12,11 +12,16 @@ if ! command -v cargo &> /dev/null; then
     exit 1
 fi
 
-# Format check
-echo "📝 Checking code formatting..."
-if ! cargo fmt --all -- --check; then
-    echo "❌ Code formatting issues found. Run 'cargo fmt --all' to fix."
-    exit 1
+# Format code automatically
+echo "📝 Formatting code..."
+cargo fmt --all
+git add -u
+
+# Format markdown files if prettier is available
+if command -v prettier &> /dev/null; then
+    echo "📄 Formatting markdown..."
+    prettier --write "*.md" "docs/*.md" 2>/dev/null || true
+    git add -u
 fi
 
 # Clippy check

@@ -1,4 +1,4 @@
-.PHONY: help install build test fmt lint check clean run install-hooks
+.PHONY: help install build test fmt lint check clean run install-hooks fmt-md
 
 # Default target
 help:
@@ -11,7 +11,8 @@ help:
 	@echo "Development:"
 	@echo "  make build          Build the project"
 	@echo "  make test           Run tests"
-	@echo "  make fmt            Format code"
+	@echo "  make fmt            Format Rust code"
+	@echo "  make fmt-md         Format markdown files"
 	@echo "  make lint           Run clippy"
 	@echo "  make check          Run all checks (fmt, lint, test)"
 	@echo "  make run            Run logai with sample logs"
@@ -26,8 +27,10 @@ install:
 
 # Install Git hooks
 install-hooks:
-	@echo "🪝 Installing Git hooks..."
-	@bash hooks/install.sh
+	@echo "🪝 Configuring Git hooks..."
+	@git config core.hooksPath hooks
+	@chmod +x hooks/pre-commit
+	@echo "✅ Git hooks configured! Hooks will run from hooks/ directory"
 
 # Build the project
 build:
@@ -43,6 +46,11 @@ test:
 fmt:
 	@echo "📝 Formatting code..."
 	cargo fmt --all
+
+# Format markdown
+fmt-md:
+	@echo "📄 Formatting markdown..."
+	prettier --write "*.md" "docs/*.md"
 
 # Run clippy
 lint:

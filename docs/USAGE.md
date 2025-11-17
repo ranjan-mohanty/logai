@@ -45,11 +45,13 @@ sherlog investigate app.log --limit 5
 ### OpenAI
 
 **Setup:**
+
 ```bash
 export OPENAI_API_KEY=sk-...
 ```
 
 **Usage:**
+
 ```bash
 # Default model (gpt-4o-mini)
 sherlog investigate app.log --ai openai
@@ -62,6 +64,7 @@ sherlog investigate app.log --ai openai --api-key sk-...
 ```
 
 **Models:**
+
 - `gpt-4o-mini` (default, fast, cheap)
 - `gpt-4` (more accurate, slower, expensive)
 - `gpt-3.5-turbo` (fast, cheap)
@@ -69,11 +72,13 @@ sherlog investigate app.log --ai openai --api-key sk-...
 ### Claude
 
 **Setup:**
+
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 **Usage:**
+
 ```bash
 # Default model (claude-3-5-haiku)
 sherlog investigate app.log --ai claude
@@ -83,6 +88,7 @@ sherlog investigate app.log --ai claude --model claude-3-5-sonnet-20241022
 ```
 
 **Models:**
+
 - `claude-3-5-haiku-20241022` (default, fast, cheap)
 - `claude-3-5-sonnet-20241022` (balanced)
 - `claude-3-opus-20240229` (most capable)
@@ -90,11 +96,13 @@ sherlog investigate app.log --ai claude --model claude-3-5-sonnet-20241022
 ### Gemini
 
 **Setup:**
+
 ```bash
 export GEMINI_API_KEY=...
 ```
 
 **Usage:**
+
 ```bash
 # Default model (gemini-1.5-flash)
 sherlog investigate app.log --ai gemini
@@ -104,12 +112,14 @@ sherlog investigate app.log --ai gemini --model gemini-1.5-pro
 ```
 
 **Models:**
+
 - `gemini-1.5-flash` (default, fast, cheap)
 - `gemini-1.5-pro` (more capable)
 
 ### Ollama (Local)
 
 **Setup:**
+
 ```bash
 # Install Ollama: https://ollama.ai
 ollama pull llama3.2
@@ -117,6 +127,7 @@ ollama serve
 ```
 
 **Usage:**
+
 ```bash
 # Default model (llama3.2)
 sherlog investigate app.log --ai ollama
@@ -129,6 +140,7 @@ sherlog investigate app.log --ai ollama --ollama-host http://localhost:11434
 ```
 
 **Popular Models:**
+
 - `llama3.2` (default, good balance)
 - `mistral` (fast, efficient)
 - `codellama` (code-focused)
@@ -167,23 +179,27 @@ sherlog investigate app.log -o report.json -f json
 Sherlog automatically caches AI responses to reduce costs.
 
 **View cache statistics:**
+
 ```bash
 sherlog investigate app.log --ai openai
 # Output: 💾 Cache: 3 hits, 2 misses
 ```
 
 **Disable caching:**
+
 ```bash
 sherlog investigate app.log --ai openai --no-cache
 ```
 
 **Cache location:**
+
 - Linux/macOS: `~/.sherlog/cache/cache.db`
 - Windows: `%USERPROFILE%\.sherlog\cache\cache.db`
 
 ### Filtering
 
 **By severity:**
+
 ```bash
 sherlog investigate app.log --severity error
 sherlog investigate app.log --severity warn
@@ -253,11 +269,13 @@ sherlog investigate app.log --ai openai --model gpt-4o-mini
 ### 1. Start Without AI
 
 First run without AI to see what errors exist:
+
 ```bash
 sherlog investigate app.log
 ```
 
 Then use AI for specific errors:
+
 ```bash
 sherlog investigate app.log --ai openai --limit 3
 ```
@@ -265,6 +283,7 @@ sherlog investigate app.log --ai openai --limit 3
 ### 2. Use Local Models for Privacy
 
 For sensitive logs, use Ollama:
+
 ```bash
 sherlog investigate sensitive.log --ai ollama
 ```
@@ -284,7 +303,9 @@ sed -n '/2025-11-17 10:00/,/2025-11-17 11:00/p' app.log | sherlog investigate -
 
 ### 4. Save Money with Caching
 
-Cache persists across runs. Analyze the same logs multiple times without extra cost:
+Cache persists across runs. Analyze the same logs multiple times without extra
+cost:
+
 ```bash
 sherlog investigate app.log --ai openai  # Calls API
 sherlog investigate app.log --ai openai  # Uses cache
@@ -327,6 +348,7 @@ sherlog investigate --help
 ### "API key not provided"
 
 Set the appropriate environment variable:
+
 ```bash
 export OPENAI_API_KEY=sk-...
 ```
@@ -334,6 +356,7 @@ export OPENAI_API_KEY=sk-...
 ### "Connection refused" (Ollama)
 
 Make sure Ollama is running:
+
 ```bash
 ollama serve
 ```

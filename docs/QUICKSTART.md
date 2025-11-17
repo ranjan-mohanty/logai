@@ -12,9 +12,11 @@ cargo install sherlog
 
 ### Option 2: Download Binary
 
-Download from [GitHub Releases](https://github.com/ranjan-mohanty/sherlog/releases/latest):
+Download from
+[GitHub Releases](https://github.com/ranjan-mohanty/sherlog/releases/latest):
 
 **macOS:**
+
 ```bash
 # Intel
 curl -L https://github.com/ranjan-mohanty/sherlog/releases/latest/download/sherlog-macos-x86_64 -o sherlog
@@ -28,14 +30,14 @@ sudo mv sherlog /usr/local/bin/
 ```
 
 **Linux:**
+
 ```bash
 curl -L https://github.com/ranjan-mohanty/sherlog/releases/latest/download/sherlog-linux-x86_64 -o sherlog
 chmod +x sherlog
 sudo mv sherlog /usr/local/bin/
 ```
 
-**Windows:**
-Download `sherlog-windows-x86_64.exe` and add to PATH.
+**Windows:** Download `sherlog-windows-x86_64.exe` and add to PATH.
 
 ## First Analysis
 
@@ -46,6 +48,7 @@ sherlog investigate your-app.log
 ```
 
 This will:
+
 - Parse your logs
 - Group similar errors
 - Show frequency and timing
@@ -85,23 +88,23 @@ sherlog investigate your-app.log --ai ollama
 
 🔴 Critical: Connection failed to database (47 occurrences)
    First seen: 2 hours ago | Last seen: 30 seconds ago
-   
+
    📍 Location: db.rs:42
-   
+
    🎯 Explanation:
    The database connection is failing, likely due to network issues or
    the database server being unavailable.
-   
+
    🔍 Root Cause:
    Connection timeout or incorrect database credentials
-   
+
    💡 Suggested Fixes:
-   
+
    1. Check database server status and network connectivity
-   
+
    2. Verify connection string and credentials:
       DATABASE_URL=postgresql://user:pass@localhost:5432/db
-   
+
    3. Increase connection timeout in your config
 ```
 

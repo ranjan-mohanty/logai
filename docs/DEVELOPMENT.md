@@ -33,6 +33,7 @@ make check  # Runs fmt, lint, and test
 ```
 
 Or individually:
+
 ```bash
 make fmt    # Format code with rustfmt
 make lint   # Run clippy linter
@@ -41,7 +42,8 @@ make test   # Run all tests
 
 ### 3. Commit Changes
 
-Commits must follow [Conventional Commits](https://www.conventionalcommits.org/):
+Commits must follow
+[Conventional Commits](https://www.conventionalcommits.org/):
 
 ```bash
 git commit -m "feat: add new feature"
@@ -81,6 +83,7 @@ make docs           # Generate documentation
 ### Pre-commit Hook
 
 Runs automatically before each commit:
+
 - Checks code formatting
 - Runs clippy linter
 - Runs all tests
@@ -163,7 +166,7 @@ impl LogParser for MyFormatParser {
     fn parse_line(&self, line: &str) -> Result<Option<LogEntry>> {
         // Implementation
     }
-    
+
     fn can_parse(&self, sample: &str) -> bool {
         // Detection logic
     }
@@ -190,7 +193,7 @@ impl AIProvider for MyProvider {
     async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis> {
         // Implementation
     }
-    
+
     fn name(&self) -> &str {
         "myprovider"
     }
@@ -205,7 +208,7 @@ Add to `src/ai/mod.rs` and update `create_provider()`.
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_my_feature() {
         // Test implementation
@@ -263,7 +266,7 @@ make docs
 
 ### Write Doc Comments
 
-```rust
+````rust
 /// Brief description
 ///
 /// # Examples
@@ -273,17 +276,19 @@ make docs
 /// let parser = JsonParser::new();
 /// ```
 pub fn my_function() {}
-```
+````
 
 ## Continuous Integration
 
 CI runs on every push and PR:
+
 - ✅ Format check
 - ✅ Clippy linting
 - ✅ Tests on Linux, macOS, Windows
 - ✅ Build for all platforms
 
-View CI status: [GitHub Actions](https://github.com/ranjan-mohanty/logai/actions)
+View CI status:
+[GitHub Actions](https://github.com/ranjan-mohanty/logai/actions)
 
 ## Release Process
 
@@ -294,6 +299,7 @@ View CI status: [GitHub Actions](https://github.com/ranjan-mohanty/logai/actions
 5. Push: `git push && git push --tags`
 
 GitHub Actions will automatically:
+
 - Build binaries for all platforms
 - Create GitHub release
 - Publish to crates.io
