@@ -1,12 +1,12 @@
-pub mod cli;
-pub mod parser;
-pub mod analyzer;
 pub mod ai;
+pub mod analyzer;
+pub mod cli;
+pub mod output;
+pub mod parser;
 pub mod search;
 pub mod storage;
-pub mod output;
 
-pub use anyhow::{Result, Error};
+pub use anyhow::{Error, Result};
 
 /// Core types used throughout the application
 pub mod types {

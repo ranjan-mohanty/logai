@@ -10,17 +10,25 @@ pub struct PlainTextParser {
     severity_regex: Regex,
 }
 
+impl Default for PlainTextParser {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PlainTextParser {
     pub fn new() -> Self {
         Self {
             // Match common timestamp formats
             timestamp_regex: Regex::new(
-                r"(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)"
-            ).unwrap(),
+                r"(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)",
+            )
+            .unwrap(),
             // Match severity levels
             severity_regex: Regex::new(
-                r"(?i)\b(ERROR|ERR|FATAL|CRITICAL|WARN|WARNING|INFO|DEBUG|TRACE)\b"
-            ).unwrap(),
+                r"(?i)\b(ERROR|ERR|FATAL|CRITICAL|WARN|WARNING|INFO|DEBUG|TRACE)\b",
+            )
+            .unwrap(),
         }
     }
 
@@ -64,7 +72,7 @@ impl LogParser for PlainTextParser {
 
         let timestamp = self.extract_timestamp(line);
         let severity = self.extract_severity(line);
-        
+
         // For plain text, the entire line is the message
         let message = line.to_string();
 
@@ -99,10 +107,10 @@ mod tests {
     fn test_parse_plain_log() {
         let parser = PlainTextParser::new();
         let line = "2025-11-17T10:30:00Z ERROR Connection failed to database";
-        
+
         let result = parser.parse_line(line).unwrap();
         assert!(result.is_some());
-        
+
         let entry = result.unwrap();
         assert_eq!(entry.severity, Severity::Error);
         assert!(entry.timestamp.is_some());

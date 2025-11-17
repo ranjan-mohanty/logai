@@ -73,8 +73,14 @@ impl OutputFormatter for TerminalFormatter {
         ));
 
         if let (Some(first), Some(last)) = (
-            groups.iter().flat_map(|g| g.entries.first()).min_by_key(|e| e.timestamp),
-            groups.iter().flat_map(|g| g.entries.last()).max_by_key(|e| e.timestamp),
+            groups
+                .iter()
+                .flat_map(|g| g.entries.first())
+                .min_by_key(|e| e.timestamp),
+            groups
+                .iter()
+                .flat_map(|g| g.entries.last())
+                .max_by_key(|e| e.timestamp),
         ) {
             if let (Some(first_ts), Some(last_ts)) = (first.timestamp, last.timestamp) {
                 output.push_str(&format!(
@@ -124,7 +130,11 @@ impl OutputFormatter for TerminalFormatter {
                         format!(
                             "{}{}",
                             file,
-                            entry.metadata.line.map(|l| format!(":{}", l)).unwrap_or_default()
+                            entry
+                                .metadata
+                                .line
+                                .map(|l| format!(":{}", l))
+                                .unwrap_or_default()
                         )
                         .cyan()
                     ));
@@ -144,7 +154,11 @@ impl OutputFormatter for TerminalFormatter {
                 if !analysis.suggestions.is_empty() {
                     output.push_str(&format!("\n   {}\n", "💡 Suggested Fixes:".bold()));
                     for (i, suggestion) in analysis.suggestions.iter().enumerate() {
-                        output.push_str(&format!("\n   {}. {}\n", i + 1, suggestion.description.green()));
+                        output.push_str(&format!(
+                            "\n   {}. {}\n",
+                            i + 1,
+                            suggestion.description.green()
+                        ));
                         if let Some(code) = &suggestion.code_example {
                             output.push_str(&format!("      {}\n", code.bright_black()));
                         }
@@ -154,7 +168,11 @@ impl OutputFormatter for TerminalFormatter {
                 if !analysis.related_resources.is_empty() {
                     output.push_str(&format!("\n   {}\n", "📚 Related Resources:".bold()));
                     for resource in &analysis.related_resources {
-                        output.push_str(&format!("   • {} - {}\n", resource.title, resource.url.cyan()));
+                        output.push_str(&format!(
+                            "   • {} - {}\n",
+                            resource.title,
+                            resource.url.cyan()
+                        ));
                     }
                 }
             }

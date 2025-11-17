@@ -8,6 +8,12 @@ pub struct ErrorGrouper {
     normalizer: Regex,
 }
 
+impl Default for ErrorGrouper {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ErrorGrouper {
     pub fn new() -> Self {
         Self {
@@ -34,14 +40,16 @@ impl ErrorGrouper {
 
     /// Normalize a message by replacing dynamic values with placeholders
     fn normalize_message(&self, message: &str) -> String {
-        self.normalizer.replace_all(message, "<DYNAMIC>").to_string()
+        self.normalizer
+            .replace_all(message, "<DYNAMIC>")
+            .to_string()
     }
 
     /// Generate a unique ID for an error pattern
     fn generate_id(pattern: &str) -> String {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
-        
+
         let mut hasher = DefaultHasher::new();
         pattern.hash(&mut hasher);
         format!("err-{:x}", hasher.finish())
@@ -89,7 +97,7 @@ impl ErrorGrouper {
         }
 
         let mut result: Vec<ErrorGroup> = groups.into_values().collect();
-        
+
         // Sort by severity (Error first) then by count (most frequent first)
         result.sort_by(|a, b| {
             let severity_order = |s: &Severity| match s {
@@ -97,7 +105,7 @@ impl ErrorGrouper {
                 Severity::Warning => 1,
                 _ => 2,
             };
-            
+
             severity_order(&a.severity)
                 .cmp(&severity_order(&b.severity))
                 .then_with(|| b.count.cmp(&a.count))
@@ -116,10 +124,10 @@ mod tests {
     #[test]
     fn test_normalize_message() {
         let grouper = ErrorGrouper::new();
-        
+
         let msg1 = "User 12345 not found";
         let msg2 = "User 67890 not found";
-        
+
         assert_eq!(
             grouper.normalize_message(msg1),
             grouper.normalize_message(msg2)
@@ -129,7 +137,7 @@ mod tests {
     #[test]
     fn test_group_similar_errors() {
         let grouper = ErrorGrouper::new();
-        
+
         let entries = vec![
             LogEntry {
                 timestamp: Some(chrono::Utc::now()),

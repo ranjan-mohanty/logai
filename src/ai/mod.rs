@@ -1,16 +1,16 @@
-pub mod provider;
-pub mod openai;
-pub mod ollama;
+pub mod cache;
 pub mod claude;
 pub mod gemini;
-pub mod cache;
+pub mod ollama;
+pub mod openai;
+pub mod provider;
 
-pub use provider::{AIProvider, NoAI};
-pub use openai::OpenAIProvider;
-pub use ollama::OllamaProvider;
+pub use cache::AnalysisCache;
 pub use claude::ClaudeProvider;
 pub use gemini::GeminiProvider;
-pub use cache::AnalysisCache;
+pub use ollama::OllamaProvider;
+pub use openai::OpenAIProvider;
+pub use provider::{AIProvider, NoAI};
 
 use crate::Result;
 use std::sync::Arc;
@@ -42,6 +42,9 @@ pub fn create_provider(
         }
         "ollama" => Ok(Arc::new(OllamaProvider::new(host, model))),
         "none" => Ok(Arc::new(NoAI)),
-        _ => Err(anyhow::anyhow!("Unknown AI provider: {}. Supported: openai, claude, gemini, ollama, none", provider_name)),
+        _ => Err(anyhow::anyhow!(
+            "Unknown AI provider: {}. Supported: openai, claude, gemini, ollama, none",
+            provider_name
+        )),
     }
 }

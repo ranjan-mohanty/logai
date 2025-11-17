@@ -45,8 +45,12 @@ impl OpenAIProvider {
     }
 
     fn build_prompt(&self, group: &ErrorGroup) -> String {
-        let example = group.entries.first().map(|e| &e.message).unwrap_or(&group.pattern);
-        
+        let example = group
+            .entries
+            .first()
+            .map(|e| &e.message)
+            .unwrap_or(&group.pattern);
+
         format!(
             r#"You are a debugging assistant analyzing application errors. Analyze this error and provide actionable insights.
 
@@ -69,10 +73,7 @@ Provide your analysis in the following JSON format:
 }}
 
 Be concise and practical. Focus on actionable fixes."#,
-            group.pattern,
-            group.count,
-            group.severity,
-            example
+            group.pattern, group.count, group.severity, example
         )
     }
 
@@ -102,7 +103,7 @@ Be concise and practical. Focus on actionable fixes."#,
         }
 
         let openai_response: OpenAIResponse = response.json().await?;
-        
+
         openai_response
             .choices
             .first()

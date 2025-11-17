@@ -7,6 +7,12 @@ use std::collections::HashMap;
 
 pub struct JsonParser;
 
+impl Default for JsonParser {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl JsonParser {
     pub fn new() -> Self {
         Self
@@ -131,11 +137,12 @@ mod tests {
     #[test]
     fn test_parse_json_log() {
         let parser = JsonParser::new();
-        let line = r#"{"level":"error","message":"Connection failed","timestamp":"2025-11-17T10:30:00Z"}"#;
-        
+        let line =
+            r#"{"level":"error","message":"Connection failed","timestamp":"2025-11-17T10:30:00Z"}"#;
+
         let result = parser.parse_line(line).unwrap();
         assert!(result.is_some());
-        
+
         let entry = result.unwrap();
         assert_eq!(entry.message, "Connection failed");
         assert_eq!(entry.severity, Severity::Error);

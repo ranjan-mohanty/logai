@@ -1,6 +1,6 @@
+pub mod detector;
 pub mod json;
 pub mod plain;
-pub mod detector;
 
 use crate::types::LogEntry;
 use crate::Result;
@@ -9,7 +9,7 @@ use crate::Result;
 pub trait LogParser: Send + Sync {
     /// Parse a single line of log
     fn parse_line(&self, line: &str) -> Result<Option<LogEntry>>;
-    
+
     /// Parse multiple lines (for multi-line errors like stack traces)
     fn parse_lines(&self, lines: &[String]) -> Result<Vec<LogEntry>> {
         let mut entries = Vec::new();
@@ -20,7 +20,7 @@ pub trait LogParser: Send + Sync {
         }
         Ok(entries)
     }
-    
+
     /// Check if this parser can handle the given content
     fn can_parse(&self, sample: &str) -> bool;
 }

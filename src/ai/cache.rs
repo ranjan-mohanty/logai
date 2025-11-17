@@ -11,10 +11,10 @@ impl AnalysisCache {
     pub fn new() -> Result<Self> {
         let cache_dir = Self::cache_dir()?;
         std::fs::create_dir_all(&cache_dir)?;
-        
+
         let db_path = cache_dir.join("cache.db");
         let conn = Connection::open(db_path)?;
-        
+
         conn.execute(
             "CREATE TABLE IF NOT EXISTS analysis_cache (
                 pattern TEXT PRIMARY KEY,
@@ -42,22 +42,21 @@ impl AnalysisCache {
         let mut stmt = self.conn.prepare(
             "SELECT explanation, root_cause, suggestions 
              FROM analysis_cache 
-             WHERE pattern = ?1 AND provider = ?2 AND model = ?3"
+             WHERE pattern = ?1 AND provider = ?2 AND model = ?3",
         )?;
 
         let result = stmt.query_row(params![pattern, provider, model], |row| {
             let explanation: String = row.get(0)?;
             let root_cause: Option<String> = row.get(1)?;
             let suggestions_json: String = row.get(2)?;
-            
+
             Ok((explanation, root_cause, suggestions_json))
         });
 
         match result {
             Ok((explanation, root_cause, suggestions_json)) => {
-                let suggestions = serde_json::from_str(&suggestions_json)
-                    .unwrap_or_default();
-                
+                let suggestions = serde_json::from_str(&suggestions_json).unwrap_or_default();
+
                 Ok(Some(ErrorAnalysis {
                     explanation,
                     root_cause,
@@ -70,7 +69,13 @@ impl AnalysisCache {
         }
     }
 
-    pub fn set(&self, pattern: &str, provider: &str, model: &str, analysis: &ErrorAnalysis) -> Result<()> {
+    pub fn set(
+        &self,
+        pattern: &str,
+        provider: &str,
+        model: &str,
+        analysis: &ErrorAnalysis,
+    ) -> Result<()> {
         let suggestions_json = serde_json::to_string(&analysis.suggestions)?;
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)?

@@ -34,8 +34,12 @@ impl OllamaProvider {
     }
 
     fn build_prompt(&self, group: &ErrorGroup) -> String {
-        let example = group.entries.first().map(|e| &e.message).unwrap_or(&group.pattern);
-        
+        let example = group
+            .entries
+            .first()
+            .map(|e| &e.message)
+            .unwrap_or(&group.pattern);
+
         format!(
             r#"You are a debugging assistant analyzing application errors. Analyze this error and provide actionable insights.
 
@@ -58,10 +62,7 @@ Provide your analysis in the following JSON format:
 }}
 
 Be concise and practical. Focus on actionable fixes. Return ONLY valid JSON, no markdown formatting."#,
-            group.pattern,
-            group.count,
-            group.severity,
-            example
+            group.pattern, group.count, group.severity, example
         )
     }
 
@@ -73,13 +74,8 @@ Be concise and practical. Focus on actionable fixes. Return ONLY valid JSON, no 
         };
 
         let url = format!("{}/api/generate", self.host);
-        
-        let response = self
-            .client
-            .post(&url)
-            .json(&request)
-            .send()
-            .await?;
+
+        let response = self.client.post(&url).json(&request).send().await?;
 
         if !response.status().is_success() {
             let status = response.status();
