@@ -1,0 +1,4 @@
+2025/11/17 10:30:00 [error] 12345#12345: *67890 connect() failed (111: Connection refused) while connecting to upstream, client: 192.168.1.100, server: example.com, request: "GET /api/users HTTP/1.1", upstream: "http://127.0.0.1:8080/api/users", host: "example.com"
+2025/11/17 10:30:15 [error] 12345#12345: *67891 connect() failed (111: Connection refused) while connecting to upstream, client: 192.168.1.101, server: example.com, request: "GET /api/users HTTP/1.1", upstream: "http://127.0.0.1:8080/api/users", host: "example.com"
+2025/11/17 10:31:00 [warn] 12345#12345: *67892 upstream response time 5.234 exceeded threshold, client: 192.168.1.102, server: example.com
+2025/11/17 10:32:00 [error] 12345#12345: *67893 upstream timed out (110: Connection timed out) while reading response header from upstream, client: 192.168.1.103

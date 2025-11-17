@@ -13,12 +13,20 @@ impl ErrorGrouper {
         Self {
             normalizer: Regex::new(
                 r"(?x)
-                \b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b  # UUIDs
+                # Timestamps (various formats)
+                \d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?  # ISO timestamps
+                |\d{4}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}                             # Nginx-style timestamps
+                # UUIDs and IDs
+                |\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b  # UUIDs
                 |\b\d{5,}\b                                                         # Numbers with 5+ digits (IDs, timestamps)
                 |\b0x[0-9a-fA-F]+\b                                                # Hex numbers
+                # Network
                 |https?://[^\s]+                                                   # URLs
-                |/[\w/.-]+:\d+                                                     # File paths with line numbers
                 |\b\d+\.\d+\.\d+\.\d+\b                                           # IP addresses
+                # Paths and threads
+                |/[\w/.-]+:\d+                                                     # File paths with line numbers
+                |\[[\w-]+-\d+\]                                                    # Thread names like [nio-8080-exec-1]
+                |\bexec-\d+\b                                                      # Thread IDs like exec-1
                 "
             ).unwrap(),
         }

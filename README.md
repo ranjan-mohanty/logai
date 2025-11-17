@@ -200,7 +200,9 @@ cargo run -- investigate tests/fixtures/sample.log
 
 ## Documentation
 
+- [Quick Start](docs/QUICKSTART.md) - Get started in 5 minutes
 - [Usage Guide](docs/USAGE.md) - Comprehensive usage examples
+- [Compatibility](docs/COMPATIBILITY.md) - Supported log formats
 - [Contributing](CONTRIBUTING.md) - How to contribute
 - [Changelog](CHANGELOG.md) - Version history
 
