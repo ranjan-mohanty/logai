@@ -30,19 +30,32 @@ Sherlog is a CLI tool that analyzes application logs, groups similar errors, and
 🚧 HTML reports  
 🚧 Case history and caching  
 
+## Quick Start
+
+👉 **[5-Minute Quick Start Guide](docs/QUICKSTART.md)**
+
 ## Installation
 
-### From source (requires Rust)
+### From crates.io (Recommended)
 
 ```bash
-git clone https://github.com/yourusername/sherlog.git
+cargo install sherlog
+```
+
+### From source
+
+```bash
+git clone https://github.com/ranjan-mohanty/sherlog.git
 cd sherlog
 cargo install --path .
 ```
 
 ### Pre-built binaries
 
-Coming soon!
+Download from [GitHub Releases](https://github.com/ranjan-mohanty/sherlog/releases/latest):
+- macOS (Intel & Apple Silicon)
+- Linux (x86_64 & ARM64)
+- Windows (x86_64)
 
 ## Quick Start
 
