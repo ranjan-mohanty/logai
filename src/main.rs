@@ -22,12 +22,13 @@ async fn main() -> Result<()> {
             model,
             api_key,
             ollama_host,
+            no_cache,
             format,
             output: _,
             limit,
             severity: _,
         } => {
-            investigate_logs(files, ai_provider, model, api_key, ollama_host, format, limit).await?;
+            investigate_logs(files, ai_provider, model, api_key, ollama_host, no_cache, format, limit).await?;
         }
         Commands::Watch { file: _ } => {
             println!("Watch mode coming soon!");
@@ -51,6 +52,7 @@ async fn investigate_logs(
     model: Option<String>,
     api_key: Option<String>,
     ollama_host: Option<String>,
+    no_cache: bool,
     format: String,
     limit: usize,
 ) -> Result<()> {
@@ -83,17 +85,45 @@ async fn investigate_logs(
     if ai_provider != "none" {
         println!("🤖 Analyzing errors with {}...\n", ai_provider);
         
-        let provider = ai::create_provider(&ai_provider, api_key, model, ollama_host)?;
+        let provider = ai::create_provider(&ai_provider, api_key, model.clone(), ollama_host)?;
+        let cache = if !no_cache {
+            ai::AnalysisCache::new().ok()
+        } else {
+            None
+        };
+        
+        let model_name = model.as_deref().unwrap_or("default");
+        let mut cache_hits = 0;
+        let mut cache_misses = 0;
         
         for group in groups.iter_mut() {
+            // Try cache first
+            if let Some(ref cache) = cache {
+                if let Ok(Some(cached)) = cache.get(&group.pattern, &ai_provider, model_name) {
+                    group.analysis = Some(cached);
+                    cache_hits += 1;
+                    continue;
+                }
+            }
+            
+            // Call AI provider
             match provider.analyze(group).await {
                 Ok(analysis) => {
+                    // Cache the result
+                    if let Some(ref cache) = cache {
+                        let _ = cache.set(&group.pattern, &ai_provider, model_name, &analysis);
+                    }
                     group.analysis = Some(analysis);
+                    cache_misses += 1;
                 }
                 Err(e) => {
                     eprintln!("⚠️  Failed to analyze error group {}: {}", group.id, e);
                 }
             }
+        }
+        
+        if cache_hits > 0 {
+            println!("💾 Cache: {} hits, {} misses\n", cache_hits, cache_misses);
         }
     }
 

@@ -14,12 +14,11 @@ Sherlog is a CLI tool that analyzes application logs, groups similar errors, and
 ✅ Deduplicate repeated errors  
 ✅ Beautiful terminal output  
 ✅ Track error frequency and timing  
-✅ AI-powered error explanations (OpenAI, Ollama)  
+✅ AI-powered error explanations (OpenAI, Claude, Gemini, Ollama)  
 ✅ Solution suggestions with code examples  
+✅ Response caching to reduce API costs  
 
-## Coming Soon
-
-🚧 More AI providers (Claude, Gemini)  
+## Coming Soon  
 🚧 Stack Overflow and GitHub search integration  
 🚧 Watch mode for real-time analysis  
 🚧 HTML reports  
@@ -76,11 +75,30 @@ sherlog investigate app.log --ai openai
 sherlog investigate app.log --ai openai --model gpt-4
 ```
 
+Analyze with Claude:
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+sherlog investigate app.log --ai claude
+sherlog investigate app.log --ai claude --model claude-3-5-sonnet-20241022
+```
+
+Analyze with Gemini:
+```bash
+export GEMINI_API_KEY=...
+sherlog investigate app.log --ai gemini
+sherlog investigate app.log --ai gemini --model gemini-1.5-pro
+```
+
 Analyze with Ollama (local, free):
 ```bash
 # Make sure Ollama is running: ollama serve
 sherlog investigate app.log --ai ollama
 sherlog investigate app.log --ai ollama --model llama3.2
+```
+
+Disable caching (force fresh analysis):
+```bash
+sherlog investigate app.log --ai openai --no-cache
 ```
 
 ## Example Output
@@ -134,14 +152,32 @@ Run with sample logs:
 cargo run -- investigate tests/fixtures/sample.log
 ```
 
+## Supported AI Providers
+
+| Provider | Models | Cost | Speed | Setup |
+|----------|--------|------|-------|-------|
+| **OpenAI** | GPT-4, GPT-4o-mini | Paid | Fast | API key required |
+| **Claude** | Claude 3.5 Sonnet/Haiku | Paid | Fast | API key required |
+| **Gemini** | Gemini 1.5 Flash/Pro | Paid | Fast | API key required |
+| **Ollama** | Llama 3.2, Mistral, etc. | Free | Medium | Local install |
+
+## How It Works
+
+1. **Parse** - Automatically detects log format (JSON, plain text)
+2. **Group** - Clusters similar errors by normalizing dynamic values
+3. **Deduplicate** - Shows unique patterns with occurrence counts
+4. **Analyze** - Uses AI to explain errors and suggest fixes (optional)
+4. **Cache** - Stores AI responses locally to reduce costs
+
 ## Roadmap
 
-- [x] Phase 1: Core parsing and grouping (Week 1-2)
-- [ ] Phase 2: AI integration (Week 2-3)
-- [ ] Phase 3: Advanced features (Week 3-4)
-- [ ] Phase 4: Distribution (Week 4)
-
-See [sherlog-spec.md](../sherlog-spec.md) for detailed roadmap.
+- [x] Core parsing and grouping
+- [x] AI integration (OpenAI, Claude, Gemini, Ollama)
+- [x] Response caching
+- [ ] Watch mode for real-time analysis
+- [ ] HTML reports
+- [ ] Stack Overflow integration
+- [ ] Configuration file support
 
 ## Contributing
 

@@ -17,7 +17,7 @@ pub enum Commands {
         #[arg(required = true)]
         files: Vec<String>,
 
-        /// AI provider to use (openai, ollama, none)
+        /// AI provider to use (openai, claude, gemini, ollama, none)
         #[arg(long, default_value = "none")]
         ai: String,
 
@@ -25,13 +25,17 @@ pub enum Commands {
         #[arg(long)]
         model: Option<String>,
 
-        /// API key for AI provider (or set OPENAI_API_KEY env var)
+        /// API key for AI provider (or set OPENAI_API_KEY/ANTHROPIC_API_KEY/GEMINI_API_KEY env var)
         #[arg(long)]
         api_key: Option<String>,
 
         /// Ollama host (default: http://localhost:11434)
         #[arg(long)]
         ollama_host: Option<String>,
+
+        /// Disable response caching
+        #[arg(long)]
+        no_cache: bool,
 
         /// Output format (terminal, json, html)
         #[arg(long, short = 'f', default_value = "terminal")]
