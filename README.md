@@ -1,6 +1,12 @@
 # 🔍 Sherlog
 
+[![CI](https://github.com/ranjan-mohanty/sherlog/workflows/CI/badge.svg)](https://github.com/ranjan-mohanty/sherlog/actions)
+[![Crates.io](https://img.shields.io/crates/v/sherlog.svg)](https://crates.io/crates/sherlog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Elementary, my dear developer** - AI-powered log analyzer that helps you debug faster.
+
+Sherlog parses your application logs, groups similar errors, and uses AI to explain what went wrong and how to fix it.
 
 ## What is Sherlog?
 
@@ -179,14 +185,40 @@ cargo run -- investigate tests/fixtures/sample.log
 - [ ] Stack Overflow integration
 - [ ] Configuration file support
 
+## Documentation
+
+- [Usage Guide](docs/USAGE.md) - Comprehensive usage examples
+- [Contributing](CONTRIBUTING.md) - How to contribute
+- [Changelog](CHANGELOG.md) - Version history
+
 ## Contributing
 
-Contributions welcome! This is an early-stage project.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Roadmap
+
+See [GitHub Issues](https://github.com/ranjan-mohanty/sherlog/issues) for planned features and known issues.
 
 ## License
 
-MIT License - see LICENSE file
+MIT License - see [LICENSE](LICENSE) file
 
 ## Author
 
-Built with ❤️ for the developer community
+Built with ❤️ by [Ranjan Mohanty](https://github.com/ranjan-mohanty)
+
+## Acknowledgments
+
+- Inspired by the need for better log debugging tools
+- Thanks to all AI providers for making this possible
+- Built with Rust 🦀
+
+## Star History
+
+If you find Sherlog useful, please consider giving it a star ⭐
+
+## Support
+
+- 🐛 [Report a bug](https://github.com/ranjan-mohanty/sherlog/issues/new?labels=bug)
+- 💡 [Request a feature](https://github.com/ranjan-mohanty/sherlog/issues/new?labels=enhancement)
+- 💬 [Start a discussion](https://github.com/ranjan-mohanty/sherlog/discussions)
