@@ -80,7 +80,7 @@ jobs:
         shell: bash
         run: |
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            test -f target/${{ matrix.target }}/release/sherlog.exe
+            test -f target/${{ matrix.target }}/release/logai.exe
           else
-            test -f target/${{ matrix.target }}/release/sherlog
+            test -f target/${{ matrix.target }}/release/logai
           fi

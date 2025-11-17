@@ -15,7 +15,7 @@
 Thumbs.db
 
 # Config
-.sherlog/
+.logai/
 
 # Development/Planning (internal docs)
 .dev/

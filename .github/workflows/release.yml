@@ -21,25 +21,25 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: sherlog
-            asset_name: sherlog-linux-x86_64
+            artifact_name: logai
+            asset_name: logai-linux-x86_64
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            artifact_name: sherlog
-            asset_name: sherlog-linux-aarch64
+            artifact_name: logai
+            asset_name: logai-linux-aarch64
             use_cross: true
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: sherlog
-            asset_name: sherlog-macos-x86_64
+            artifact_name: logai
+            asset_name: logai-macos-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: sherlog
-            asset_name: sherlog-macos-aarch64
+            artifact_name: logai
+            asset_name: logai-macos-aarch64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: sherlog.exe
-            asset_name: sherlog-windows-x86_64.exe
+            artifact_name: logai.exe
+            asset_name: logai-windows-x86_64.exe
     steps:
       - uses: actions/checkout@v4
       
@@ -116,7 +116,7 @@ jobs:
     name: Publish to crates.io
     needs: create-release
     runs-on: ubuntu-latest
-    if: github.repository == 'ranjan-mohanty/sherlog'
+    if: github.repository == 'ranjan-mohanty/logai'
     steps:
       - uses: actions/checkout@v4
       

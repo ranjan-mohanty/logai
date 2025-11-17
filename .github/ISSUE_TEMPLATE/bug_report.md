@@ -28,7 +28,7 @@ What actually happened.
 ## Environment
 
 - OS: [e.g., macOS 14.0, Ubuntu 22.04, Windows 11]
-- Sherlog version: [run `sherlog --version`]
+- LogAI version: [run `logai --version`]
 - Rust version: [run `rustc --version`]
 - AI provider (if applicable): [e.g., OpenAI, Ollama]
 
@@ -43,7 +43,7 @@ If possible, provide a minimal log sample that reproduces the issue:
 ## Command Used
 
 ```bash
-sherlog investigate ...
+logai investigate ...
 ```
 
 ## Error Output

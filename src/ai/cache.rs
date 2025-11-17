@@ -35,7 +35,7 @@ impl AnalysisCache {
         let home = std::env::var("HOME")
             .or_else(|_| std::env::var("USERPROFILE"))
             .map_err(|_| anyhow::anyhow!("Could not determine home directory"))?;
-        Ok(PathBuf::from(home).join(".sherlog").join("cache"))
+        Ok(PathBuf::from(home).join(".logai").join("cache"))
     }
 
     pub fn get(&self, pattern: &str, provider: &str, model: &str) -> Result<Option<ErrorAnalysis>> {

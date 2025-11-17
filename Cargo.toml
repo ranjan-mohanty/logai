@@ -1,13 +1,13 @@
 [package]
-name = "sherlog"
+name = "logai"
 version = "0.1.0"
 edition = "2021"
 authors = ["Ranjan Mohanty <ranjan@duck.com>"]
 description = "AI-powered log analyzer that groups errors and suggests fixes - Elementary, my dear developer"
 license = "MIT"
-repository = "https://github.com/ranjan-mohanty/sherlog"
-homepage = "https://github.com/ranjan-mohanty/sherlog"
-documentation = "https://github.com/ranjan-mohanty/sherlog/blob/main/docs/USAGE.md"
+repository = "https://github.com/ranjan-mohanty/logai"
+homepage = "https://github.com/ranjan-mohanty/logai"
+documentation = "https://github.com/ranjan-mohanty/logai/blob/main/docs/USAGE.md"
 readme = "README.md"
 keywords = ["logs", "debugging", "cli", "ai", "analysis"]
 categories = ["command-line-utilities", "development-tools"]

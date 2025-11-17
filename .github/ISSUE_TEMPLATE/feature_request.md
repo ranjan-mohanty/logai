@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for Sherlog
+about: Suggest an idea for LogAI
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''

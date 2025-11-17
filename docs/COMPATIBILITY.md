@@ -1,6 +1,6 @@
-# Sherlog Compatibility Guide
+# LogAI Compatibility Guide
 
-This document outlines which log formats Sherlog supports and any known limitations.
+This document outlines which log formats LogAI supports and any known limitations.
 
 ## ✅ Fully Supported Formats
 
@@ -137,8 +137,8 @@ This document outlines which log formats Sherlog supports and any known limitati
 
 **Workaround:** Decompress first:
 ```bash
-gunzip -c app.log.gz | sherlog investigate -
-zcat app.log.gz | sherlog investigate -
+gunzip -c app.log.gz | logai investigate -
+zcat app.log.gz | logai investigate -
 ```
 
 ### 3. Encrypted Logs
@@ -216,7 +216,7 @@ If your logs aren't grouping correctly:
 
 1. **Check the pattern:**
 ```bash
-sherlog investigate app.log -f json | jq '.[].pattern'
+logai investigate app.log -f json | jq '.[].pattern'
 ```
 
 2. **Look for dynamic values that should be normalized**
@@ -246,7 +246,7 @@ Planned enhancements:
 
 ## Getting Help
 
-If Sherlog doesn't work with your logs:
+If LogAI doesn't work with your logs:
 
 1. Check this compatibility guide
 2. Try with a small sample first

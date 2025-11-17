@@ -1,13 +1,13 @@
 # Development Guide
 
-Complete guide for developing Sherlog.
+Complete guide for developing LogAI.
 
 ## Quick Start
 
 ```bash
 # Clone and setup
-git clone https://github.com/ranjan-mohanty/sherlog.git
-cd sherlog
+git clone https://github.com/ranjan-mohanty/logai.git
+cd logai
 
 # Install Git hooks (maintains code quality)
 make install-hooks
@@ -16,7 +16,7 @@ make install-hooks
 make build
 make test
 
-# Run sherlog
+# Run logai
 make run
 ```
 
@@ -230,9 +230,9 @@ RUST_LOG=debug cargo run -- investigate app.log
 ### Run with Debugger
 
 ```bash
-rust-lldb target/debug/sherlog
+rust-lldb target/debug/logai
 # OR
-rust-gdb target/debug/sherlog
+rust-gdb target/debug/logai
 ```
 
 ## Performance Profiling
@@ -269,7 +269,7 @@ make docs
 /// # Examples
 ///
 /// ```
-/// use sherlog::parser::JsonParser;
+/// use logai::parser::JsonParser;
 /// let parser = JsonParser::new();
 /// ```
 pub fn my_function() {}
@@ -283,7 +283,7 @@ CI runs on every push and PR:
 - ✅ Tests on Linux, macOS, Windows
 - ✅ Build for all platforms
 
-View CI status: [GitHub Actions](https://github.com/ranjan-mohanty/sherlog/actions)
+View CI status: [GitHub Actions](https://github.com/ranjan-mohanty/logai/actions)
 
 ## Release Process
 
@@ -334,6 +334,6 @@ cargo clippy --fix --allow-dirty
 
 ## Getting Help
 
-- Open an [issue](https://github.com/ranjan-mohanty/sherlog/issues)
-- Start a [discussion](https://github.com/ranjan-mohanty/sherlog/discussions)
+- Open an [issue](https://github.com/ranjan-mohanty/logai/issues)
+- Start a [discussion](https://github.com/ranjan-mohanty/logai/discussions)
 - Check [CONTRIBUTING.md](../CONTRIBUTING.md)

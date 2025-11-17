@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pre-commit hook for Sherlog
+# Pre-commit hook for LogAI
 # Install: cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 
 set -e

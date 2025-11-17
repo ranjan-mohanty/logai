@@ -1,11 +1,11 @@
-# Contributing to Sherlog
+# Contributing to LogAI
 
-Thanks for your interest in contributing to Sherlog! This document provides guidelines for contributing.
+Thanks for your interest in contributing to LogAI! This document provides guidelines for contributing.
 
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/sherlog.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/logai.git`
 3. Create a branch: `git checkout -b feature/your-feature-name`
 4. Make your changes
 5. Run tests: `cargo test`
@@ -26,8 +26,8 @@ Thanks for your interest in contributing to Sherlog! This document provides guid
 
 ```bash
 # Clone the repository
-git clone https://github.com/ranjan-mohanty/sherlog.git
-cd sherlog
+git clone https://github.com/ranjan-mohanty/logai.git
+cd logai
 
 # Install Git hooks (recommended)
 make install-hooks

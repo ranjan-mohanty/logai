@@ -1,4 +1,4 @@
-use sherlog::{
+use logai::{
     analyzer::Analyzer,
     parser::detector::FormatDetector,
     types::{LogEntry, Severity},
@@ -208,7 +208,7 @@ fn create_test_entry(message: &str) -> LogEntry {
         timestamp: Some(chrono::Utc::now()),
         severity: Severity::Error,
         message: message.to_string(),
-        metadata: sherlog::types::LogMetadata {
+        metadata: logai::types::LogMetadata {
             file: None,
             line: None,
             function: None,

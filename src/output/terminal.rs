@@ -57,8 +57,8 @@ impl OutputFormatter for TerminalFormatter {
         // Header
         output.push_str(&format!(
             "\n{} {}\n",
-            "🔍".bold(),
-            "Sherlog Investigation Report".bold().bright_cyan()
+            "🤖".bold(),
+            "LogAI Analysis Report".bold().bright_cyan()
         ));
         output.push_str(&"━".repeat(80).bright_black().to_string());
         output.push('\n');

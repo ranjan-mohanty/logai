@@ -1,16 +1,16 @@
-# 🔍 Sherlog
+# 🤖 LogAI
 
-[![CI](https://github.com/ranjan-mohanty/sherlog/workflows/CI/badge.svg)](https://github.com/ranjan-mohanty/sherlog/actions)
-[![Crates.io](https://img.shields.io/crates/v/sherlog.svg)](https://crates.io/crates/sherlog)
+[![CI](https://github.com/ranjan-mohanty/logai/workflows/CI/badge.svg)](https://github.com/ranjan-mohanty/logai/actions)
+[![Crates.io](https://img.shields.io/crates/v/logai.svg)](https://crates.io/crates/logai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Elementary, my dear developer** - AI-powered log analyzer that helps you debug faster.
+**AI-powered log analysis** - Parse, group, and understand your logs with AI.
 
-Sherlog parses your application logs, groups similar errors, and uses AI to explain what went wrong and how to fix it.
+LogAI analyzes your application logs, groups similar errors, and uses AI to explain what went wrong and how to fix it.
 
-## What is Sherlog?
+## What is LogAI?
 
-Sherlog is a CLI tool that analyzes application logs, groups similar errors, and provides intelligent suggestions for fixing issues. Stop manually searching through massive log files and let Sherlog do the detective work.
+LogAI is a CLI tool that analyzes application logs, groups similar errors, and provides intelligent suggestions for fixing issues. Stop manually searching through massive log files and let LogAI do the detective work.
 
 ## Features
 
@@ -39,20 +39,20 @@ Sherlog is a CLI tool that analyzes application logs, groups similar errors, and
 ### From crates.io (Recommended)
 
 ```bash
-cargo install sherlog
+cargo install logai
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/ranjan-mohanty/sherlog.git
-cd sherlog
+git clone https://github.com/ranjan-mohanty/logai.git
+cd logai
 cargo install --path .
 ```
 
 ### Pre-built binaries
 
-Download from [GitHub Releases](https://github.com/ranjan-mohanty/sherlog/releases/latest):
+Download from [GitHub Releases](https://github.com/ranjan-mohanty/logai/releases/latest):
 - macOS (Intel & Apple Silicon)
 - Linux (x86_64 & ARM64)
 - Windows (x86_64)
@@ -61,28 +61,28 @@ Download from [GitHub Releases](https://github.com/ranjan-mohanty/sherlog/releas
 
 Analyze a log file:
 ```bash
-sherlog investigate app.log
+logai investigate app.log
 ```
 
 Analyze multiple files:
 ```bash
-sherlog investigate app.log error.log
+logai investigate app.log error.log
 ```
 
 Pipe logs from stdin:
 ```bash
-tail -f app.log | sherlog investigate -
-cat error.log | sherlog investigate -
+tail -f app.log | logai investigate -
+cat error.log | logai investigate -
 ```
 
 Limit output:
 ```bash
-sherlog investigate app.log --limit 10
+logai investigate app.log --limit 10
 ```
 
 JSON output:
 ```bash
-sherlog investigate app.log --format json
+logai investigate app.log --format json
 ```
 
 ## AI-Powered Analysis
@@ -90,40 +90,40 @@ sherlog investigate app.log --format json
 Analyze with OpenAI:
 ```bash
 export OPENAI_API_KEY=sk-...
-sherlog investigate app.log --ai openai
-sherlog investigate app.log --ai openai --model gpt-4
+logai investigate app.log --ai openai
+logai investigate app.log --ai openai --model gpt-4
 ```
 
 Analyze with Claude:
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-sherlog investigate app.log --ai claude
-sherlog investigate app.log --ai claude --model claude-3-5-sonnet-20241022
+logai investigate app.log --ai claude
+logai investigate app.log --ai claude --model claude-3-5-sonnet-20241022
 ```
 
 Analyze with Gemini:
 ```bash
 export GEMINI_API_KEY=...
-sherlog investigate app.log --ai gemini
-sherlog investigate app.log --ai gemini --model gemini-1.5-pro
+logai investigate app.log --ai gemini
+logai investigate app.log --ai gemini --model gemini-1.5-pro
 ```
 
 Analyze with Ollama (local, free):
 ```bash
 # Make sure Ollama is running: ollama serve
-sherlog investigate app.log --ai ollama
-sherlog investigate app.log --ai ollama --model llama3.2
+logai investigate app.log --ai ollama
+logai investigate app.log --ai ollama --model llama3.2
 ```
 
 Disable caching (force fresh analysis):
 ```bash
-sherlog investigate app.log --ai openai --no-cache
+logai investigate app.log --ai openai --no-cache
 ```
 
 ## Example Output
 
 ```
-🔍 Sherlog Investigation Report
+🤖 LogAI Analysis Report
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📊 Summary
@@ -212,7 +212,7 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for gu
 
 ## Roadmap
 
-See [GitHub Issues](https://github.com/ranjan-mohanty/sherlog/issues) for planned features and known issues.
+See [GitHub Issues](https://github.com/ranjan-mohanty/logai/issues) for planned features and known issues.
 
 ## License
 
@@ -230,10 +230,10 @@ Built with ❤️ by [Ranjan Mohanty](https://github.com/ranjan-mohanty)
 
 ## Star History
 
-If you find Sherlog useful, please consider giving it a star ⭐
+If you find LogAI useful, please consider giving it a star ⭐
 
 ## Support
 
-- 🐛 [Report a bug](https://github.com/ranjan-mohanty/sherlog/issues/new?labels=bug)
-- 💡 [Request a feature](https://github.com/ranjan-mohanty/sherlog/issues/new?labels=enhancement)
-- 💬 [Start a discussion](https://github.com/ranjan-mohanty/sherlog/discussions)
+- 🐛 [Report a bug](https://github.com/ranjan-mohanty/logai/issues/new?labels=bug)
+- 💡 [Request a feature](https://github.com/ranjan-mohanty/logai/issues/new?labels=enhancement)
+- 💬 [Start a discussion](https://github.com/ranjan-mohanty/logai/discussions)

@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "sherlog")]
-#[command(about = "AI-powered log analyzer - Elementary, my dear developer", long_about = None)]
+#[command(name = "logai")]
+#[command(about = "AI-powered log analysis - Parse, group, and understand your logs", long_about = None)]
 #[command(version = env!("CARGO_PKG_VERSION"))]
 #[command(author = env!("CARGO_PKG_AUTHORS"))]
 pub struct Cli {

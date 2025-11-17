@@ -2,7 +2,7 @@
 
 # Default target
 help:
-	@echo "Sherlog Development Commands"
+	@echo "LogAI Development Commands"
 	@echo ""
 	@echo "Setup:"
 	@echo "  make install        Install dependencies"
@@ -14,7 +14,7 @@ help:
 	@echo "  make fmt            Format code"
 	@echo "  make lint           Run clippy"
 	@echo "  make check          Run all checks (fmt, lint, test)"
-	@echo "  make run            Run sherlog with sample logs"
+	@echo "  make run            Run logai with sample logs"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean          Clean build artifacts"
@@ -58,9 +58,9 @@ clean:
 	@echo "🧹 Cleaning..."
 	cargo clean
 
-# Run sherlog with sample logs
+# Run logai with sample logs
 run:
-	@echo "🔍 Running sherlog..."
+	@echo "🔍 Running logai..."
 	cargo run -- investigate tests/fixtures/sample.log
 
 # Run with AI (requires OPENAI_API_KEY)

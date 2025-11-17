@@ -1,5 +1,5 @@
 use clap::Parser;
-use sherlog::{
+use logai::{
     ai,
     analyzer::Analyzer,
     cli::{Cli, Commands, ConfigAction},
