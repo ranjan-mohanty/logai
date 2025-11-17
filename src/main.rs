@@ -1,5 +1,6 @@
 use clap::Parser;
 use sherlog::{
+    ai,
     analyzer::Analyzer,
     cli::{Cli, Commands, ConfigAction},
     output::{terminal::TerminalFormatter, OutputFormatter},
@@ -10,31 +11,33 @@ use sherlog::{
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
         Commands::Investigate {
             files,
-            ai: _,
-            model: _,
-            no_ai: _,
+            ai: ai_provider,
+            model,
+            api_key,
+            ollama_host,
             format,
             output: _,
             limit,
             severity: _,
         } => {
-            investigate_logs(files, format, limit)?;
+            investigate_logs(files, ai_provider, model, api_key, ollama_host, format, limit).await?;
         }
         Commands::Watch { file: _ } => {
-            println!("Watch mode coming in Phase 2!");
+            println!("Watch mode coming soon!");
         }
         Commands::Config { action } => match action {
             ConfigAction::Set { key: _, value: _ } => {
-                println!("Config management coming in Phase 2!");
+                println!("Config management coming soon!");
             }
             ConfigAction::Show => {
-                println!("Config management coming in Phase 2!");
+                println!("Config management coming soon!");
             }
         },
     }
@@ -42,15 +45,21 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn investigate_logs(files: Vec<String>, format: String, limit: usize) -> Result<()> {
+async fn investigate_logs(
+    files: Vec<String>,
+    ai_provider: String,
+    model: Option<String>,
+    api_key: Option<String>,
+    ollama_host: Option<String>,
+    format: String,
+    limit: usize,
+) -> Result<()> {
     let mut all_entries = Vec::new();
 
     for file_path in files {
         let entries = if file_path == "-" {
-            // Read from stdin
             read_logs_from_stdin()?
         } else {
-            // Read from file
             read_logs_from_file(&file_path)?
         };
         all_entries.extend(entries);
@@ -63,11 +72,29 @@ fn investigate_logs(files: Vec<String>, format: String, limit: usize) -> Result<
 
     // Analyze logs
     let analyzer = Analyzer::new();
-    let groups = analyzer.analyze(all_entries)?;
+    let mut groups = analyzer.analyze(all_entries)?;
 
     if groups.is_empty() {
         println!("No errors or warnings found in logs.");
         return Ok(());
+    }
+
+    // AI analysis if enabled
+    if ai_provider != "none" {
+        println!("🤖 Analyzing errors with {}...\n", ai_provider);
+        
+        let provider = ai::create_provider(&ai_provider, api_key, model, ollama_host)?;
+        
+        for group in groups.iter_mut() {
+            match provider.analyze(group).await {
+                Ok(analysis) => {
+                    group.analysis = Some(analysis);
+                }
+                Err(e) => {
+                    eprintln!("⚠️  Failed to analyze error group {}: {}", group.id, e);
+                }
+            }
+        }
     }
 
     // Format output
@@ -82,7 +109,7 @@ fn investigate_logs(files: Vec<String>, format: String, limit: usize) -> Result<
             println!("{}", json);
         }
         "html" => {
-            println!("HTML output coming in Phase 3!");
+            println!("HTML output coming soon!");
         }
         _ => {
             eprintln!("Unknown format: {}", format);

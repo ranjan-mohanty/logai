@@ -133,16 +133,28 @@ impl OutputFormatter for TerminalFormatter {
 
             // AI analysis (if available)
             if let Some(analysis) = &group.analysis {
-                output.push_str(&format!("\n   {}\n", "🎯 Analysis:".bold()));
-                output.push_str(&format!("   {}\n", analysis.explanation));
+                output.push_str(&format!("\n   {}\n", "🎯 Explanation:".bold()));
+                output.push_str(&format!("   {}\n", analysis.explanation.bright_white()));
+
+                if let Some(root_cause) = &analysis.root_cause {
+                    output.push_str(&format!("\n   {}\n", "🔍 Root Cause:".bold()));
+                    output.push_str(&format!("   {}\n", root_cause.yellow()));
+                }
 
                 if !analysis.suggestions.is_empty() {
                     output.push_str(&format!("\n   {}\n", "💡 Suggested Fixes:".bold()));
                     for (i, suggestion) in analysis.suggestions.iter().enumerate() {
-                        output.push_str(&format!("   {}. {}\n", i + 1, suggestion.description));
+                        output.push_str(&format!("\n   {}. {}\n", i + 1, suggestion.description.green()));
                         if let Some(code) = &suggestion.code_example {
-                            output.push_str(&format!("      ```\n      {}\n      ```\n", code));
+                            output.push_str(&format!("      {}\n", code.bright_black()));
                         }
+                    }
+                }
+
+                if !analysis.related_resources.is_empty() {
+                    output.push_str(&format!("\n   {}\n", "📚 Related Resources:".bold()));
+                    for resource in &analysis.related_resources {
+                        output.push_str(&format!("   • {} - {}\n", resource.title, resource.url.cyan()));
                     }
                 }
             }

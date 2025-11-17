@@ -6,7 +6,7 @@
 
 Sherlog is a CLI tool that analyzes application logs, groups similar errors, and provides intelligent suggestions for fixing issues. Stop manually searching through massive log files and let Sherlog do the detective work.
 
-## Features (MVP - Phase 1)
+## Features
 
 ✅ Parse JSON and plain text logs  
 ✅ Auto-detect log format  
@@ -14,15 +14,16 @@ Sherlog is a CLI tool that analyzes application logs, groups similar errors, and
 ✅ Deduplicate repeated errors  
 ✅ Beautiful terminal output  
 ✅ Track error frequency and timing  
+✅ AI-powered error explanations (OpenAI, Ollama)  
+✅ Solution suggestions with code examples  
 
 ## Coming Soon
 
-🚧 AI-powered error explanations (OpenAI, Claude, Ollama, Gemini)  
-🚧 Solution suggestions with code examples  
+🚧 More AI providers (Claude, Gemini)  
 🚧 Stack Overflow and GitHub search integration  
 🚧 Watch mode for real-time analysis  
 🚧 HTML reports  
-🚧 Case history  
+🚧 Case history and caching  
 
 ## Installation
 
@@ -64,6 +65,22 @@ sherlog investigate app.log --limit 10
 JSON output:
 ```bash
 sherlog investigate app.log --format json
+```
+
+## AI-Powered Analysis
+
+Analyze with OpenAI:
+```bash
+export OPENAI_API_KEY=sk-...
+sherlog investigate app.log --ai openai
+sherlog investigate app.log --ai openai --model gpt-4
+```
+
+Analyze with Ollama (local, free):
+```bash
+# Make sure Ollama is running: ollama serve
+sherlog investigate app.log --ai ollama
+sherlog investigate app.log --ai ollama --model llama3.2
 ```
 
 ## Example Output
