@@ -150,11 +150,17 @@ async fn investigate_logs(
 }
 
 fn read_logs_from_file(path: &str) -> Result<Vec<LogEntry>> {
-    let file = File::open(path)?;
+    let file = File::open(path).map_err(|e| {
+        anyhow::anyhow!("Failed to open file '{}': {}", path, e)
+    })?;
+    
     let reader = BufReader::new(file);
-    let lines: Vec<String> = reader.lines().collect::<std::io::Result<_>>()?;
+    let lines: Vec<String> = reader.lines().collect::<std::io::Result<_>>().map_err(|e| {
+        anyhow::anyhow!("Failed to read file '{}': {}", path, e)
+    })?;
 
     if lines.is_empty() {
+        eprintln!("⚠️  Warning: File '{}' is empty", path);
         return Ok(Vec::new());
     }
 
@@ -163,10 +169,18 @@ fn read_logs_from_file(path: &str) -> Result<Vec<LogEntry>> {
 
     // Parse all lines
     let mut entries = Vec::new();
+    let mut parse_errors = 0;
+    
     for line in lines {
-        if let Some(entry) = parser.parse_line(&line)? {
-            entries.push(entry);
+        match parser.parse_line(&line) {
+            Ok(Some(entry)) => entries.push(entry),
+            Ok(None) => {}, // Empty line or filtered out
+            Err(_) => parse_errors += 1,
         }
+    }
+    
+    if parse_errors > 0 {
+        eprintln!("⚠️  Warning: Failed to parse {} lines in '{}'", parse_errors, path);
     }
 
     Ok(entries)
