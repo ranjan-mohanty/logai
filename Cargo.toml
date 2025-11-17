@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Ranjan Mohanty <ranjan@duck.com>"]
 description = "AI-powered log analyzer - Elementary, my dear developer"
 license = "MIT"
-repository = "https://github.com/imranjan/sherlog"
+repository = "https://github.com/ranjan-mohanty/sherlog"
 keywords = ["logs", "debugging", "cli", "ai", "analysis"]
 categories = ["command-line-utilities", "development-tools"]
 
