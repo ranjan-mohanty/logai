@@ -2,7 +2,6 @@
 /target/
 **/*.rs.bk
 *.pdb
-Cargo.lock
 
 # IDE
 .vscode/
@@ -17,3 +16,6 @@ Thumbs.db
 
 # Config
 .sherlog/
+
+# Development/Planning (internal docs)
+.dev/
