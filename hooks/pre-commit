@@ -1,0 +1,36 @@
+#!/bin/sh
+# Pre-commit hook for Sherlog
+# Install: cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Check if cargo is available
+if ! command -v cargo &> /dev/null; then
+    echo "❌ cargo not found. Please install Rust."
+    exit 1
+fi
+
+# Format check
+echo "📝 Checking code formatting..."
+if ! cargo fmt --all -- --check; then
+    echo "❌ Code formatting issues found. Run 'cargo fmt --all' to fix."
+    exit 1
+fi
+
+# Clippy check
+echo "🔧 Running clippy..."
+if ! cargo clippy --all-targets --all-features -- -D warnings; then
+    echo "❌ Clippy found issues. Please fix them."
+    exit 1
+fi
+
+# Run tests
+echo "🧪 Running tests..."
+if ! cargo test --all-features; then
+    echo "❌ Tests failed. Please fix them."
+    exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"

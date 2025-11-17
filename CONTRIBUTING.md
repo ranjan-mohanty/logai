@@ -20,23 +20,65 @@ Thanks for your interest in contributing to Sherlog! This document provides guid
 
 - Rust 1.70 or later
 - Cargo
+- (Optional) Python 3.7+ for pre-commit framework
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/ranjan-mohanty/sherlog.git
+cd sherlog
+
+# Install Git hooks (recommended)
+make install-hooks
+# OR using pre-commit framework
+pip install pre-commit
+pre-commit install
+
+# Build the project
+make build
+
+# Run tests
+make test
+```
 
 ### Building
 
 ```bash
 cargo build
+# OR
+make build
 ```
 
 ### Running Tests
 
 ```bash
 cargo test
+# OR
+make test
 ```
 
 ### Running Locally
 
 ```bash
 cargo run -- investigate tests/fixtures/sample.log
+# OR
+make run
+```
+
+### Code Quality
+
+Before committing, ensure your code passes all checks:
+
+```bash
+make check  # Runs fmt, lint, and test
+```
+
+Or run individually:
+```bash
+make fmt    # Format code
+make lint   # Run clippy
+make test   # Run tests
 ```
 
 ## Code Style

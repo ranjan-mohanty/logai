@@ -1,0 +1,35 @@
+#!/bin/sh
+# Commit message hook for Sherlog
+# Install: cp hooks/commit-msg .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# Conventional commit types
+types="feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert"
+
+# Check if commit message follows conventional commits format
+if ! echo "$commit_msg" | grep -qE "^($types)(\(.+\))?: .{1,}$"; then
+    echo "❌ Invalid commit message format!"
+    echo ""
+    echo "Commit message must follow Conventional Commits format:"
+    echo "  type(optional-scope): subject"
+    echo ""
+    echo "Types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert"
+    echo ""
+    echo "Examples:"
+    echo "  feat: add new feature"
+    echo "  fix(parser): handle edge case"
+    echo "  docs: update README"
+    echo ""
+    exit 1
+fi
+
+# Check subject line length (max 72 characters for first line)
+first_line=$(echo "$commit_msg" | head -n 1)
+if [ ${#first_line} -gt 72 ]; then
+    echo "⚠️  Warning: Subject line is longer than 72 characters (${#first_line})"
+    echo "Consider shortening it for better readability."
+fi
+
+echo "✅ Commit message format is valid"
