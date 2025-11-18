@@ -129,3 +129,42 @@ jobs:
       - name: Publish to crates.io
         run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
         continue-on-error: true
+
+  update-homebrew:
+    name: Update Homebrew Formula
+    needs: create-release
+    runs-on: ubuntu-latest
+    if: github.repository == 'ranjan-mohanty/logai'
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v6
+        with:
+          path: artifacts
+      
+      - name: Calculate SHA256 checksums
+        id: checksums
+        run: |
+          echo "macos_aarch64=$(sha256sum artifacts/logai-macos-aarch64/logai-macos-aarch64.tar.gz | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "macos_x86_64=$(sha256sum artifacts/logai-macos-x86_64/logai-macos-x86_64.tar.gz | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "linux_aarch64=$(sha256sum artifacts/logai-linux-aarch64/logai-linux-aarch64.tar.gz | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "linux_x86_64=$(sha256sum artifacts/logai-linux-x86_64/logai-linux-x86_64.tar.gz | awk '{print $1}')" >> $GITHUB_OUTPUT
+      
+      - name: Update Homebrew formula
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -i "s/version \".*\"/version \"$VERSION\"/" scripts/homebrew/logai.rb
+          sed -i "s|download/v[0-9.]\+/|download/v$VERSION/|g" scripts/homebrew/logai.rb
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.macos_aarch64 }}\"/" scripts/homebrew/logai.rb
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.macos_x86_64 }}\"/" scripts/homebrew/logai.rb
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.linux_aarch64 }}\"/" scripts/homebrew/logai.rb
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.linux_x86_64 }}\"/" scripts/homebrew/logai.rb
+      
+      - name: Commit and push formula
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/homebrew/logai.rb
+          git commit -m "chore: Update Homebrew formula to ${GITHUB_REF#refs/tags/v}" || exit 0
+          git push origin HEAD:main
