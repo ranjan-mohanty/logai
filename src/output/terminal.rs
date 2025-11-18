@@ -175,6 +175,24 @@ impl OutputFormatter for TerminalFormatter {
                         ));
                     }
                 }
+
+                // MCP Tool Invocations
+                if !analysis.tool_invocations.is_empty() {
+                    output.push_str(&format!("\n   {}\n", "🔧 MCP Tools Used:".bold()));
+                    for invocation in &analysis.tool_invocations {
+                        let status_icon = if invocation.status == "success" {
+                            "✓".green()
+                        } else {
+                            "✗".red()
+                        };
+                        output.push_str(&format!(
+                            "   {} {} ({}ms)\n",
+                            status_icon,
+                            invocation.tool.cyan(),
+                            invocation.duration_ms.to_string().bright_black()
+                        ));
+                    }
+                }
             }
         }
 
