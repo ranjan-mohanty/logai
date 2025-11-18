@@ -24,8 +24,11 @@ through massive log files and let LogAI do the detective work.
 ✅ Beautiful terminal output  
 ✅ Track error frequency and timing  
 ✅ AI-powered error explanations (OpenAI, Claude, Gemini, Ollama)  
+✅ **Parallel AI analysis** - Process multiple errors concurrently (5x faster)  
+✅ **Automatic retry** - Exponential backoff for transient failures  
 ✅ Solution suggestions with code examples  
 ✅ Response caching to reduce API costs  
+✅ **Configuration file** - Customize analysis behavior  
 ✅ **MCP (Model Context Protocol) integration** - Connect external tools and
 data sources
 
@@ -148,6 +151,90 @@ Disable caching (force fresh analysis):
 logai investigate app.log --ai openai --no-cache
 ```
 
+### Parallel Analysis
+
+LogAI processes error groups in parallel for faster analysis. Control
+concurrency:
+
+```bash
+# Default: 5 concurrent requests
+logai investigate app.log --ai ollama
+
+# High concurrency (faster, more resources)
+logai investigate app.log --ai ollama --concurrency 15
+
+# Low concurrency (slower, less resources)
+logai investigate app.log --ai ollama --concurrency 2
+
+# Sequential processing
+logai investigate app.log --ai ollama --concurrency 1
+```
+
+**Performance comparison** (100 error groups):
+
+- Sequential (concurrency=1): ~25 minutes
+- Default (concurrency=5): ~5 minutes
+- High (concurrency=15): ~2 minutes
+
+### Configuration File
+
+Create `~/.logai/config.toml` to set defaults:
+
+```toml
+# Default AI provider
+default_provider = "ollama"
+
+# Analysis settings
+[analysis]
+max_concurrency = 5        # Concurrent AI requests (1-20)
+enable_retry = true        # Retry failed requests
+max_retries = 3            # Maximum retry attempts
+initial_backoff_ms = 1000  # Initial retry delay
+max_backoff_ms = 30000     # Maximum retry delay
+enable_cache = true        # Cache AI responses
+truncate_length = 2000     # Max message length
+
+# Provider configurations
+[providers.ollama]
+enabled = true
+model = "llama3.2"
+host = "http://localhost:11434"
+
+[providers.openai]
+enabled = false
+# api_key = "sk-..."  # Or use OPENAI_API_KEY env var
+# model = "gpt-4"
+```
+
+**Configuration examples:**
+
+High-performance (self-hosted Ollama):
+
+```toml
+[analysis]
+max_concurrency = 15
+max_retries = 2
+initial_backoff_ms = 500
+```
+
+Conservative (API rate limits):
+
+```toml
+[analysis]
+max_concurrency = 2
+max_retries = 5
+initial_backoff_ms = 2000
+max_backoff_ms = 60000
+```
+
+Fast-fail (development):
+
+```toml
+[analysis]
+max_concurrency = 10
+enable_retry = false
+```
+
 ## MCP Integration (Advanced)
 
 LogAI supports [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
@@ -253,6 +340,9 @@ cargo run -- investigate tests/fixtures/sample.log
 2. **Group** - Clusters similar errors by normalizing dynamic values
 3. **Deduplicate** - Shows unique patterns with occurrence counts
 4. **Analyze** - Uses AI to explain errors and suggest fixes (optional)
+   - Processes multiple error groups in parallel (configurable concurrency)
+   - Automatic retry with exponential backoff for transient failures
+   - Real-time progress tracking with throughput and ETA
 5. **Cache** - Stores AI responses locally to reduce costs
 
 ## Roadmap
