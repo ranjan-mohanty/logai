@@ -1,4 +1,5 @@
-use crate::ai::prompts::build_analysis_prompt;
+use crate::ai::json_extractor::EnhancedJsonExtractor;
+use crate::ai::prompts::build_enhanced_analysis_prompt;
 use crate::ai::provider::AIProvider;
 use crate::types::{ErrorAnalysis, ErrorGroup, Suggestion};
 use crate::Result;
@@ -18,6 +19,8 @@ struct OllamaRequest {
     model: String,
     prompt: String,
     stream: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    format: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -39,6 +42,7 @@ impl OllamaProvider {
             model: self.model.clone(),
             prompt,
             stream: false,
+            format: Some("json".to_string()),
         };
 
         let url = format!("{}/api/generate", self.host);
@@ -64,7 +68,7 @@ impl OllamaProvider {
             .map_err(|e| anyhow!("Failed to parse Ollama API response: {}", e))?;
 
         if ollama_response.response.trim().is_empty() {
-            return Err(anyhow!("Ollama returned an empty response"));
+            return Err(anyhow!("Ollama returned an empty response for error group"));
         }
 
         Ok(ollama_response.response)
@@ -76,38 +80,17 @@ impl OllamaProvider {
             return Err(anyhow!("Empty response from Ollama"));
         }
 
-        // Try to extract JSON from markdown code blocks or find JSON object
-        let json_str = if response.contains("```json") {
-            response
-                .split("```json")
-                .nth(1)
-                .and_then(|s| s.split("```").next())
-                .unwrap_or(response)
-                .trim()
-        } else if response.contains("```") {
-            response
-                .split("```")
-                .nth(1)
-                .and_then(|s| s.split("```").next())
-                .unwrap_or(response)
-                .trim()
-        } else if let Some(start) = response.find('{') {
-            // Find the JSON object by looking for the first { and last }
-            if let Some(end) = response.rfind('}') {
-                if end > start {
-                    &response[start..=end]
-                } else {
-                    response.trim()
-                }
-            } else {
-                response.trim()
-            }
-        } else {
-            response.trim()
-        };
+        // Use enhanced JSON extractor
+        let json_str = EnhancedJsonExtractor::extract(response).map_err(|e| {
+            anyhow!(
+                "Failed to extract JSON from response: {}. First 200 chars: {}",
+                e,
+                &response[..response.len().min(200)]
+            )
+        })?;
 
         // Log the JSON string for debugging
-        log::debug!("Attempting to parse JSON: {}", json_str);
+        log::debug!("Extracted JSON: {}", &json_str[..json_str.len().min(200)]);
 
         #[derive(Deserialize)]
         struct ApiResponse {
@@ -123,62 +106,37 @@ impl OllamaProvider {
             priority: u8,
         }
 
-        // Try to parse the JSON
-        match serde_json::from_str::<ApiResponse>(json_str) {
-            Ok(parsed) => Ok(ErrorAnalysis {
-                explanation: parsed.explanation,
-                root_cause: parsed.root_cause,
-                suggestions: parsed
-                    .suggestions
-                    .into_iter()
-                    .map(|s| Suggestion {
-                        description: s.description,
-                        code_example: s.code_example,
-                        priority: s.priority,
-                    })
-                    .collect(),
-                related_resources: vec![],
-                tool_invocations: vec![],
-            }),
-            Err(e) => {
-                // If JSON parsing fails, try to extract partial information
-                log::warn!(
-                    "Failed to parse complete JSON, attempting partial extraction: {}",
-                    e
-                );
+        // Parse the JSON
+        let parsed: ApiResponse = serde_json::from_str(&json_str).map_err(|e| {
+            anyhow!(
+                "Failed to parse JSON: {}. First 200 chars: {}",
+                e,
+                &json_str[..json_str.len().min(200)]
+            )
+        })?;
 
-                // Try to extract explanation at least
-                let explanation = if let Some(exp_start) = json_str.find("\"explanation\"") {
-                    json_str[exp_start..]
-                        .split("\"explanation\"")
-                        .nth(1)
-                        .and_then(|s| s.split(':').nth(1))
-                        .and_then(|s| s.split('"').nth(1))
-                        .map(|s| s.to_string())
-                        .unwrap_or_else(|| {
-                            "Unable to parse error analysis from AI response".to_string()
-                        })
-                } else {
-                    "Unable to parse error analysis from AI response".to_string()
-                };
-
-                // Return a basic analysis with whatever we could extract
-                Ok(ErrorAnalysis {
-                    explanation,
-                    root_cause: None,
-                    suggestions: vec![],
-                    related_resources: vec![],
-                    tool_invocations: vec![],
+        Ok(ErrorAnalysis {
+            explanation: parsed.explanation,
+            root_cause: parsed.root_cause,
+            suggestions: parsed
+                .suggestions
+                .into_iter()
+                .map(|s| Suggestion {
+                    description: s.description,
+                    code_example: s.code_example,
+                    priority: s.priority,
                 })
-            }
-        }
+                .collect(),
+            related_resources: vec![],
+            tool_invocations: vec![],
+        })
     }
 }
 
 #[async_trait]
 impl AIProvider for OllamaProvider {
     async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis> {
-        let prompt = build_analysis_prompt(group);
+        let prompt = build_enhanced_analysis_prompt(group, 2000);
         let response = self.call_api(prompt).await?;
         self.parse_response(&response)
     }
@@ -194,7 +152,7 @@ impl AIProvider for OllamaProvider {
         };
 
         // Build base prompt
-        let base_prompt = build_analysis_prompt(group);
+        let base_prompt = build_enhanced_analysis_prompt(group, 2000);
 
         // Invoke relevant MCP tools and collect results
         let tool_results = crate::ai::mcp_helper::invoke_relevant_tools(client, group).await;
