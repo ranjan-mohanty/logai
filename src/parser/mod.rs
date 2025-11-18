@@ -1,9 +1,14 @@
+pub mod config;
 pub mod detector;
 pub mod json;
 pub mod plain;
+pub mod statistics;
 
 use crate::types::LogEntry;
 use crate::Result;
+
+pub use config::ParserConfig;
+pub use statistics::ParsingStatistics;
 
 /// Trait for log parsers
 pub trait LogParser: Send + Sync {
@@ -23,4 +28,14 @@ pub trait LogParser: Send + Sync {
 
     /// Check if this parser can handle the given content
     fn can_parse(&self, sample: &str) -> bool;
+
+    /// Check if this parser supports multi-line log entries
+    fn supports_multiline(&self) -> bool {
+        false
+    }
+
+    /// Check if a line is a continuation of a previous entry (e.g., stack trace line)
+    fn is_continuation_line(&self, _line: &str) -> bool {
+        false
+    }
 }
