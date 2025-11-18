@@ -40,21 +40,26 @@ through massive log files and let LogAI do the detective work.
 
 ## Installation
 
-### From crates.io (Recommended)
+### Quick Install (macOS/Linux)
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ranjan-mohanty/logai/main/install.sh | bash
+```
+
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap ranjan-mohanty/logai
+brew install logai
+```
+
+### Cargo (All platforms)
 
 ```bash
 cargo install logai
 ```
 
-### From source
-
-```bash
-git clone https://github.com/ranjan-mohanty/logai.git
-cd logai
-cargo install --path .
-```
-
-### Pre-built binaries
+### Pre-built Binaries
 
 Download from
 [GitHub Releases](https://github.com/ranjan-mohanty/logai/releases/latest):
@@ -62,6 +67,14 @@ Download from
 - macOS (Intel & Apple Silicon)
 - Linux (x86_64 & ARM64)
 - Windows (x86_64)
+
+### From Source
+
+```bash
+git clone https://github.com/ranjan-mohanty/logai.git
+cd logai
+cargo install --path .
+```
 
 ## Usage
 
