@@ -1,6 +1,6 @@
-# Sherlog Usage Guide
+# LogAI Usage Guide
 
-Complete guide to using Sherlog for log analysis.
+Complete guide to using LogAI for log analysis.
 
 ## Table of Contents
 
@@ -16,28 +16,28 @@ Complete guide to using Sherlog for log analysis.
 ### Analyze a Single File
 
 ```bash
-sherlog investigate app.log
+logai investigate app.log
 ```
 
 ### Analyze Multiple Files
 
 ```bash
-sherlog investigate app.log error.log debug.log
+logai investigate app.log error.log debug.log
 ```
 
 ### Analyze from stdin
 
 ```bash
-tail -f app.log | sherlog investigate -
-cat error.log | sherlog investigate -
-kubectl logs pod-name | sherlog investigate -
-docker logs container-id | sherlog investigate -
+tail -f app.log | logai investigate -
+cat error.log | logai investigate -
+kubectl logs pod-name | logai investigate -
+docker logs container-id | logai investigate -
 ```
 
 ### Limit Output
 
 ```bash
-sherlog investigate app.log --limit 5
+logai investigate app.log --limit 5
 ```
 
 ## AI Providers
@@ -54,13 +54,13 @@ export OPENAI_API_KEY=sk-...
 
 ```bash
 # Default model (gpt-4o-mini)
-sherlog investigate app.log --ai openai
+logai investigate app.log --ai openai
 
 # Specific model
-sherlog investigate app.log --ai openai --model gpt-4
+logai investigate app.log --ai openai --model gpt-4
 
 # One-time API key
-sherlog investigate app.log --ai openai --api-key sk-...
+logai investigate app.log --ai openai --api-key sk-...
 ```
 
 **Models:**
@@ -81,10 +81,10 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 ```bash
 # Default model (claude-3-5-haiku)
-sherlog investigate app.log --ai claude
+logai investigate app.log --ai claude
 
 # Specific model
-sherlog investigate app.log --ai claude --model claude-3-5-sonnet-20241022
+logai investigate app.log --ai claude --model claude-3-5-sonnet-20241022
 ```
 
 **Models:**
@@ -105,10 +105,10 @@ export GEMINI_API_KEY=...
 
 ```bash
 # Default model (gemini-1.5-flash)
-sherlog investigate app.log --ai gemini
+logai investigate app.log --ai gemini
 
 # Specific model
-sherlog investigate app.log --ai gemini --model gemini-1.5-pro
+logai investigate app.log --ai gemini --model gemini-1.5-pro
 ```
 
 **Models:**
@@ -130,13 +130,13 @@ ollama serve
 
 ```bash
 # Default model (llama3.2)
-sherlog investigate app.log --ai ollama
+logai investigate app.log --ai ollama
 
 # Specific model
-sherlog investigate app.log --ai ollama --model mistral
+logai investigate app.log --ai ollama --model mistral
 
 # Custom host
-sherlog investigate app.log --ai ollama --ollama-host http://localhost:11434
+logai investigate app.log --ai ollama --ollama-host http://localhost:11434
 ```
 
 **Popular Models:**
@@ -153,7 +153,7 @@ sherlog investigate app.log --ai ollama --ollama-host http://localhost:11434
 Beautiful colored output with emojis and formatting:
 
 ```bash
-sherlog investigate app.log
+logai investigate app.log
 ```
 
 ### JSON
@@ -161,48 +161,48 @@ sherlog investigate app.log
 Machine-readable output for integration:
 
 ```bash
-sherlog investigate app.log --format json
-sherlog investigate app.log -f json > output.json
+logai investigate app.log --format json
+logai investigate app.log -f json > output.json
 ```
 
 ### Save to File
 
 ```bash
-sherlog investigate app.log --output report.txt
-sherlog investigate app.log -o report.json -f json
+logai investigate app.log --output report.txt
+logai investigate app.log -o report.json -f json
 ```
 
 ## Advanced Features
 
 ### Caching
 
-Sherlog automatically caches AI responses to reduce costs.
+LogAI automatically caches AI responses to reduce costs.
 
 **View cache statistics:**
 
 ```bash
-sherlog investigate app.log --ai openai
+logai investigate app.log --ai openai
 # Output: 💾 Cache: 3 hits, 2 misses
 ```
 
 **Disable caching:**
 
 ```bash
-sherlog investigate app.log --ai openai --no-cache
+logai investigate app.log --ai openai --no-cache
 ```
 
 **Cache location:**
 
-- Linux/macOS: `~/.sherlog/cache/cache.db`
-- Windows: `%USERPROFILE%\.sherlog\cache\cache.db`
+- Linux/macOS: `~/.logai/cache/cache.db`
+- Windows: `%USERPROFILE%\.logai\cache\cache.db`
 
 ### Filtering
 
 **By severity:**
 
 ```bash
-sherlog investigate app.log --severity error
-sherlog investigate app.log --severity warn
+logai investigate app.log --severity error
+logai investigate app.log --severity warn
 ```
 
 ## Examples
@@ -211,39 +211,39 @@ sherlog investigate app.log --severity warn
 
 ```bash
 # Quick analysis without AI
-sherlog investigate production.log --limit 10
+logai investigate production.log --limit 10
 
 # Deep analysis with AI
-sherlog investigate production.log --ai openai --limit 5
+logai investigate production.log --ai openai --limit 5
 ```
 
 ### CI/CD Integration
 
 ```bash
 # Generate JSON report
-sherlog investigate test.log -f json -o report.json
+logai investigate test.log -f json -o report.json
 
 # Check if errors exist (exit code)
-sherlog investigate test.log || echo "Errors found!"
+logai investigate test.log || echo "Errors found!"
 ```
 
 ### Docker Logs
 
 ```bash
-docker logs my-container 2>&1 | sherlog investigate -
+docker logs my-container 2>&1 | logai investigate -
 ```
 
 ### Kubernetes Logs
 
 ```bash
-kubectl logs deployment/my-app | sherlog investigate -
-kubectl logs -f pod/my-pod | sherlog investigate -
+kubectl logs deployment/my-app | logai investigate -
+kubectl logs -f pod/my-pod | logai investigate -
 ```
 
 ### Multiple Services
 
 ```bash
-sherlog investigate \
+logai investigate \
   service1.log \
   service2.log \
   service3.log \
@@ -255,13 +255,13 @@ sherlog investigate \
 
 ```bash
 # Use cache for repeated analysis
-sherlog investigate app.log --ai openai
+logai investigate app.log --ai openai
 
 # Use local Ollama (free)
-sherlog investigate app.log --ai ollama
+logai investigate app.log --ai ollama
 
 # Use cheaper models
-sherlog investigate app.log --ai openai --model gpt-4o-mini
+logai investigate app.log --ai openai --model gpt-4o-mini
 ```
 
 ## Tips & Tricks
@@ -271,13 +271,13 @@ sherlog investigate app.log --ai openai --model gpt-4o-mini
 First run without AI to see what errors exist:
 
 ```bash
-sherlog investigate app.log
+logai investigate app.log
 ```
 
 Then use AI for specific errors:
 
 ```bash
-sherlog investigate app.log --ai openai --limit 3
+logai investigate app.log --ai openai --limit 3
 ```
 
 ### 2. Use Local Models for Privacy
@@ -285,20 +285,20 @@ sherlog investigate app.log --ai openai --limit 3
 For sensitive logs, use Ollama:
 
 ```bash
-sherlog investigate sensitive.log --ai ollama
+logai investigate sensitive.log --ai ollama
 ```
 
 ### 3. Combine with Other Tools
 
 ```bash
 # Filter logs first
-grep ERROR app.log | sherlog investigate -
+grep ERROR app.log | logai investigate -
 
 # Analyze recent logs
-tail -1000 app.log | sherlog investigate -
+tail -1000 app.log | logai investigate -
 
 # Analyze specific time range
-sed -n '/2025-11-17 10:00/,/2025-11-17 11:00/p' app.log | sherlog investigate -
+sed -n '/2025-11-17 10:00/,/2025-11-17 11:00/p' app.log | logai investigate -
 ```
 
 ### 4. Save Money with Caching
@@ -307,21 +307,21 @@ Cache persists across runs. Analyze the same logs multiple times without extra
 cost:
 
 ```bash
-sherlog investigate app.log --ai openai  # Calls API
-sherlog investigate app.log --ai openai  # Uses cache
+logai investigate app.log --ai openai  # Calls API
+logai investigate app.log --ai openai  # Uses cache
 ```
 
 ### 5. JSON for Automation
 
 ```bash
 # Parse with jq
-sherlog investigate app.log -f json | jq '.[] | select(.count > 10)'
+logai investigate app.log -f json | jq '.[] | select(.count > 10)'
 
 # Count error types
-sherlog investigate app.log -f json | jq 'length'
+logai investigate app.log -f json | jq 'length'
 
 # Extract patterns
-sherlog investigate app.log -f json | jq '.[].pattern'
+logai investigate app.log -f json | jq '.[].pattern'
 ```
 
 ## Environment Variables
@@ -339,8 +339,8 @@ sherlog investigate app.log -f json | jq '.[].pattern'
 ## Getting Help
 
 ```bash
-sherlog --help
-sherlog investigate --help
+logai --help
+logai investigate --help
 ```
 
 ## Troubleshooting
@@ -363,7 +363,7 @@ ollama serve
 
 ### "No log entries found"
 
-Check file path and format. Sherlog supports JSON and plain text logs.
+Check file path and format. LogAI supports JSON and plain text logs.
 
 ### Slow performance
 
@@ -374,6 +374,6 @@ Check file path and format. Sherlog supports JSON and plain text logs.
 
 ## More Information
 
-- [GitHub Repository](https://github.com/ranjan-mohanty/sherlog)
+- [GitHub Repository](https://github.com/ranjan-mohanty/logai)
 - [Contributing Guide](../CONTRIBUTING.md)
 - [Changelog](../CHANGELOG.md)
