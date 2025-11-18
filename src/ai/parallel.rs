@@ -1,3 +1,4 @@
+use crate::ai::progress::ProgressUpdate;
 use crate::ai::provider::AIProvider;
 use crate::types::ErrorGroup;
 use crate::Result;
@@ -51,57 +52,6 @@ impl AnalysisConfig {
             max_concurrency,
             ..Default::default()
         })
-    }
-}
-
-/// Progress update information
-#[derive(Debug, Clone)]
-pub struct ProgressUpdate {
-    pub current: usize,
-    pub total: usize,
-    pub pattern: String,
-    pub elapsed: std::time::Duration,
-    pub throughput: f64,
-}
-
-impl ProgressUpdate {
-    /// Format progress for terminal display
-    pub fn format_terminal(&self) -> String {
-        let percentage = (self.current as f64 / self.total as f64 * 100.0) as usize;
-        let bar_width = 40;
-        let filled = (bar_width * self.current) / self.total;
-        let empty = bar_width - filled;
-
-        let bar = format!("[{}{}]", "█".repeat(filled), "░".repeat(empty));
-
-        let eta = if self.throughput > 0.0 {
-            let remaining = self.total - self.current;
-            let eta_secs = remaining as f64 / self.throughput;
-            format!(
-                "ETA: {}m {}s",
-                (eta_secs / 60.0) as usize,
-                (eta_secs % 60.0) as usize
-            )
-        } else {
-            "ETA: calculating...".to_string()
-        };
-
-        format!(
-            "{} {} / {} ({}%)\nCurrent: \"{}\"\nElapsed: {}m {}s | Throughput: {:.1} groups/sec | {}",
-            bar,
-            self.current,
-            self.total,
-            percentage,
-            if self.pattern.len() > 60 {
-                format!("{}...", &self.pattern[..60])
-            } else {
-                self.pattern.clone()
-            },
-            self.elapsed.as_secs() / 60,
-            self.elapsed.as_secs() % 60,
-            self.throughput,
-            eta
-        )
     }
 }
 
@@ -164,15 +114,8 @@ impl ParallelAnalyzer {
                 drop(count);
 
                 let elapsed = start_time.elapsed();
-                let throughput = current as f64 / elapsed.as_secs_f64();
 
-                callback(ProgressUpdate {
-                    current,
-                    total,
-                    pattern,
-                    elapsed,
-                    throughput,
-                });
+                callback(ProgressUpdate::new(current, total, pattern, elapsed));
 
                 (index, result)
             });
@@ -218,21 +161,5 @@ mod tests {
         assert!(AnalysisConfig::new(20).is_ok());
         assert!(AnalysisConfig::new(0).is_err());
         assert!(AnalysisConfig::new(21).is_err());
-    }
-
-    #[test]
-    fn test_progress_format() {
-        let update = ProgressUpdate {
-            current: 50,
-            total: 100,
-            pattern: "Test error pattern".to_string(),
-            elapsed: std::time::Duration::from_secs(60),
-            throughput: 0.83,
-        };
-
-        let formatted = update.format_terminal();
-        assert!(formatted.contains("50 / 100"));
-        assert!(formatted.contains("50%"));
-        assert!(formatted.contains("Test error pattern"));
     }
 }
