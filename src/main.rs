@@ -21,6 +21,9 @@ async fn main() -> Result<()> {
     match cli.command {
         Commands::Investigate {
             files,
+            log_format,
+            no_multiline,
+            stats,
             ai: ai_provider,
             model,
             api_key,
@@ -35,6 +38,9 @@ async fn main() -> Result<()> {
         } => {
             investigate_logs(InvestigateOptions {
                 files,
+                log_format,
+                no_multiline,
+                stats,
                 ai_provider,
                 model,
                 api_key,
@@ -60,6 +66,9 @@ async fn main() -> Result<()> {
 
 struct InvestigateOptions {
     files: Vec<String>,
+    log_format: String,
+    no_multiline: bool,
+    stats: bool,
     ai_provider: String,
     model: Option<String>,
     api_key: Option<String>,
@@ -74,6 +83,9 @@ struct InvestigateOptions {
 async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
     let InvestigateOptions {
         files,
+        log_format,
+        no_multiline,
+        stats,
         ai_provider,
         model,
         api_key,
@@ -86,19 +98,38 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
     } = opts;
     let mut all_entries = Vec::new();
 
+    let mut total_lines = 0;
+    let mut parse_errors = 0;
+    let start_time = std::time::Instant::now();
+
     for file_path in files {
-        let entries = if file_path == "-" {
-            read_logs_from_stdin()?
+        let (entries, file_stats) = if file_path == "-" {
+            read_logs_from_stdin(&log_format, no_multiline)?
         } else {
             // Check if it's a directory
             let path = std::path::Path::new(&file_path);
             if path.is_dir() {
-                read_logs_from_directory(&file_path)?
+                read_logs_from_directory(&file_path, &log_format, no_multiline)?
             } else {
-                read_logs_from_file(&file_path)?
+                read_logs_from_file(&file_path, &log_format, no_multiline)?
             }
         };
+        total_lines += file_stats.0;
+        parse_errors += file_stats.1;
         all_entries.extend(entries);
+    }
+
+    if stats {
+        let duration = start_time.elapsed();
+        println!("\n📊 Parsing Statistics:");
+        println!("  Total lines: {}", total_lines);
+        println!("  Parsed entries: {}", all_entries.len());
+        println!("  Parse errors: {}", parse_errors);
+        println!("  Duration: {:?}", duration);
+        println!(
+            "  Throughput: {:.2} lines/sec\n",
+            total_lines as f64 / duration.as_secs_f64()
+        );
     }
 
     if all_entries.is_empty() {
@@ -213,7 +244,17 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
     Ok(())
 }
 
-fn read_logs_from_file(path: &str) -> Result<Vec<LogEntry>> {
+fn read_logs_from_file(
+    path: &str,
+    log_format: &str,
+    no_multiline: bool,
+) -> Result<(Vec<LogEntry>, (usize, usize))> {
+    use logai::parser::{
+        formats::{ApacheParser, JsonParser, NginxParser, PlainTextParser, SyslogParser},
+        StackTraceParser,
+    };
+    use std::sync::Arc;
+
     let file =
         File::open(path).map_err(|e| anyhow::anyhow!("Failed to open file '{}': {}", path, e))?;
 
@@ -225,23 +266,51 @@ fn read_logs_from_file(path: &str) -> Result<Vec<LogEntry>> {
 
     if lines.is_empty() {
         eprintln!("⚠️  Warning: File '{}' is empty", path);
-        return Ok(Vec::new());
+        return Ok((Vec::new(), (0, 0)));
     }
 
-    // Detect format from first line
-    let parser = FormatDetector::detect(&lines[0]);
+    let total_lines = lines.len();
 
-    // Parse all lines
-    let mut entries = Vec::new();
-    let mut parse_errors = 0;
-
-    for line in lines {
-        match parser.parse_line(&line) {
-            Ok(Some(entry)) => entries.push(entry),
-            Ok(None) => {} // Empty line or filtered out
-            Err(_) => parse_errors += 1,
+    // Select parser based on format
+    let parser: Arc<dyn logai::parser::LogParser> = match log_format {
+        "auto" => FormatDetector::detect(&lines[0]),
+        "json" => {
+            if no_multiline {
+                Arc::new(JsonParser::new())
+            } else {
+                Arc::new(StackTraceParser::new(Arc::new(JsonParser::new())))
+            }
         }
-    }
+        "apache" => Arc::new(ApacheParser::new()),
+        "nginx" => Arc::new(NginxParser::new()),
+        "syslog" => Arc::new(SyslogParser::new()),
+        "plain" => {
+            if no_multiline {
+                Arc::new(PlainTextParser::new())
+            } else {
+                Arc::new(StackTraceParser::new(Arc::new(PlainTextParser::new())))
+            }
+        }
+        _ => {
+            eprintln!("⚠️  Unknown format '{}', using auto-detection", log_format);
+            FormatDetector::detect(&lines[0])
+        }
+    };
+
+    // Parse lines (use parse_lines for multi-line support)
+    let entries = if parser.supports_multiline() && !no_multiline {
+        parser.parse_lines(&lines)?
+    } else {
+        let mut entries = Vec::new();
+        for line in &lines {
+            if let Some(entry) = parser.parse_line(line)? {
+                entries.push(entry);
+            }
+        }
+        entries
+    };
+
+    let parse_errors = total_lines.saturating_sub(entries.len());
 
     if parse_errors > 0 {
         eprintln!(
@@ -250,34 +319,78 @@ fn read_logs_from_file(path: &str) -> Result<Vec<LogEntry>> {
         );
     }
 
-    Ok(entries)
+    Ok((entries, (total_lines, parse_errors)))
 }
 
-fn read_logs_from_stdin() -> Result<Vec<LogEntry>> {
+fn read_logs_from_stdin(
+    log_format: &str,
+    no_multiline: bool,
+) -> Result<(Vec<LogEntry>, (usize, usize))> {
+    use logai::parser::{
+        formats::{ApacheParser, JsonParser, NginxParser, PlainTextParser, SyslogParser},
+        StackTraceParser,
+    };
+    use std::sync::Arc;
+
     let stdin = std::io::stdin();
     let lines: Vec<String> = stdin.lock().lines().collect::<std::io::Result<_>>()?;
 
     if lines.is_empty() {
-        return Ok(Vec::new());
+        return Ok((Vec::new(), (0, 0)));
     }
 
-    let parser = FormatDetector::detect(&lines[0]);
+    let total_lines = lines.len();
 
-    let mut entries = Vec::new();
-    for line in lines {
-        if let Some(entry) = parser.parse_line(&line)? {
-            entries.push(entry);
+    let parser: Arc<dyn logai::parser::LogParser> = match log_format {
+        "auto" => FormatDetector::detect(&lines[0]),
+        "json" => {
+            if no_multiline {
+                Arc::new(JsonParser::new())
+            } else {
+                Arc::new(StackTraceParser::new(Arc::new(JsonParser::new())))
+            }
         }
-    }
+        "apache" => Arc::new(ApacheParser::new()),
+        "nginx" => Arc::new(NginxParser::new()),
+        "syslog" => Arc::new(SyslogParser::new()),
+        "plain" => {
+            if no_multiline {
+                Arc::new(PlainTextParser::new())
+            } else {
+                Arc::new(StackTraceParser::new(Arc::new(PlainTextParser::new())))
+            }
+        }
+        _ => FormatDetector::detect(&lines[0]),
+    };
 
-    Ok(entries)
+    let entries = if parser.supports_multiline() && !no_multiline {
+        parser.parse_lines(&lines)?
+    } else {
+        let mut entries = Vec::new();
+        for line in &lines {
+            if let Some(entry) = parser.parse_line(line)? {
+                entries.push(entry);
+            }
+        }
+        entries
+    };
+
+    let parse_errors = total_lines.saturating_sub(entries.len());
+
+    Ok((entries, (total_lines, parse_errors)))
 }
 
-fn read_logs_from_directory(dir_path: &str) -> Result<Vec<LogEntry>> {
+fn read_logs_from_directory(
+    dir_path: &str,
+    log_format: &str,
+    no_multiline: bool,
+) -> Result<(Vec<LogEntry>, (usize, usize))> {
     use std::fs;
 
     let mut all_entries = Vec::new();
     let mut file_count = 0;
+    let mut total_lines = 0;
+    let mut total_errors = 0;
 
     let entries = fs::read_dir(dir_path)
         .map_err(|e| anyhow::anyhow!("Failed to read directory '{}': {}", dir_path, e))?;
@@ -295,9 +408,11 @@ fn read_logs_from_directory(dir_path: &str) -> Result<Vec<LogEntry>> {
         if let Some(ext) = path.extension() {
             if ext == "log" {
                 if let Some(path_str) = path.to_str() {
-                    match read_logs_from_file(path_str) {
-                        Ok(entries) => {
+                    match read_logs_from_file(path_str, log_format, no_multiline) {
+                        Ok((entries, (lines, errors))) => {
                             all_entries.extend(entries);
+                            total_lines += lines;
+                            total_errors += errors;
                             file_count += 1;
                         }
                         Err(e) => {
@@ -318,7 +433,7 @@ fn read_logs_from_directory(dir_path: &str) -> Result<Vec<LogEntry>> {
         eprintln!("⚠️  Warning: No .log files found in '{}'", dir_path);
     }
 
-    Ok(all_entries)
+    Ok((all_entries, (total_lines, total_errors)))
 }
 
 fn handle_config(action: ConfigAction) -> Result<()> {

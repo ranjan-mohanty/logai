@@ -11,12 +11,25 @@ pub struct Cli {
 }
 
 #[derive(Subcommand)]
+#[allow(clippy::large_enum_variant)]
 pub enum Commands {
     /// Analyze log file(s)
     Investigate {
         /// Log file(s) or directory to analyze (omit or use '-' for stdin)
         #[arg(default_value = "-")]
         files: Vec<String>,
+
+        /// Log format (auto, json, apache, nginx, syslog, plain)
+        #[arg(long, default_value = "auto")]
+        log_format: String,
+
+        /// Disable multi-line log handling (e.g., stack traces)
+        #[arg(long)]
+        no_multiline: bool,
+
+        /// Show parsing statistics
+        #[arg(long)]
+        stats: bool,
 
         /// AI provider to use (openai, claude, gemini, ollama, none)
         #[arg(long, default_value = "none")]
