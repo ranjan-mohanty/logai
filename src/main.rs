@@ -181,8 +181,13 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
 
         let provider = ai::create_provider(&ai_provider, api_key, model.clone(), ollama_host)?;
 
-        // Create parallel analyzer with configuration
-        let config = ai::AnalysisConfig::new(concurrency)?;
+        // Load configuration from file and merge with CLI flags
+        let ai_config = ai::AIConfig::load().unwrap_or_default();
+        let mut config = ai_config.get_analysis_config();
+
+        // CLI flag overrides config file
+        config.max_concurrency = concurrency;
+
         let parallel_analyzer = ai::ParallelAnalyzer::new(provider, config);
 
         // Create progress callback

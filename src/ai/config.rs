@@ -12,6 +12,8 @@ pub struct AIConfig {
     pub default_provider: Option<String>,
     #[serde(default)]
     pub mcp: MCPSettings,
+    #[serde(default)]
+    pub analysis: AnalysisSettings,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -26,6 +28,66 @@ pub struct MCPSettings {
 
 fn default_timeout() -> u64 {
     30
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AnalysisSettings {
+    #[serde(default = "default_max_concurrency")]
+    pub max_concurrency: usize,
+    #[serde(default = "default_enable_retry")]
+    pub enable_retry: bool,
+    #[serde(default = "default_max_retries")]
+    pub max_retries: usize,
+    #[serde(default = "default_initial_backoff_ms")]
+    pub initial_backoff_ms: u64,
+    #[serde(default = "default_max_backoff_ms")]
+    pub max_backoff_ms: u64,
+    #[serde(default = "default_enable_cache")]
+    pub enable_cache: bool,
+    #[serde(default = "default_truncate_length")]
+    pub truncate_length: usize,
+}
+
+impl Default for AnalysisSettings {
+    fn default() -> Self {
+        Self {
+            max_concurrency: default_max_concurrency(),
+            enable_retry: default_enable_retry(),
+            max_retries: default_max_retries(),
+            initial_backoff_ms: default_initial_backoff_ms(),
+            max_backoff_ms: default_max_backoff_ms(),
+            enable_cache: default_enable_cache(),
+            truncate_length: default_truncate_length(),
+        }
+    }
+}
+
+fn default_max_concurrency() -> usize {
+    5
+}
+
+fn default_enable_retry() -> bool {
+    true
+}
+
+fn default_max_retries() -> usize {
+    3
+}
+
+fn default_initial_backoff_ms() -> u64 {
+    1000
+}
+
+fn default_max_backoff_ms() -> u64 {
+    30000
+}
+
+fn default_enable_cache() -> bool {
+    true
+}
+
+fn default_truncate_length() -> usize {
+    2000
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,7 +144,7 @@ impl AIConfig {
         self.providers.insert(name, config);
     }
 
-    /// Set a configuration value by key path (e.g., "mcp.enabled", "openai.model")
+    /// Set a configuration value by key path (e.g., "mcp.enabled", "openai.model", "analysis.max_concurrency")
     pub fn set_value(&mut self, key: &str, value: &str) -> Result<()> {
         let parts: Vec<&str> = key.split('.').collect();
 
@@ -99,6 +161,41 @@ impl AIConfig {
                 self.mcp.default_timeout = value
                     .parse()
                     .map_err(|_| anyhow::anyhow!("Invalid timeout value: {}", value))?;
+            }
+            ["analysis", "max_concurrency"] => {
+                self.analysis.max_concurrency = value
+                    .parse()
+                    .map_err(|_| anyhow::anyhow!("Invalid concurrency value: {}", value))?;
+            }
+            ["analysis", "enable_retry"] => {
+                self.analysis.enable_retry = value
+                    .parse()
+                    .map_err(|_| anyhow::anyhow!("Invalid boolean value: {}", value))?;
+            }
+            ["analysis", "max_retries"] => {
+                self.analysis.max_retries = value
+                    .parse()
+                    .map_err(|_| anyhow::anyhow!("Invalid retries value: {}", value))?;
+            }
+            ["analysis", "initial_backoff_ms"] => {
+                self.analysis.initial_backoff_ms = value
+                    .parse()
+                    .map_err(|_| anyhow::anyhow!("Invalid backoff value: {}", value))?;
+            }
+            ["analysis", "max_backoff_ms"] => {
+                self.analysis.max_backoff_ms = value
+                    .parse()
+                    .map_err(|_| anyhow::anyhow!("Invalid max backoff value: {}", value))?;
+            }
+            ["analysis", "enable_cache"] => {
+                self.analysis.enable_cache = value
+                    .parse()
+                    .map_err(|_| anyhow::anyhow!("Invalid boolean value: {}", value))?;
+            }
+            ["analysis", "truncate_length"] => {
+                self.analysis.truncate_length = value
+                    .parse()
+                    .map_err(|_| anyhow::anyhow!("Invalid truncate length value: {}", value))?;
             }
             [provider, "api_key"] => {
                 let config = self
@@ -161,6 +258,19 @@ impl AIConfig {
         Ok(())
     }
 
+    /// Get analysis configuration
+    pub fn get_analysis_config(&self) -> crate::ai::parallel::AnalysisConfig {
+        crate::ai::parallel::AnalysisConfig {
+            max_concurrency: self.analysis.max_concurrency,
+            enable_retry: self.analysis.enable_retry,
+            max_retries: self.analysis.max_retries,
+            initial_backoff_ms: self.analysis.initial_backoff_ms,
+            max_backoff_ms: self.analysis.max_backoff_ms,
+            enable_cache: self.analysis.enable_cache,
+            truncate_length: self.analysis.truncate_length,
+        }
+    }
+
     /// Display configuration in a readable format
     pub fn display(&self) -> String {
         let mut output = String::new();
@@ -184,6 +294,28 @@ impl AIConfig {
             self.mcp.default_timeout
         ));
 
+        // Analysis settings
+        output.push_str("Analysis Settings:\n");
+        output.push_str(&format!(
+            "  max_concurrency: {}\n",
+            self.analysis.max_concurrency
+        ));
+        output.push_str(&format!("  enable_retry: {}\n", self.analysis.enable_retry));
+        output.push_str(&format!("  max_retries: {}\n", self.analysis.max_retries));
+        output.push_str(&format!(
+            "  initial_backoff_ms: {}\n",
+            self.analysis.initial_backoff_ms
+        ));
+        output.push_str(&format!(
+            "  max_backoff_ms: {}\n",
+            self.analysis.max_backoff_ms
+        ));
+        output.push_str(&format!("  enable_cache: {}\n", self.analysis.enable_cache));
+        output.push_str(&format!(
+            "  truncate_length: {}\n\n",
+            self.analysis.truncate_length
+        ));
+
         // Providers
         if !self.providers.is_empty() {
             output.push_str("AI Providers:\n");
@@ -204,5 +336,91 @@ impl AIConfig {
         }
 
         output
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_analysis_settings() {
+        let settings = AnalysisSettings::default();
+        assert_eq!(settings.max_concurrency, 5);
+        assert!(settings.enable_retry);
+        assert_eq!(settings.max_retries, 3);
+        assert_eq!(settings.initial_backoff_ms, 1000);
+        assert_eq!(settings.max_backoff_ms, 30000);
+        assert!(settings.enable_cache);
+        assert_eq!(settings.truncate_length, 2000);
+    }
+
+    #[test]
+    fn test_set_analysis_values() {
+        let mut config = AIConfig::default();
+
+        config.set_value("analysis.max_concurrency", "10").unwrap();
+        assert_eq!(config.analysis.max_concurrency, 10);
+
+        config.set_value("analysis.enable_retry", "false").unwrap();
+        assert!(!config.analysis.enable_retry);
+
+        config.set_value("analysis.max_retries", "5").unwrap();
+        assert_eq!(config.analysis.max_retries, 5);
+
+        config
+            .set_value("analysis.initial_backoff_ms", "2000")
+            .unwrap();
+        assert_eq!(config.analysis.initial_backoff_ms, 2000);
+
+        config
+            .set_value("analysis.max_backoff_ms", "60000")
+            .unwrap();
+        assert_eq!(config.analysis.max_backoff_ms, 60000);
+
+        config.set_value("analysis.enable_cache", "false").unwrap();
+        assert!(!config.analysis.enable_cache);
+
+        config
+            .set_value("analysis.truncate_length", "1000")
+            .unwrap();
+        assert_eq!(config.analysis.truncate_length, 1000);
+    }
+
+    #[test]
+    fn test_invalid_analysis_values() {
+        let mut config = AIConfig::default();
+
+        assert!(config
+            .set_value("analysis.max_concurrency", "invalid")
+            .is_err());
+        assert!(config
+            .set_value("analysis.enable_retry", "invalid")
+            .is_err());
+        assert!(config.set_value("analysis.max_retries", "invalid").is_err());
+    }
+
+    #[test]
+    fn test_get_analysis_config() {
+        let mut config = AIConfig::default();
+        config.analysis.max_concurrency = 10;
+        config.analysis.enable_retry = false;
+        config.analysis.max_retries = 5;
+
+        let analysis_config = config.get_analysis_config();
+        assert_eq!(analysis_config.max_concurrency, 10);
+        assert!(!analysis_config.enable_retry);
+        assert_eq!(analysis_config.max_retries, 5);
+    }
+
+    #[test]
+    fn test_display_includes_analysis_settings() {
+        let config = AIConfig::default();
+        let display = config.display();
+
+        assert!(display.contains("Analysis Settings:"));
+        assert!(display.contains("max_concurrency: 5"));
+        assert!(display.contains("enable_retry: true"));
+        assert!(display.contains("max_retries: 3"));
     }
 }

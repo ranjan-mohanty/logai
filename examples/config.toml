@@ -1,0 +1,92 @@
+# LogAI Configuration File
+# Place this file at ~/.logai/config.toml
+
+# Default AI provider to use
+default_provider = "ollama"
+
+# Analysis settings for parallel processing and retry logic
+[analysis]
+# Maximum number of concurrent AI analysis requests (1-20)
+# Higher values = faster analysis but more resource usage
+# Default: 5
+max_concurrency = 5
+
+# Enable automatic retry on transient failures
+# Default: true
+enable_retry = true
+
+# Maximum number of retry attempts for failed requests
+# Default: 3
+max_retries = 3
+
+# Initial backoff delay in milliseconds before first retry
+# Default: 1000 (1 second)
+initial_backoff_ms = 1000
+
+# Maximum backoff delay in milliseconds (exponential backoff cap)
+# Default: 30000 (30 seconds)
+max_backoff_ms = 30000
+
+# Enable caching of AI analysis results
+# Default: true
+enable_cache = true
+
+# Maximum length of error messages sent to AI (characters)
+# Longer messages are truncated to save tokens
+# Default: 2000
+truncate_length = 2000
+
+# MCP (Model Context Protocol) settings
+[mcp]
+# Enable MCP tool integration
+enabled = true
+
+# Path to MCP configuration file
+# config_path = "~/.logai/mcp-config.toml"
+
+# Default timeout for MCP tool calls (seconds)
+default_timeout = 30
+
+# AI Provider configurations
+[providers.ollama]
+enabled = true
+model = "llama3.2"
+host = "http://localhost:11434"
+
+[providers.openai]
+enabled = false
+# api_key = "sk-..."  # Or set OPENAI_API_KEY environment variable
+# model = "gpt-4"
+
+[providers.claude]
+enabled = false
+# api_key = "sk-ant-..."  # Or set ANTHROPIC_API_KEY environment variable
+# model = "claude-3-5-sonnet-20241022"
+
+[providers.gemini]
+enabled = false
+# api_key = "..."  # Or set GEMINI_API_KEY environment variable
+# model = "gemini-1.5-pro"
+
+# Example configurations for different use cases:
+
+# High-performance setup (self-hosted Ollama with powerful hardware)
+# [analysis]
+# max_concurrency = 15
+# enable_retry = true
+# max_retries = 2
+# initial_backoff_ms = 500
+
+# Conservative setup (API rate limits or limited resources)
+# [analysis]
+# max_concurrency = 2
+# enable_retry = true
+# max_retries = 5
+# initial_backoff_ms = 2000
+# max_backoff_ms = 60000
+
+# Fast-fail setup (development/testing)
+# [analysis]
+# max_concurrency = 10
+# enable_retry = false
+# max_retries = 0
