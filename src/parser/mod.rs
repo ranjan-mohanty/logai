@@ -1,3 +1,4 @@
+pub mod apache;
 pub mod config;
 pub mod detector;
 pub mod json;
@@ -9,6 +10,7 @@ pub mod timestamp;
 use crate::types::LogEntry;
 use crate::Result;
 
+pub use apache::ApacheParser;
 pub use config::ParserConfig;
 pub use metadata::MetadataExtractor;
 pub use statistics::ParsingStatistics;
