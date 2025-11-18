@@ -1,6 +1,7 @@
 pub mod config;
 pub mod detector;
 pub mod json;
+pub mod metadata;
 pub mod plain;
 pub mod statistics;
 pub mod timestamp;
@@ -9,6 +10,7 @@ use crate::types::LogEntry;
 use crate::Result;
 
 pub use config::ParserConfig;
+pub use metadata::MetadataExtractor;
 pub use statistics::ParsingStatistics;
 pub use timestamp::TimestampParser;
 
