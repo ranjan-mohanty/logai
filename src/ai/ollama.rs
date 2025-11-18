@@ -1,3 +1,4 @@
+use super::prompts::build_analysis_prompt;
 use super::provider::AIProvider;
 use crate::types::{ErrorAnalysis, ErrorGroup, Suggestion};
 use crate::Result;
@@ -31,39 +32,6 @@ impl OllamaProvider {
             host: host.unwrap_or_else(|| "http://localhost:11434".to_string()),
             model: model.unwrap_or_else(|| "llama3.2".to_string()),
         }
-    }
-
-    fn build_prompt(&self, group: &ErrorGroup) -> String {
-        let example = group
-            .entries
-            .first()
-            .map(|e| &e.message)
-            .unwrap_or(&group.pattern);
-
-        format!(
-            r#"You are a debugging assistant analyzing application errors. Analyze this error and provide actionable insights.
-
-Error Pattern: {}
-Occurrences: {}
-Severity: {:?}
-Example: {}
-
-Provide your analysis in the following JSON format:
-{{
-  "explanation": "Clear explanation of what this error means in plain English",
-  "root_cause": "The likely root cause of this error",
-  "suggestions": [
-    {{
-      "description": "First suggestion to fix the issue",
-      "code_example": "Optional code example",
-      "priority": 1
-    }}
-  ]
-}}
-
-Be concise and practical. Focus on actionable fixes. Return ONLY valid JSON, no markdown formatting."#,
-            group.pattern, group.count, group.severity, example
-        )
     }
 
     async fn call_api(&self, prompt: String) -> Result<String> {
@@ -143,7 +111,7 @@ Be concise and practical. Focus on actionable fixes. Return ONLY valid JSON, no 
 #[async_trait]
 impl AIProvider for OllamaProvider {
     async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis> {
-        let prompt = self.build_prompt(group);
+        let prompt = build_analysis_prompt(group);
         let response = self.call_api(prompt).await?;
         self.parse_response(&response)
     }

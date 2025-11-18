@@ -43,14 +43,9 @@ async fn main() -> Result<()> {
         Commands::Watch { file: _ } => {
             println!("Watch mode coming soon!");
         }
-        Commands::Config { action } => match action {
-            ConfigAction::Set { key: _, value: _ } => {
-                println!("Config management coming soon!");
-            }
-            ConfigAction::Show => {
-                println!("Config management coming soon!");
-            }
-        },
+        Commands::Config { action } => {
+            handle_config(action)?;
+        }
     }
 
     Ok(())
@@ -229,4 +224,91 @@ fn read_logs_from_stdin() -> Result<Vec<LogEntry>> {
     }
 
     Ok(entries)
+}
+
+fn handle_config(action: ConfigAction) -> Result<()> {
+    use ai::{config::ProviderConfig, AIConfig};
+
+    match action {
+        ConfigAction::Show => {
+            let config = AIConfig::load()?;
+            let config_path = AIConfig::config_path()?;
+
+            println!("📝 LogAI Configuration");
+            println!("   Location: {}\n", config_path.display());
+
+            if let Some(default) = &config.default_provider {
+                println!("Default Provider: {}", default);
+            }
+
+            if config.providers.is_empty() {
+                println!("\nNo providers configured.");
+                println!("\nExample configuration:");
+                println!("  logai config set ollama.model llama3.1:8b");
+                println!("  logai config set openai.api_key sk-...");
+            } else {
+                println!("\nProviders:");
+                for (name, provider) in &config.providers {
+                    println!("\n  [{}]", name);
+                    if let Some(model) = &provider.model {
+                        println!("    model: {}", model);
+                    }
+                    if let Some(host) = &provider.host {
+                        println!("    host: {}", host);
+                    }
+                    if provider.api_key.is_some() {
+                        println!("    api_key: ***");
+                    }
+                    println!("    enabled: {}", provider.enabled);
+                }
+            }
+        }
+        ConfigAction::Set { key, value } => {
+            let mut config = AIConfig::load().unwrap_or_default();
+
+            // Parse key as provider.field
+            let parts: Vec<&str> = key.split('.').collect();
+            if parts.len() != 2 {
+                return Err(anyhow::anyhow!(
+                    "Invalid key format. Use: provider.field (e.g., ollama.model)"
+                ));
+            }
+
+            let provider_name = parts[0];
+            let field = parts[1];
+
+            // Get or create provider config
+            let provider_config = config
+                .providers
+                .entry(provider_name.to_string())
+                .or_insert_with(|| ProviderConfig {
+                    api_key: None,
+                    model: None,
+                    host: None,
+                    enabled: true,
+                });
+
+            // Update field
+            match field {
+                "model" => provider_config.model = Some(value.clone()),
+                "api_key" => provider_config.api_key = Some(value.clone()),
+                "host" => provider_config.host = Some(value.clone()),
+                "enabled" => {
+                    provider_config.enabled = value.parse().unwrap_or(true);
+                }
+                _ => {
+                    return Err(anyhow::anyhow!(
+                        "Unknown field: {}. Valid fields: model, api_key, host, enabled",
+                        field
+                    ));
+                }
+            }
+
+            config.save()?;
+            println!("✅ Configuration updated: {} = {}", key, value);
+            println!("   Saved to: {}", AIConfig::config_path()?.display());
+        }
+    }
+
+    Ok(())
 }
