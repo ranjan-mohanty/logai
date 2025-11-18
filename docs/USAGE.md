@@ -26,13 +26,26 @@ logai investigate app.log
 logai investigate app.log error.log debug.log
 ```
 
+### Analyze a Directory
+
+```bash
+# Processes all .log files in the directory
+logai investigate logs/
+
+# Mix directories and files
+logai investigate logs/ app.log error.log
+```
+
 ### Analyze from stdin
 
 ```bash
+# Implicit stdin (no - needed, like grep)
+cat error.log | logai investigate
+kubectl logs pod-name | logai investigate
+docker logs container-id | logai investigate
+
+# Explicit stdin (also works)
 tail -f app.log | logai investigate -
-cat error.log | logai investigate -
-kubectl logs pod-name | logai investigate -
-docker logs container-id | logai investigate -
 ```
 
 ### Limit Output
@@ -265,14 +278,22 @@ logai investigate test.log || echo "Errors found!"
 ### Docker Logs
 
 ```bash
+# Implicit stdin (recommended)
+docker logs my-container 2>&1 | logai investigate
+
+# Explicit stdin (also works)
 docker logs my-container 2>&1 | logai investigate -
 ```
 
 ### Kubernetes Logs
 
 ```bash
+# Implicit stdin
+kubectl logs deployment/my-app | logai investigate
+kubectl logs -f pod/my-pod | logai investigate
+
+# Explicit stdin
 kubectl logs deployment/my-app | logai investigate -
-kubectl logs -f pod/my-pod | logai investigate -
 ```
 
 ### Multiple Services
@@ -326,14 +347,14 @@ logai investigate sensitive.log --ai ollama
 ### 3. Combine with Other Tools
 
 ```bash
-# Filter logs first
-grep ERROR app.log | logai investigate -
+# Filter logs first (no - needed)
+grep ERROR app.log | logai investigate
 
 # Analyze recent logs
-tail -1000 app.log | logai investigate -
+tail -1000 app.log | logai investigate
 
 # Analyze specific time range
-sed -n '/2025-11-17 10:00/,/2025-11-17 11:00/p' app.log | logai investigate -
+sed -n '/2025-11-17 10:00/,/2025-11-17 11:00/p' app.log | logai investigate
 ```
 
 ### 4. Save Money with Caching
