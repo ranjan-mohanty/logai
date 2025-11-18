@@ -28,13 +28,14 @@ async fn main() -> Result<()> {
             model,
             api_key,
             ollama_host,
-            no_cache,
+            no_cache: _,
             format,
             output: _,
             limit,
             severity: _,
             no_mcp,
             mcp_config,
+            concurrency,
         } => {
             investigate_logs(InvestigateOptions {
                 files,
@@ -45,11 +46,11 @@ async fn main() -> Result<()> {
                 model,
                 api_key,
                 ollama_host,
-                no_cache,
                 format,
                 limit,
                 no_mcp,
                 mcp_config,
+                concurrency,
             })
             .await?;
         }
@@ -73,11 +74,11 @@ struct InvestigateOptions {
     model: Option<String>,
     api_key: Option<String>,
     ollama_host: Option<String>,
-    no_cache: bool,
     format: String,
     limit: usize,
     no_mcp: bool,
     mcp_config: Option<String>,
+    concurrency: usize,
 }
 
 async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
@@ -90,11 +91,11 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
         model,
         api_key,
         ollama_host,
-        no_cache,
         format,
         limit,
         no_mcp,
         mcp_config,
+        concurrency,
     } = opts;
     let mut all_entries = Vec::new();
 
@@ -147,7 +148,7 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
     }
 
     // Initialize MCP client if enabled
-    let mcp_client = if !no_mcp && ai_provider != "none" {
+    let _mcp_client = if !no_mcp && ai_provider != "none" {
         match initialize_mcp_client(mcp_config.as_deref()).await {
             Ok(client) => {
                 if client.is_connected() {
@@ -170,56 +171,40 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
 
     // AI analysis if enabled
     if ai_provider != "none" {
-        println!("🤖 Analyzing errors with {}...\n", ai_provider);
+        let model_display = model.as_deref().unwrap_or("default");
+        println!(
+            "🤖 Analyzing {} error groups with {} ({})...\n",
+            groups.len(),
+            ai_provider,
+            model_display
+        );
 
         let provider = ai::create_provider(&ai_provider, api_key, model.clone(), ollama_host)?;
-        let cache = if !no_cache {
-            ai::AnalysisCache::new().ok()
-        } else {
-            None
+
+        // Create parallel analyzer with configuration
+        let config = ai::AnalysisConfig::new(concurrency)?;
+        let parallel_analyzer = ai::ParallelAnalyzer::new(provider, config);
+
+        // Create progress callback
+        let analysis_start = std::time::Instant::now();
+        let progress_callback = move |update: ai::ProgressUpdate| {
+            print!("\r\x1b[K{}", update.format_terminal());
+            std::io::Write::flush(&mut std::io::stdout()).unwrap();
         };
 
-        let model_name = model.as_deref().unwrap_or("default");
-        let mut cache_hits = 0;
-        let mut cache_misses = 0;
+        // Run parallel analysis
+        parallel_analyzer
+            .analyze_groups(&mut groups, progress_callback)
+            .await?;
 
-        for group in groups.iter_mut() {
-            // Try cache first
-            if let Some(ref cache) = cache {
-                if let Ok(Some(cached)) = cache.get(&group.pattern, &ai_provider, model_name) {
-                    group.analysis = Some(cached);
-                    cache_hits += 1;
-                    continue;
-                }
-            }
-
-            // Call AI provider (with MCP tools if available)
-            let analysis_result = if mcp_client.is_some() {
-                provider
-                    .analyze_with_tools(group, mcp_client.as_ref())
-                    .await
-            } else {
-                provider.analyze(group).await
-            };
-
-            match analysis_result {
-                Ok(analysis) => {
-                    // Cache the result
-                    if let Some(ref cache) = cache {
-                        let _ = cache.set(&group.pattern, &ai_provider, model_name, &analysis);
-                    }
-                    group.analysis = Some(analysis);
-                    cache_misses += 1;
-                }
-                Err(e) => {
-                    eprintln!("⚠️  Failed to analyze error group {}: {}", group.id, e);
-                }
-            }
-        }
-
-        if cache_hits > 0 {
-            println!("💾 Cache: {} hits, {} misses\n", cache_hits, cache_misses);
-        }
+        // Clear progress line and show completion
+        println!("\r\x1b[K");
+        let analysis_duration = analysis_start.elapsed();
+        println!(
+            "✅ Analysis complete in {:.1}s ({:.1} groups/sec)\n",
+            analysis_duration.as_secs_f64(),
+            groups.len() as f64 / analysis_duration.as_secs_f64()
+        );
     }
 
     // Format output

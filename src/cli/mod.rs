@@ -74,6 +74,10 @@ pub enum Commands {
         /// Path to MCP configuration file
         #[arg(long)]
         mcp_config: Option<String>,
+
+        /// Maximum concurrent AI analysis requests (1-20)
+        #[arg(long, default_value = "5")]
+        concurrency: usize,
     },
 
     /// Watch and analyze logs in real-time
