@@ -1,0 +1,10 @@
+{"level":"error","message":"Connection failed to database","timestamp":"2025-11-17T10:30:00Z","file":"db.rs","line":42}
+{"level":"error","message":"Connection failed to database","timestamp":"2025-11-17T10:30:15Z","file":"db.rs","line":42}
+{"level":"error","message":"Connection failed to database","timestamp":"2025-11-17T10:30:30Z","file":"db.rs","line":42}
+{"level":"warn","message":"Slow query detected: SELECT * FROM users","timestamp":"2025-11-17T10:31:00Z"}
+{"level":"error","message":"User 12345 not found","timestamp":"2025-11-17T10:32:00Z","file":"user_service.rs","line":89}
+{"level":"error","message":"User 67890 not found","timestamp":"2025-11-17T10:32:15Z","file":"user_service.rs","line":89}
+{"level":"info","message":"Request processed successfully","timestamp":"2025-11-17T10:33:00Z"}
+{"level":"error","message":"Timeout waiting for response from api.example.com","timestamp":"2025-11-17T10:34:00Z"}
+{"level":"error","message":"Timeout waiting for response from api.example.com","timestamp":"2025-11-17T10:34:30Z"}
+{"level":"error","message":"Timeout waiting for response from api.example.com","timestamp":"2025-11-17T10:35:00Z"}

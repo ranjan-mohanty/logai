@@ -13,8 +13,11 @@ keywords = ["logs", "debugging", "cli", "ai", "analysis"]
 categories = ["command-line-utilities", "development-tools"]
 exclude = [
     ".github/",
+    ".dev/",
     "tests/fixtures/",
-    "sherlog-spec.md",
+    "examples/",
+    "scripts/",
+    "hooks/",
 ]
 
 [dependencies]

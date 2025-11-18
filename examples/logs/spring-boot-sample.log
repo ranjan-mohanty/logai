@@ -1,0 +1,7 @@
+2025-11-17 10:30:00.123  ERROR 12345 --- [nio-8080-exec-1] c.e.s.UserController                     : Failed to fetch user: java.sql.SQLException: Connection timeout
+	at com.example.service.UserService.getUser(UserService.java:42)
+	at com.example.controller.UserController.handleRequest(UserController.java:89)
+2025-11-17 10:30:15.456  ERROR 12345 --- [nio-8080-exec-2] c.e.s.UserController                     : Failed to fetch user: java.sql.SQLException: Connection timeout
+	at com.example.service.UserService.getUser(UserService.java:42)
+2025-11-17 10:31:00.789  WARN  12345 --- [nio-8080-exec-3] c.e.s.DatabaseConfig                     : Slow query detected: 2500ms for SELECT * FROM users
+2025-11-17 10:32:00.012  ERROR 12345 --- [nio-8080-exec-4] c.e.s.UserService                        : User not found: id=67890

@@ -43,7 +43,7 @@ through massive log files and let LogAI do the detective work.
 ### Quick Install (macOS/Linux)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/ranjan-mohanty/logai/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/ranjan-mohanty/logai/main/scripts/install.sh | bash
 ```
 
 ### Homebrew (macOS/Linux)
