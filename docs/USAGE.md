@@ -5,6 +5,7 @@ Complete guide to using LogAI for log analysis.
 ## Table of Contents
 
 - [Basic Usage](#basic-usage)
+- [Configuration](#configuration)
 - [AI Providers](#ai-providers)
 - [Output Formats](#output-formats)
 - [Advanced Features](#advanced-features)
@@ -39,6 +40,40 @@ docker logs container-id | logai investigate -
 ```bash
 logai investigate app.log --limit 5
 ```
+
+## Configuration
+
+LogAI supports persistent configuration via `~/.logai/config.toml`.
+
+### View Configuration
+
+```bash
+logai config show
+```
+
+### Set Configuration
+
+```bash
+# Configure Ollama
+logai config set ollama.model llama3.1:8b
+logai config set ollama.host http://localhost:11434
+
+# Configure OpenAI
+logai config set openai.api_key sk-...
+logai config set openai.model gpt-4o-mini
+
+# Configure Claude
+logai config set claude.api_key sk-ant-...
+logai config set claude.model claude-3-5-sonnet-20241022
+```
+
+### Configuration Priority
+
+Settings are resolved in this order:
+
+1. CLI arguments (`--api-key`, `--model`)
+2. Config file (`~/.logai/config.toml`)
+3. Environment variables (`OPENAI_API_KEY`, etc.)
 
 ## AI Providers
 
