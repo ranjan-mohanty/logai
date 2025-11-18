@@ -1,3 +1,29 @@
+//! Parallel AI analysis infrastructure for processing multiple error groups concurrently.
+//!
+//! This module provides the core parallel processing capabilities for AI analysis,
+//! including concurrency control, result ordering, and progress tracking.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use logai::ai::{ParallelAnalyzer, AnalysisConfig, ProgressUpdate};
+//! use std::sync::Arc;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! # let provider = Arc::new(logai::ai::NoAI);
+//! # let mut groups = vec![];
+//! let config = AnalysisConfig::default();
+//! let analyzer = ParallelAnalyzer::new(provider, config);
+//!
+//! let progress_callback = |update: ProgressUpdate| {
+//!     println!("{}", update.format_terminal());
+//! };
+//!
+//! analyzer.analyze_groups(&mut groups, progress_callback).await?;
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::ai::progress::ProgressUpdate;
 use crate::ai::provider::AIProvider;
 use crate::types::ErrorGroup;

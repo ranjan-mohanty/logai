@@ -1,3 +1,29 @@
+//! Configuration management for AI providers and analysis settings.
+//!
+//! This module handles loading, saving, and managing configuration for AI providers,
+//! MCP settings, and analysis parameters. Configuration is stored in `~/.logai/config.toml`.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use logai::ai::AIConfig;
+//!
+//! # fn example() -> anyhow::Result<()> {
+//! // Load configuration from file
+//! let mut config = AIConfig::load()?;
+//!
+//! // Set a configuration value
+//! config.set_value("analysis.max_concurrency", "10")?;
+//!
+//! // Save configuration
+//! config.save()?;
+//!
+//! // Get analysis configuration
+//! let analysis_config = config.get_analysis_config();
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

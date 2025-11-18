@@ -1,3 +1,25 @@
+//! Enhanced JSON extraction from AI provider responses.
+//!
+//! This module handles extracting valid JSON from responses that may contain
+//! markdown code blocks, extra text, or common JSON formatting issues.
+//!
+//! # Extraction Strategies
+//!
+//! 1. Strip markdown code blocks (```json ... ```)
+//! 2. Find JSON object boundaries (matching braces)
+//! 3. Repair common issues (missing/trailing commas)
+//! 4. Validate required fields
+//!
+//! # Example
+//!
+//! ```
+//! use logai::ai::EnhancedJsonExtractor;
+//!
+//! let response = "Here's the analysis: {\"explanation\": \"Error occurred\", \"suggestions\": []}";
+//! let json = EnhancedJsonExtractor::extract(response).unwrap();
+//! assert!(json.contains("explanation"));
+//! ```
+
 use crate::Result;
 
 /// Enhanced JSON extractor for handling mixed text/JSON responses

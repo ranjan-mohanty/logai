@@ -1,3 +1,49 @@
+//! AI-powered error analysis with parallel processing and retry logic.
+//!
+//! This module provides the infrastructure for analyzing error groups using various
+//! AI providers (OpenAI, Claude, Gemini, Ollama) with support for:
+//!
+//! - **Parallel Processing**: Analyze multiple error groups concurrently
+//! - **Retry Logic**: Automatic retry with exponential backoff for transient failures
+//! - **Enhanced JSON Extraction**: Robust parsing of AI responses
+//! - **Progress Tracking**: Real-time progress updates and statistics
+//! - **Configuration**: File-based configuration with CLI overrides
+//!
+//! # Quick Start
+//!
+//! ```no_run
+//! use logai::ai::{self, ParallelAnalyzer, AnalysisConfig, ProgressUpdate};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! # let mut groups = vec![];
+//! // Create AI provider
+//! let provider = ai::create_provider("ollama", None, Some("llama3.2".to_string()), None)?;
+//!
+//! // Configure parallel analysis
+//! let config = AnalysisConfig::default();
+//! let analyzer = ParallelAnalyzer::new(provider, config);
+//!
+//! // Analyze with progress tracking
+//! analyzer.analyze_groups(&mut groups, |update: ProgressUpdate| {
+//!     println!("{}", update.format_terminal());
+//! }).await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! # Configuration
+//!
+//! Configuration can be loaded from `~/.logai/config.toml`:
+//!
+//! ```toml
+//! [analysis]
+//! max_concurrency = 5
+//! enable_retry = true
+//! max_retries = 3
+//! initial_backoff_ms = 1000
+//! max_backoff_ms = 30000
+//! ```
+
 pub mod cache;
 pub mod config;
 pub mod json_extractor;

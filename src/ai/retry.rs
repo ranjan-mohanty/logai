@@ -1,3 +1,44 @@
+//! Retry logic with exponential backoff for AI analysis requests.
+//!
+//! This module provides automatic retry functionality for transient failures,
+//! with configurable backoff strategies and error categorization.
+//!
+//! # Error Categories
+//!
+//! - **Retryable**: Network timeouts, connection errors, rate limits, server errors
+//! - **Non-retryable**: Authentication errors, bad requests, invalid configuration
+//!
+//! # Example
+//!
+//! ```no_run
+//! use logai::ai::RetryableAnalyzer;
+//! use std::sync::Arc;
+//! use chrono::Utc;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! # let provider = Arc::new(logai::ai::NoAI);
+//! # let group = logai::types::ErrorGroup {
+//! #     id: "1".to_string(),
+//! #     pattern: String::new(),
+//! #     count: 1,
+//! #     first_seen: Utc::now(),
+//! #     last_seen: Utc::now(),
+//! #     severity: logai::types::Severity::Error,
+//! #     entries: vec![],
+//! #     analysis: None,
+//! # };
+//! let analyzer = RetryableAnalyzer::new(
+//!     provider,
+//!     3,      // max_retries
+//!     1000,   // initial_backoff_ms
+//!     30000,  // max_backoff_ms
+//! );
+//!
+//! let result = analyzer.analyze(&group).await?;
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::ai::provider::AIProvider;
 use crate::types::{ErrorAnalysis, ErrorGroup};
 use crate::Result;
