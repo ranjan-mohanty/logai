@@ -14,8 +14,8 @@ pub struct Cli {
 pub enum Commands {
     /// Analyze log file(s)
     Investigate {
-        /// Log file(s) to analyze (use '-' for stdin)
-        #[arg(required = true)]
+        /// Log file(s) or directory to analyze (omit or use '-' for stdin)
+        #[arg(default_value = "-")]
         files: Vec<String>,
 
         /// AI provider to use (openai, claude, gemini, ollama, none)

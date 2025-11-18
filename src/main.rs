@@ -79,7 +79,13 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
         let entries = if file_path == "-" {
             read_logs_from_stdin()?
         } else {
-            read_logs_from_file(&file_path)?
+            // Check if it's a directory
+            let path = std::path::Path::new(&file_path);
+            if path.is_dir() {
+                read_logs_from_directory(&file_path)?
+            } else {
+                read_logs_from_file(&file_path)?
+            }
         };
         all_entries.extend(entries);
     }
@@ -224,6 +230,54 @@ fn read_logs_from_stdin() -> Result<Vec<LogEntry>> {
     }
 
     Ok(entries)
+}
+
+fn read_logs_from_directory(dir_path: &str) -> Result<Vec<LogEntry>> {
+    use std::fs;
+
+    let mut all_entries = Vec::new();
+    let mut file_count = 0;
+
+    let entries = fs::read_dir(dir_path)
+        .map_err(|e| anyhow::anyhow!("Failed to read directory '{}': {}", dir_path, e))?;
+
+    for entry in entries {
+        let entry = entry?;
+        let path = entry.path();
+
+        // Only process files (not subdirectories)
+        if !path.is_file() {
+            continue;
+        }
+
+        // Only process .log files
+        if let Some(ext) = path.extension() {
+            if ext == "log" {
+                if let Some(path_str) = path.to_str() {
+                    match read_logs_from_file(path_str) {
+                        Ok(entries) => {
+                            all_entries.extend(entries);
+                            file_count += 1;
+                        }
+                        Err(e) => {
+                            eprintln!("⚠️  Warning: Failed to read '{}': {}", path_str, e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if file_count > 0 {
+        eprintln!(
+            "📂 Processed {} log file(s) from '{}'",
+            file_count, dir_path
+        );
+    } else {
+        eprintln!("⚠️  Warning: No .log files found in '{}'", dir_path);
+    }
+
+    Ok(all_entries)
 }
 
 fn handle_config(action: ConfigAction) -> Result<()> {
