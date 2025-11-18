@@ -123,29 +123,55 @@ impl OllamaProvider {
             priority: u8,
         }
 
-        let parsed: ApiResponse = serde_json::from_str(json_str).map_err(|e| {
-            anyhow!(
-                "Failed to parse Ollama response as JSON: {}. Response was: {}",
-                e,
-                json_str.chars().take(200).collect::<String>()
-            )
-        })?;
+        // Try to parse the JSON
+        match serde_json::from_str::<ApiResponse>(json_str) {
+            Ok(parsed) => Ok(ErrorAnalysis {
+                explanation: parsed.explanation,
+                root_cause: parsed.root_cause,
+                suggestions: parsed
+                    .suggestions
+                    .into_iter()
+                    .map(|s| Suggestion {
+                        description: s.description,
+                        code_example: s.code_example,
+                        priority: s.priority,
+                    })
+                    .collect(),
+                related_resources: vec![],
+                tool_invocations: vec![],
+            }),
+            Err(e) => {
+                // If JSON parsing fails, try to extract partial information
+                log::warn!(
+                    "Failed to parse complete JSON, attempting partial extraction: {}",
+                    e
+                );
 
-        Ok(ErrorAnalysis {
-            explanation: parsed.explanation,
-            root_cause: parsed.root_cause,
-            suggestions: parsed
-                .suggestions
-                .into_iter()
-                .map(|s| Suggestion {
-                    description: s.description,
-                    code_example: s.code_example,
-                    priority: s.priority,
+                // Try to extract explanation at least
+                let explanation = if let Some(exp_start) = json_str.find("\"explanation\"") {
+                    json_str[exp_start..]
+                        .split("\"explanation\"")
+                        .nth(1)
+                        .and_then(|s| s.split(':').nth(1))
+                        .and_then(|s| s.split('"').nth(1))
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|| {
+                            "Unable to parse error analysis from AI response".to_string()
+                        })
+                } else {
+                    "Unable to parse error analysis from AI response".to_string()
+                };
+
+                // Return a basic analysis with whatever we could extract
+                Ok(ErrorAnalysis {
+                    explanation,
+                    root_cause: None,
+                    suggestions: vec![],
+                    related_resources: vec![],
+                    tool_invocations: vec![],
                 })
-                .collect(),
-            related_resources: vec![],
-            tool_invocations: vec![],
-        })
+            }
+        }
     }
 }
 

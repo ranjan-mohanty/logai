@@ -1,12 +1,14 @@
 pub mod cache;
 pub mod config;
 pub mod mcp_helper;
+pub mod parallel;
 pub mod prompts;
 pub mod provider;
 pub mod providers;
 
 pub use cache::AnalysisCache;
 pub use config::AIConfig;
+pub use parallel::{AnalysisConfig, ParallelAnalyzer, ProgressUpdate};
 pub use provider::{AIProvider, NoAI};
 pub use providers::{ClaudeProvider, GeminiProvider, OllamaProvider, OpenAIProvider};
 
