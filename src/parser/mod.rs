@@ -1,23 +1,17 @@
-pub mod apache;
 pub mod config;
 pub mod detector;
-pub mod json;
+pub mod formats;
 pub mod metadata;
-pub mod nginx;
-pub mod plain;
 pub mod statistics;
-pub mod syslog;
 pub mod timestamp;
 
 use crate::types::LogEntry;
 use crate::Result;
 
-pub use apache::ApacheParser;
 pub use config::ParserConfig;
+pub use formats::{ApacheParser, JsonParser, NginxParser, PlainTextParser, SyslogParser};
 pub use metadata::MetadataExtractor;
-pub use nginx::NginxParser;
 pub use statistics::ParsingStatistics;
-pub use syslog::SyslogParser;
 pub use timestamp::TimestampParser;
 
 /// Trait for log parsers

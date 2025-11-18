@@ -1,4 +1,7 @@
-use super::{json::JsonParser, plain::PlainTextParser, LogParser};
+use super::{
+    formats::{JsonParser, PlainTextParser},
+    LogParser,
+};
 use std::sync::Arc;
 
 pub struct FormatDetector;

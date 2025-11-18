@@ -1,4 +1,4 @@
-use super::LogParser;
+use crate::parser::LogParser;
 use crate::types::{LogEntry, LogMetadata, Severity};
 use crate::Result;
 use chrono::{DateTime, Utc};
