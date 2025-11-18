@@ -149,8 +149,12 @@ jobs:
           echo "linux_aarch64=$(sha256sum artifacts/logai-linux-aarch64/logai-linux-aarch64.tar.gz | awk '{print $1}')" >> $GITHUB_OUTPUT
           echo "linux_x86_64=$(sha256sum artifacts/logai-linux-x86_64/logai-linux-x86_64.tar.gz | awk '{print $1}')" >> $GITHUB_OUTPUT
       
-      - name: Update Homebrew formula
+      - name: Commit and push formula
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          
           VERSION=${GITHUB_REF#refs/tags/v}
           sed -i "s/version \".*\"/version \"$VERSION\"/" scripts/homebrew/logai.rb
           sed -i "s|download/v[0-9.a-z.-]\+/|download/v$VERSION/|g" scripts/homebrew/logai.rb
@@ -158,12 +162,7 @@ jobs:
           sed -i "s/PLACEHOLDER_MACOS_X86_64/${{ steps.checksums.outputs.macos_x86_64 }}/" scripts/homebrew/logai.rb
           sed -i "s/PLACEHOLDER_LINUX_ARM64/${{ steps.checksums.outputs.linux_aarch64 }}/" scripts/homebrew/logai.rb
           sed -i "s/PLACEHOLDER_LINUX_X86_64/${{ steps.checksums.outputs.linux_x86_64 }}/" scripts/homebrew/logai.rb
-      
-      - name: Commit and push formula
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
+          
           git add scripts/homebrew/logai.rb
           git commit -m "chore: Update Homebrew formula to ${GITHUB_REF#refs/tags/v}" || exit 0
           git push origin HEAD:main
