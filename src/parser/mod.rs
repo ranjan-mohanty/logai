@@ -2,6 +2,7 @@ pub mod config;
 pub mod detector;
 pub mod formats;
 pub mod metadata;
+pub mod stack_trace;
 pub mod statistics;
 pub mod timestamp;
 
@@ -11,6 +12,7 @@ use crate::Result;
 pub use config::ParserConfig;
 pub use formats::{ApacheParser, JsonParser, NginxParser, PlainTextParser, SyslogParser};
 pub use metadata::MetadataExtractor;
+pub use stack_trace::StackTraceParser;
 pub use statistics::ParsingStatistics;
 pub use timestamp::TimestampParser;
 
