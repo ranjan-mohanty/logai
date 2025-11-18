@@ -7,7 +7,7 @@ class Logai < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/ranjan-mohanty/logai/releases/download/v0.1.0-beta.1/logai-macos-aarch64.tar.gz"
-      sha256 "PLACEHOLDER_MACOS_ARM64"
+      sha256 "f6e9a0c44bb2584ff8ca88934e8a9fb5b1ccec4699721493f417224888fbdd93"
     else
       url "https://github.com/ranjan-mohanty/logai/releases/download/v0.1.0-beta.1/logai-macos-x86_64.tar.gz"
       sha256 "PLACEHOLDER_MACOS_X86_64"
