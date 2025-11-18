@@ -1,5 +1,5 @@
-use super::prompts::build_analysis_prompt;
-use super::provider::AIProvider;
+use crate::ai::prompts::build_analysis_prompt;
+use crate::ai::provider::AIProvider;
 use crate::types::{ErrorAnalysis, ErrorGroup, Suggestion};
 use crate::Result;
 use anyhow::anyhow;
@@ -7,52 +7,76 @@ use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-pub struct OllamaProvider {
+pub struct OpenAIProvider {
     client: Client,
-    host: String,
+    api_key: String,
     model: String,
 }
 
 #[derive(Serialize)]
-struct OllamaRequest {
+struct OpenAIRequest {
     model: String,
-    prompt: String,
-    stream: bool,
+    messages: Vec<Message>,
+    temperature: f32,
+}
+
+#[derive(Serialize, Deserialize)]
+struct Message {
+    role: String,
+    content: String,
 }
 
 #[derive(Deserialize)]
-struct OllamaResponse {
-    response: String,
+struct OpenAIResponse {
+    choices: Vec<Choice>,
 }
 
-impl OllamaProvider {
-    pub fn new(host: Option<String>, model: Option<String>) -> Self {
+#[derive(Deserialize)]
+struct Choice {
+    message: Message,
+}
+
+impl OpenAIProvider {
+    pub fn new(api_key: String, model: Option<String>) -> Self {
         Self {
             client: Client::new(),
-            host: host.unwrap_or_else(|| "http://localhost:11434".to_string()),
-            model: model.unwrap_or_else(|| "llama3.2".to_string()),
+            api_key,
+            model: model.unwrap_or_else(|| "gpt-4o-mini".to_string()),
         }
     }
 
     async fn call_api(&self, prompt: String) -> Result<String> {
-        let request = OllamaRequest {
+        let request = OpenAIRequest {
             model: self.model.clone(),
-            prompt,
-            stream: false,
+            messages: vec![Message {
+                role: "user".to_string(),
+                content: prompt,
+            }],
+            temperature: 0.3,
         };
 
-        let url = format!("{}/api/generate", self.host);
-
-        let response = self.client.post(&url).json(&request).send().await?;
+        let response = self
+            .client
+            .post("https://api.openai.com/v1/chat/completions")
+            .header("Authorization", format!("Bearer {}", self.api_key))
+            .header("Content-Type", "application/json")
+            .json(&request)
+            .send()
+            .await?;
 
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await?;
-            return Err(anyhow!("Ollama API error {}: {}", status, error_text));
+            return Err(anyhow!("OpenAI API error {}: {}", status, error_text));
         }
 
-        let ollama_response: OllamaResponse = response.json().await?;
-        Ok(ollama_response.response)
+        let openai_response: OpenAIResponse = response.json().await?;
+
+        openai_response
+            .choices
+            .first()
+            .map(|choice| choice.message.content.clone())
+            .ok_or_else(|| anyhow!("No response from OpenAI"))
     }
 
     fn parse_response(&self, response: &str) -> Result<ErrorAnalysis> {
@@ -109,7 +133,7 @@ impl OllamaProvider {
 }
 
 #[async_trait]
-impl AIProvider for OllamaProvider {
+impl AIProvider for OpenAIProvider {
     async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis> {
         let prompt = build_analysis_prompt(group);
         let response = self.call_api(prompt).await?;
@@ -117,6 +141,6 @@ impl AIProvider for OllamaProvider {
     }
 
     fn name(&self) -> &str {
-        "ollama"
+        "openai"
     }
 }

@@ -29,13 +29,15 @@ logai/
 │
 ├── src/                  # Source code
 │   ├── ai/               # AI provider integrations
+│   │   ├── providers/    # AI provider implementations
+│   │   │   ├── claude.rs     # Claude provider
+│   │   │   ├── gemini.rs     # Gemini provider
+│   │   │   ├── ollama.rs     # Ollama provider
+│   │   │   ├── openai.rs     # OpenAI provider
+│   │   │   └── mod.rs        # Providers module
 │   │   ├── cache.rs      # Analysis caching
-│   │   ├── claude.rs     # Claude provider
 │   │   ├── config.rs     # Configuration management
-│   │   ├── gemini.rs     # Gemini provider
 │   │   ├── mod.rs        # AI module
-│   │   ├── ollama.rs     # Ollama provider
-│   │   ├── openai.rs     # OpenAI provider
 │   │   ├── prompts.rs    # Shared prompts
 │   │   └── provider.rs   # Provider trait
 │   │

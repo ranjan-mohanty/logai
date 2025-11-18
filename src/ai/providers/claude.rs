@@ -1,5 +1,5 @@
-use super::prompts::build_analysis_prompt;
-use super::provider::AIProvider;
+use crate::ai::prompts::build_analysis_prompt;
+use crate::ai::provider::AIProvider;
 use crate::types::{ErrorAnalysis, ErrorGroup, Suggestion};
 use crate::Result;
 use anyhow::anyhow;
@@ -7,17 +7,17 @@ use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-pub struct OpenAIProvider {
+pub struct ClaudeProvider {
     client: Client,
     api_key: String,
     model: String,
 }
 
 #[derive(Serialize)]
-struct OpenAIRequest {
+struct ClaudeRequest {
     model: String,
+    max_tokens: u32,
     messages: Vec<Message>,
-    temperature: f32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -27,38 +27,39 @@ struct Message {
 }
 
 #[derive(Deserialize)]
-struct OpenAIResponse {
-    choices: Vec<Choice>,
+struct ClaudeResponse {
+    content: Vec<Content>,
 }
 
 #[derive(Deserialize)]
-struct Choice {
-    message: Message,
+struct Content {
+    text: String,
 }
 
-impl OpenAIProvider {
+impl ClaudeProvider {
     pub fn new(api_key: String, model: Option<String>) -> Self {
         Self {
             client: Client::new(),
             api_key,
-            model: model.unwrap_or_else(|| "gpt-4o-mini".to_string()),
+            model: model.unwrap_or_else(|| "claude-3-5-haiku-20241022".to_string()),
         }
     }
 
     async fn call_api(&self, prompt: String) -> Result<String> {
-        let request = OpenAIRequest {
+        let request = ClaudeRequest {
             model: self.model.clone(),
+            max_tokens: 1024,
             messages: vec![Message {
                 role: "user".to_string(),
                 content: prompt,
             }],
-            temperature: 0.3,
         };
 
         let response = self
             .client
-            .post("https://api.openai.com/v1/chat/completions")
-            .header("Authorization", format!("Bearer {}", self.api_key))
+            .post("https://api.anthropic.com/v1/messages")
+            .header("x-api-key", &self.api_key)
+            .header("anthropic-version", "2023-06-01")
             .header("Content-Type", "application/json")
             .json(&request)
             .send()
@@ -67,16 +68,16 @@ impl OpenAIProvider {
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await?;
-            return Err(anyhow!("OpenAI API error {}: {}", status, error_text));
+            return Err(anyhow!("Claude API error {}: {}", status, error_text));
         }
 
-        let openai_response: OpenAIResponse = response.json().await?;
+        let claude_response: ClaudeResponse = response.json().await?;
 
-        openai_response
-            .choices
+        claude_response
+            .content
             .first()
-            .map(|choice| choice.message.content.clone())
-            .ok_or_else(|| anyhow!("No response from OpenAI"))
+            .map(|c| c.text.clone())
+            .ok_or_else(|| anyhow!("No response from Claude"))
     }
 
     fn parse_response(&self, response: &str) -> Result<ErrorAnalysis> {
@@ -133,7 +134,7 @@ impl OpenAIProvider {
 }
 
 #[async_trait]
-impl AIProvider for OpenAIProvider {
+impl AIProvider for ClaudeProvider {
     async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis> {
         let prompt = build_analysis_prompt(group);
         let response = self.call_api(prompt).await?;
@@ -141,6 +142,6 @@ impl AIProvider for OpenAIProvider {
     }
 
     fn name(&self) -> &str {
-        "openai"
+        "claude"
     }
 }

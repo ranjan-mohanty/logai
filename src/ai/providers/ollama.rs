@@ -1,5 +1,5 @@
-use super::prompts::build_analysis_prompt;
-use super::provider::AIProvider;
+use crate::ai::prompts::build_analysis_prompt;
+use crate::ai::provider::AIProvider;
 use crate::types::{ErrorAnalysis, ErrorGroup, Suggestion};
 use crate::Result;
 use anyhow::anyhow;
@@ -7,90 +7,52 @@ use async_trait::async_trait;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-pub struct GeminiProvider {
+pub struct OllamaProvider {
     client: Client,
-    api_key: String,
+    host: String,
     model: String,
 }
 
 #[derive(Serialize)]
-struct GeminiRequest {
-    contents: Vec<Content>,
-}
-
-#[derive(Serialize)]
-struct Content {
-    parts: Vec<Part>,
-}
-
-#[derive(Serialize)]
-struct Part {
-    text: String,
+struct OllamaRequest {
+    model: String,
+    prompt: String,
+    stream: bool,
 }
 
 #[derive(Deserialize)]
-struct GeminiResponse {
-    candidates: Vec<Candidate>,
+struct OllamaResponse {
+    response: String,
 }
 
-#[derive(Deserialize)]
-struct Candidate {
-    content: ResponseContent,
-}
-
-#[derive(Deserialize)]
-struct ResponseContent {
-    parts: Vec<ResponsePart>,
-}
-
-#[derive(Deserialize)]
-struct ResponsePart {
-    text: String,
-}
-
-impl GeminiProvider {
-    pub fn new(api_key: String, model: Option<String>) -> Self {
+impl OllamaProvider {
+    pub fn new(host: Option<String>, model: Option<String>) -> Self {
         Self {
             client: Client::new(),
-            api_key,
-            model: model.unwrap_or_else(|| "gemini-1.5-flash".to_string()),
+            host: host.unwrap_or_else(|| "http://localhost:11434".to_string()),
+            model: model.unwrap_or_else(|| "llama3.2".to_string()),
         }
     }
 
     async fn call_api(&self, prompt: String) -> Result<String> {
-        let request = GeminiRequest {
-            contents: vec![Content {
-                parts: vec![Part { text: prompt }],
-            }],
+        let request = OllamaRequest {
+            model: self.model.clone(),
+            prompt,
+            stream: false,
         };
 
-        let url = format!(
-            "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent?key={}",
-            self.model, self.api_key
-        );
+        let url = format!("{}/api/generate", self.host);
 
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request)
-            .send()
-            .await?;
+        let response = self.client.post(&url).json(&request).send().await?;
 
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await?;
-            return Err(anyhow!("Gemini API error {}: {}", status, error_text));
+            return Err(anyhow!("Ollama API error {}: {}", status, error_text));
         }
 
-        let gemini_response: GeminiResponse = response.json().await?;
-
-        gemini_response
-            .candidates
-            .first()
-            .and_then(|c| c.content.parts.first())
-            .map(|p| p.text.clone())
-            .ok_or_else(|| anyhow!("No response from Gemini"))
+        let ollama_response: OllamaResponse = response.json().await?;
+        Ok(ollama_response.response)
     }
 
     fn parse_response(&self, response: &str) -> Result<ErrorAnalysis> {
@@ -147,7 +109,7 @@ impl GeminiProvider {
 }
 
 #[async_trait]
-impl AIProvider for GeminiProvider {
+impl AIProvider for OllamaProvider {
     async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis> {
         let prompt = build_analysis_prompt(group);
         let response = self.call_api(prompt).await?;
@@ -155,6 +117,6 @@ impl AIProvider for GeminiProvider {
     }
 
     fn name(&self) -> &str {
-        "gemini"
+        "ollama"
     }
 }

@@ -1,19 +1,13 @@
 pub mod cache;
-pub mod claude;
 pub mod config;
-pub mod gemini;
-pub mod ollama;
-pub mod openai;
 pub mod prompts;
 pub mod provider;
+pub mod providers;
 
 pub use cache::AnalysisCache;
-pub use claude::ClaudeProvider;
 pub use config::AIConfig;
-pub use gemini::GeminiProvider;
-pub use ollama::OllamaProvider;
-pub use openai::OpenAIProvider;
 pub use provider::{AIProvider, NoAI};
+pub use providers::{ClaudeProvider, GeminiProvider, OllamaProvider, OpenAIProvider};
 
 use crate::Result;
 use std::sync::Arc;
