@@ -8,6 +8,7 @@ pub mod prompts;
 pub mod provider;
 pub mod providers;
 pub mod retry;
+pub mod statistics;
 
 pub use cache::AnalysisCache;
 pub use config::AIConfig;
@@ -17,6 +18,7 @@ pub use progress::ProgressUpdate;
 pub use provider::{AIProvider, NoAI};
 pub use providers::{ClaudeProvider, GeminiProvider, OllamaProvider, OpenAIProvider};
 pub use retry::RetryableAnalyzer;
+pub use statistics::AnalysisStatistics;
 
 use crate::Result;
 use std::sync::Arc;
