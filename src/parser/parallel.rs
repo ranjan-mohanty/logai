@@ -14,11 +14,23 @@ pub struct ParallelParser {
     parser: Arc<dyn LogParser>,
     chunk_size: usize,
     num_threads: Option<usize>,
+    streaming_threshold_bytes: u64,
 }
 
 impl ParallelParser {
     /// Create a new parallel parser with the given parser and configuration
     pub fn new(parser: Arc<dyn LogParser>, chunk_size: usize, num_threads: Option<usize>) -> Self {
+        Self::with_threshold(parser, chunk_size, num_threads, 100 * 1024 * 1024)
+        // 100MB default
+    }
+
+    /// Create a new parallel parser with custom streaming threshold
+    pub fn with_threshold(
+        parser: Arc<dyn LogParser>,
+        chunk_size: usize,
+        num_threads: Option<usize>,
+        streaming_threshold_bytes: u64,
+    ) -> Self {
         // Configure rayon thread pool if specified
         if let Some(threads) = num_threads {
             rayon::ThreadPoolBuilder::new()
@@ -31,6 +43,7 @@ impl ParallelParser {
             parser,
             chunk_size,
             num_threads,
+            streaming_threshold_bytes,
         }
     }
 
@@ -40,8 +53,8 @@ impl ParallelParser {
         let metadata = file.metadata()?;
         let file_size = metadata.len();
 
-        // For large files (>100MB), use streaming approach
-        if file_size > 100_000_000 {
+        // For large files (above threshold), use streaming approach
+        if file_size > self.streaming_threshold_bytes {
             self.parse_streaming(BufReader::new(file))
         } else {
             // For smaller files, load all lines and parse in parallel
@@ -61,7 +74,7 @@ impl ParallelParser {
         let metadata = file.metadata()?;
         let file_size = metadata.len();
 
-        let entries = if file_size > 100_000_000 {
+        let entries = if file_size > self.streaming_threshold_bytes {
             self.parse_streaming_with_tracking(BufReader::new(file), &total_lines, &parse_errors)?
         } else {
             let reader = BufReader::new(file);
@@ -193,6 +206,11 @@ impl ParallelParser {
     pub fn num_threads(&self) -> Option<usize> {
         self.num_threads
     }
+
+    /// Get the configured streaming threshold in bytes
+    pub fn streaming_threshold_bytes(&self) -> u64 {
+        self.streaming_threshold_bytes
+    }
 }
 
 #[cfg(test)]
@@ -248,5 +266,42 @@ mod tests {
 
         let entries = parallel_parser.parse_parallel(&lines).unwrap();
         assert_eq!(entries.len(), 250);
+    }
+
+    #[test]
+    fn test_parallel_parser_custom_threshold() {
+        let parser = Arc::new(PlainTextParser::new());
+        // Set a very low threshold (1KB) to force streaming mode
+        let parallel_parser = ParallelParser::with_threshold(parser, 100, None, 1024);
+
+        // Create a temporary file larger than 1KB
+        let mut temp_file = NamedTempFile::new().unwrap();
+        for i in 0..100 {
+            writeln!(temp_file, "Log line with some content {}", i).unwrap();
+        }
+
+        let entries = parallel_parser.parse_file(temp_file.path()).unwrap();
+        assert_eq!(entries.len(), 100);
+        assert_eq!(parallel_parser.streaming_threshold_bytes(), 1024);
+    }
+
+    #[test]
+    fn test_streaming_large_file() {
+        let parser = Arc::new(PlainTextParser::new());
+        let parallel_parser = ParallelParser::new(parser, 100, None);
+
+        // Create a temporary file with many lines
+        let mut temp_file = NamedTempFile::new().unwrap();
+        for i in 0..10000 {
+            writeln!(temp_file, "Log line {}", i).unwrap();
+        }
+
+        let (entries, stats) = parallel_parser
+            .parse_file_with_stats(temp_file.path())
+            .unwrap();
+
+        assert_eq!(entries.len(), 10000);
+        assert_eq!(stats.total_lines, 10000);
+        assert_eq!(stats.parsed_entries, 10000);
     }
 }

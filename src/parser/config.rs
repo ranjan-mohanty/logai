@@ -109,6 +109,11 @@ impl ParserConfig {
         }
         Ok(())
     }
+
+    /// Get streaming threshold in bytes
+    pub fn streaming_threshold_bytes(&self) -> u64 {
+        (self.streaming_threshold_mb as u64) * 1024 * 1024
+    }
 }
 
 #[cfg(test)]
