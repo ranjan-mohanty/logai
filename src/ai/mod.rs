@@ -1,5 +1,6 @@
 pub mod cache;
 pub mod config;
+pub mod json_extractor;
 pub mod mcp_helper;
 pub mod parallel;
 pub mod prompts;
@@ -9,6 +10,7 @@ pub mod retry;
 
 pub use cache::AnalysisCache;
 pub use config::AIConfig;
+pub use json_extractor::EnhancedJsonExtractor;
 pub use parallel::{AnalysisConfig, ParallelAnalyzer, ProgressUpdate};
 pub use provider::{AIProvider, NoAI};
 pub use providers::{ClaudeProvider, GeminiProvider, OllamaProvider, OpenAIProvider};
