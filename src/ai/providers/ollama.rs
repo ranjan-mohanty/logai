@@ -43,7 +43,14 @@ impl OllamaProvider {
 
         let url = format!("{}/api/generate", self.host);
 
-        let response = self.client.post(&url).json(&request).send().await?;
+        let response = self
+            .client
+            .post(&url)
+            .json(&request)
+            .timeout(std::time::Duration::from_secs(120))
+            .send()
+            .await
+            .map_err(|e| anyhow!("Ollama API request failed: {}", e))?;
 
         if !response.status().is_success() {
             let status = response.status();
@@ -51,12 +58,25 @@ impl OllamaProvider {
             return Err(anyhow!("Ollama API error {}: {}", status, error_text));
         }
 
-        let ollama_response: OllamaResponse = response.json().await?;
+        let ollama_response: OllamaResponse = response
+            .json()
+            .await
+            .map_err(|e| anyhow!("Failed to parse Ollama API response: {}", e))?;
+
+        if ollama_response.response.trim().is_empty() {
+            return Err(anyhow!("Ollama returned an empty response"));
+        }
+
         Ok(ollama_response.response)
     }
 
     fn parse_response(&self, response: &str) -> Result<ErrorAnalysis> {
-        // Try to extract JSON from markdown code blocks
+        // Check if response is empty
+        if response.trim().is_empty() {
+            return Err(anyhow!("Empty response from Ollama"));
+        }
+
+        // Try to extract JSON from markdown code blocks or find JSON object
         let json_str = if response.contains("```json") {
             response
                 .split("```json")
@@ -71,9 +91,23 @@ impl OllamaProvider {
                 .and_then(|s| s.split("```").next())
                 .unwrap_or(response)
                 .trim()
+        } else if let Some(start) = response.find('{') {
+            // Find the JSON object by looking for the first { and last }
+            if let Some(end) = response.rfind('}') {
+                if end > start {
+                    &response[start..=end]
+                } else {
+                    response.trim()
+                }
+            } else {
+                response.trim()
+            }
         } else {
             response.trim()
         };
+
+        // Log the JSON string for debugging
+        log::debug!("Attempting to parse JSON: {}", json_str);
 
         #[derive(Deserialize)]
         struct ApiResponse {
@@ -89,7 +123,13 @@ impl OllamaProvider {
             priority: u8,
         }
 
-        let parsed: ApiResponse = serde_json::from_str(json_str)?;
+        let parsed: ApiResponse = serde_json::from_str(json_str).map_err(|e| {
+            anyhow!(
+                "Failed to parse Ollama response as JSON: {}. Response was: {}",
+                e,
+                json_str.chars().take(200).collect::<String>()
+            )
+        })?;
 
         Ok(ErrorAnalysis {
             explanation: parsed.explanation,
