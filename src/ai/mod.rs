@@ -5,12 +5,14 @@ pub mod parallel;
 pub mod prompts;
 pub mod provider;
 pub mod providers;
+pub mod retry;
 
 pub use cache::AnalysisCache;
 pub use config::AIConfig;
 pub use parallel::{AnalysisConfig, ParallelAnalyzer, ProgressUpdate};
 pub use provider::{AIProvider, NoAI};
 pub use providers::{ClaudeProvider, GeminiProvider, OllamaProvider, OpenAIProvider};
+pub use retry::RetryableAnalyzer;
 
 use crate::Result;
 use std::sync::Arc;

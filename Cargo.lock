@@ -906,6 +906,7 @@ dependencies = [
  "env_logger",
  "indicatif",
  "log",
+ "rand",
  "rayon",
  "regex",
  "reqwest",
