@@ -49,8 +49,7 @@ curl -sSL https://raw.githubusercontent.com/ranjan-mohanty/logai/main/scripts/in
 ### Homebrew (macOS/Linux)
 
 ```bash
-brew tap ranjan-mohanty/logai
-brew install logai
+brew install https://raw.githubusercontent.com/ranjan-mohanty/logai/main/scripts/homebrew/logai.rb
 ```
 
 ### Cargo (All platforms)

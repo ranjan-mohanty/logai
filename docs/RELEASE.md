@@ -16,8 +16,16 @@ This document describes how to create a new release of logai.
 
 Update the version in `Cargo.toml`:
 
+For stable releases:
+
 ```toml
 version = "0.2.0"
+```
+
+For beta/pre-releases:
+
+```toml
+version = "0.2.0-beta.1"
 ```
 
 ### 2. Update CHANGELOG
@@ -35,13 +43,22 @@ git push
 ### 4. Create and Push Tag
 
 ```bash
-git tag -a v0.2.0 -m "Release v0.2.0"
+git tag v0.2.0
 git push origin v0.2.0
 ```
 
-### 5. Automated Process
+### 5. Create GitHub Release
 
-Once the tag is pushed, GitHub Actions will automatically:
+Go to GitHub → Releases → Draft a new release:
+
+- Choose the tag you just pushed
+- For pre-releases (beta, rc, alpha), check "Set as a pre-release"
+- Add release notes (can copy from CHANGELOG)
+- Click "Publish release"
+
+### 6. Automated Process
+
+Once the release is published, GitHub Actions will automatically:
 
 1. **Build binaries** for all platforms (Linux, macOS, Windows - x86_64 and
    aarch64)
@@ -81,17 +98,19 @@ Once the tag is pushed, GitHub Actions will automatically:
 
 Visit https://crates.io/crates/logai to confirm the new version is live.
 
-### 2. Create Homebrew Tap (First Time Only)
+### 2. Test Homebrew Installation
 
-If you haven't already, create a tap repository:
+Users can install directly from the main repo:
 
 ```bash
-# Create a new repo named 'homebrew-logai'
-# Copy scripts/homebrew/logai.rb to the root
-# Users can then install with:
-brew tap ranjan-mohanty/logai
-brew install logai
+brew install https://raw.githubusercontent.com/ranjan-mohanty/logai/main/scripts/homebrew/logai.rb
 ```
+
+(Optional) Create a tap repository for shorter install command:
+
+- Create repo named `homebrew-logai`
+- Copy `scripts/homebrew/logai.rb` to `Formula/logai.rb`
+- Users can then: `brew tap ranjan-mohanty/logai && brew install logai`
 
 ### 3. Test Installation
 
@@ -101,8 +120,8 @@ Test all installation methods:
 # Cargo
 cargo install logai
 
-# Homebrew (if tap exists)
-brew install ranjan-mohanty/logai/logai
+# Homebrew
+brew install https://raw.githubusercontent.com/ranjan-mohanty/logai/main/scripts/homebrew/logai.rb
 
 # Direct download
 # Download from GitHub releases and test
