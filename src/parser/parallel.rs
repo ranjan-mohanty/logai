@@ -1,9 +1,9 @@
+use crate::parser::encoding::LossyLineReader;
 use crate::parser::{LogParser, ParsingStatistics};
 use crate::types::LogEntry;
 use crate::Result;
 use rayon::prelude::*;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
@@ -55,11 +55,11 @@ impl ParallelParser {
 
         // For large files (above threshold), use streaming approach
         if file_size > self.streaming_threshold_bytes {
-            self.parse_streaming(BufReader::new(file))
+            self.parse_streaming(file)
         } else {
             // For smaller files, load all lines and parse in parallel
-            let reader = BufReader::new(file);
-            let lines: Vec<String> = reader.lines().map_while(Result::ok).collect();
+            let reader = LossyLineReader::new(file);
+            let lines: Vec<String> = reader.map_while(Result::ok).collect();
             self.parse_parallel(&lines)
         }
     }
@@ -75,10 +75,10 @@ impl ParallelParser {
         let file_size = metadata.len();
 
         let entries = if file_size > self.streaming_threshold_bytes {
-            self.parse_streaming_with_tracking(BufReader::new(file), &total_lines, &parse_errors)?
+            self.parse_streaming_with_tracking(file, &total_lines, &parse_errors)?
         } else {
-            let reader = BufReader::new(file);
-            let lines: Vec<String> = reader.lines().map_while(Result::ok).collect();
+            let reader = LossyLineReader::new(file);
+            let lines: Vec<String> = reader.map_while(Result::ok).collect();
             total_lines.store(lines.len(), Ordering::Relaxed);
             self.parse_parallel_with_tracking(&lines, &parse_errors)?
         };
@@ -140,11 +140,12 @@ impl ParallelParser {
     }
 
     /// Parse a large file using streaming to limit memory usage
-    fn parse_streaming(&self, reader: BufReader<File>) -> Result<Vec<LogEntry>> {
+    fn parse_streaming(&self, file: File) -> Result<Vec<LogEntry>> {
         let mut entries = Vec::new();
         let mut buffer = Vec::with_capacity(self.chunk_size);
+        let reader = LossyLineReader::new(file);
 
-        for line in reader.lines() {
+        for line in reader {
             let line = line?;
             buffer.push(line);
 
@@ -168,14 +169,15 @@ impl ParallelParser {
     /// Parse a large file using streaming with statistics tracking
     fn parse_streaming_with_tracking(
         &self,
-        reader: BufReader<File>,
+        file: File,
         total_lines: &AtomicUsize,
         parse_errors: &AtomicUsize,
     ) -> Result<Vec<LogEntry>> {
         let mut entries = Vec::new();
         let mut buffer = Vec::with_capacity(self.chunk_size);
+        let reader = LossyLineReader::new(file);
 
-        for line in reader.lines() {
+        for line in reader {
             let line = line?;
             buffer.push(line);
             total_lines.fetch_add(1, Ordering::Relaxed);

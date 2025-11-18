@@ -1,5 +1,6 @@
 pub mod config;
 pub mod detector;
+pub mod encoding;
 pub mod formats;
 pub mod metadata;
 pub mod parallel;
