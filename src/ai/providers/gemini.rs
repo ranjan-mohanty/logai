@@ -142,6 +142,7 @@ impl GeminiProvider {
                 })
                 .collect(),
             related_resources: vec![],
+            tool_invocations: vec![],
         })
     }
 }

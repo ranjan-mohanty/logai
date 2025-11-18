@@ -53,6 +53,14 @@ pub enum Commands {
         /// Filter by severity (error, warn, info)
         #[arg(long)]
         severity: Option<String>,
+
+        /// Disable MCP tools integration
+        #[arg(long)]
+        no_mcp: bool,
+
+        /// Path to MCP configuration file
+        #[arg(long)]
+        mcp_config: Option<String>,
     },
 
     /// Watch and analyze logs in real-time

@@ -13,6 +13,9 @@ use std::io::{BufRead, BufReader};
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Initialize logger
+    env_logger::init();
+
     let cli = Cli::parse();
 
     match cli.command {
@@ -27,6 +30,8 @@ async fn main() -> Result<()> {
             output: _,
             limit,
             severity: _,
+            no_mcp,
+            mcp_config,
         } => {
             investigate_logs(InvestigateOptions {
                 files,
@@ -37,6 +42,8 @@ async fn main() -> Result<()> {
                 no_cache,
                 format,
                 limit,
+                no_mcp,
+                mcp_config,
             })
             .await?;
         }
@@ -60,6 +67,8 @@ struct InvestigateOptions {
     no_cache: bool,
     format: String,
     limit: usize,
+    no_mcp: bool,
+    mcp_config: Option<String>,
 }
 
 async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
@@ -72,6 +81,8 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
         no_cache,
         format,
         limit,
+        no_mcp,
+        mcp_config,
     } = opts;
     let mut all_entries = Vec::new();
 
@@ -104,6 +115,28 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
         return Ok(());
     }
 
+    // Initialize MCP client if enabled
+    let mcp_client = if !no_mcp && ai_provider != "none" {
+        match initialize_mcp_client(mcp_config.as_deref()).await {
+            Ok(client) => {
+                if client.is_connected() {
+                    println!(
+                        "🔧 MCP tools enabled ({} servers connected)\n",
+                        client.connected_servers().len()
+                    );
+                }
+                Some(client)
+            }
+            Err(e) => {
+                eprintln!("⚠️  MCP initialization failed: {}", e);
+                eprintln!("   Continuing without MCP tools...\n");
+                None
+            }
+        }
+    } else {
+        None
+    };
+
     // AI analysis if enabled
     if ai_provider != "none" {
         println!("🤖 Analyzing errors with {}...\n", ai_provider);
@@ -129,8 +162,16 @@ async fn investigate_logs(opts: InvestigateOptions) -> Result<()> {
                 }
             }
 
-            // Call AI provider
-            match provider.analyze(group).await {
+            // Call AI provider (with MCP tools if available)
+            let analysis_result = if mcp_client.is_some() {
+                provider
+                    .analyze_with_tools(group, mcp_client.as_ref())
+                    .await
+            } else {
+                provider.analyze(group).await
+            };
+
+            match analysis_result {
                 Ok(analysis) => {
                     // Cache the result
                     if let Some(ref cache) = cache {
@@ -365,4 +406,42 @@ fn handle_config(action: ConfigAction) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Initialize MCP client from configuration
+async fn initialize_mcp_client(config_path: Option<&str>) -> Result<logai::mcp::MCPClient> {
+    use logai::mcp::{MCPClient, MCPConfig};
+
+    // Load MCP configuration
+    let config = if let Some(path) = config_path {
+        // Load from specified path
+        let content = std::fs::read_to_string(path)?;
+        toml::from_str(&content)?
+    } else {
+        // Try to load from default location (~/.logai/mcp.toml)
+        let config_dir = dirs::home_dir()
+            .ok_or_else(|| anyhow::anyhow!("Could not determine home directory"))?
+            .join(".logai");
+
+        let mcp_config_path = config_dir.join("mcp.toml");
+
+        if mcp_config_path.exists() {
+            let content = std::fs::read_to_string(&mcp_config_path)?;
+            toml::from_str(&content)?
+        } else {
+            // Return default empty config if no config file exists
+            MCPConfig::default()
+        }
+    };
+
+    // Create and connect client
+    let mut client = MCPClient::new(config)?;
+    client.connect().await?;
+
+    // Discover tools
+    if client.is_connected() {
+        client.discover_tools().await?;
+    }
+
+    Ok(client)
 }

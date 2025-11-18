@@ -19,3 +19,13 @@ Thumbs.db
 
 # Development/Planning (internal docs)
 .dev/
+.kiro/
+
+# Test files
+examples/test-error.log
+tests/mock_mcp_server.sh
+
+# Temporary cleanup files
+CLEANUP_SUMMARY.md
+READY_TO_PUSH.md
+PRE_PUSH_CHECKLIST.md

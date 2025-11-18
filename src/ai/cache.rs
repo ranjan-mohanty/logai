@@ -62,6 +62,7 @@ impl AnalysisCache {
                     root_cause,
                     suggestions,
                     related_resources: vec![],
+                    tool_invocations: vec![],
                 }))
             }
             Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),

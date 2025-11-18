@@ -1,3 +1,4 @@
+use crate::mcp::MCPClient;
 use crate::types::{ErrorAnalysis, ErrorGroup};
 use crate::Result;
 use async_trait::async_trait;
@@ -5,6 +6,17 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait AIProvider: Send + Sync {
     async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis>;
+
+    /// Analyze with MCP tools support
+    async fn analyze_with_tools(
+        &self,
+        group: &ErrorGroup,
+        _mcp_client: Option<&MCPClient>,
+    ) -> Result<ErrorAnalysis> {
+        // Default implementation: just call analyze without tools
+        self.analyze(group).await
+    }
+
     fn name(&self) -> &str;
 }
 
@@ -18,6 +30,7 @@ impl AIProvider for NoAI {
             root_cause: None,
             suggestions: vec![],
             related_resources: vec![],
+            tool_invocations: vec![],
         })
     }
 

@@ -1,5 +1,6 @@
 pub mod cache;
 pub mod config;
+pub mod mcp_helper;
 pub mod prompts;
 pub mod provider;
 pub mod providers;

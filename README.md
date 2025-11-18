@@ -25,14 +25,16 @@ through massive log files and let LogAI do the detective work.
 ✅ Track error frequency and timing  
 ✅ AI-powered error explanations (OpenAI, Claude, Gemini, Ollama)  
 ✅ Solution suggestions with code examples  
-✅ Response caching to reduce API costs
+✅ Response caching to reduce API costs  
+✅ **MCP (Model Context Protocol) integration** - Connect external tools and
+data sources
 
 ## Coming Soon
 
-🚧 Stack Overflow and GitHub search integration  
+🚧 Built-in MCP tools (search_docs, check_metrics, search_code)  
 🚧 Watch mode for real-time analysis  
 🚧 HTML reports  
-🚧 Case history and caching
+🚧 Advanced log format support (Apache, Nginx, Syslog)
 
 ## Quick Start
 
@@ -147,6 +149,40 @@ Disable caching (force fresh analysis):
 logai investigate app.log --ai openai --no-cache
 ```
 
+## MCP Integration (Advanced)
+
+LogAI supports [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
+to connect external tools and data sources during analysis.
+
+Create `~/.logai/mcp.toml`:
+
+```toml
+default_timeout = 30
+
+[[servers]]
+name = "filesystem"
+enabled = true
+
+[servers.connection]
+type = "Stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+```
+
+Use with MCP tools:
+
+```bash
+logai investigate app.log --ai ollama --mcp-config ~/.logai/mcp.toml
+```
+
+Disable MCP:
+
+```bash
+logai investigate app.log --ai ollama --no-mcp
+```
+
+See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for more details.
+
 ## Example Output
 
 ```text
@@ -225,10 +261,12 @@ cargo run -- investigate tests/fixtures/sample.log
 - [x] Core parsing and grouping
 - [x] AI integration (OpenAI, Claude, Gemini, Ollama)
 - [x] Response caching
+- [x] MCP (Model Context Protocol) integration
+- [ ] Built-in MCP tools (search_docs, check_metrics, search_code, query_logs)
 - [ ] Watch mode for real-time analysis
 - [ ] HTML reports
-- [ ] Stack Overflow integration
-- [ ] Configuration file support
+- [ ] Advanced log format support (Apache, Nginx, Syslog)
+- [ ] Anomaly detection and trend analysis
 
 ## Documentation
 

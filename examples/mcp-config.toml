@@ -1,0 +1,28 @@
+# Example MCP Configuration for LogAI
+# Place this file at ~/.logai/mcp.toml or specify with --mcp-config
+
+default_timeout = 30
+
+# Filesystem server - provides file operations
+[[servers]]
+name = "filesystem"
+enabled = true
+
+[servers.connection]
+type = "Stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+
+# You can add more servers here
+# [[servers]]
+# name = "custom-server"
+# enabled = true
+# [servers.connection]
+# type = "Stdio"
+# command = "path/to/your/mcp/server"
+# args = []
+
+# Per-tool timeout overrides (in seconds)
+[tool_timeouts]
+# search_docs = 60
+# check_metrics = 45

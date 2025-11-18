@@ -1,6 +1,7 @@
 pub mod ai;
 pub mod analyzer;
 pub mod cli;
+pub mod mcp;
 pub mod output;
 pub mod parser;
 pub mod search;
@@ -59,6 +60,8 @@ pub mod types {
         pub root_cause: Option<String>,
         pub suggestions: Vec<Suggestion>,
         pub related_resources: Vec<Resource>,
+        #[serde(skip_serializing_if = "Vec::is_empty", default)]
+        pub tool_invocations: Vec<crate::mcp::ToolInvocationSummary>,
     }
 
     #[derive(Debug, Clone, Serialize, Deserialize)]

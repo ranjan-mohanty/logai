@@ -21,5 +21,12 @@ and this project adheres to
 - `logai config` commands for managing settings
 - Multiple installation methods (cargo, curl script, homebrew, pre-built
   binaries)
+- **MCP (Model Context Protocol) integration** - Connect external tools and data
+  sources
+- MCP client with stdio transport support
+- Tool discovery and invocation with timeout management
+- CLI flags: `--no-mcp`, `--mcp-config` for MCP control
+- Enhanced AI analysis with MCP tool results
+- Graceful degradation when MCP tools are unavailable
 
 [Unreleased]: https://github.com/ranjan-mohanty/logai/commits/main
