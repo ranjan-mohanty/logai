@@ -36,8 +36,6 @@ through massive log files and let LogAI do the detective work.
 
 ## Quick Start
 
-👉 **[5-Minute Quick Start Guide](docs/QUICKSTART.md)**
-
 ## Installation
 
 ### Quick Install (macOS/Linux)
@@ -234,7 +232,6 @@ cargo run -- investigate tests/fixtures/sample.log
 
 ## Documentation
 
-- [Quick Start](docs/QUICKSTART.md) - Get started in 5 minutes
 - [Usage Guide](docs/USAGE.md) - Comprehensive usage examples
 - [Compatibility](docs/COMPATIBILITY.md) - Supported log formats
 - [Contributing](CONTRIBUTING.md) - How to contribute

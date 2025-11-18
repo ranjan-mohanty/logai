@@ -11,7 +11,7 @@ logai/
 ├── docs/                 # Documentation
 │   ├── COMPATIBILITY.md  # Log format compatibility guide
 │   ├── DEVELOPMENT.md    # Development guide
-│   ├── QUICKSTART.md     # Quick start guide
+│   ├── PROJECT_STRUCTURE.md  # Project structure overview
 │   └── USAGE.md          # Detailed usage guide
 │
 ├── examples/             # Example usage and sample logs
@@ -19,8 +19,8 @@ logai/
 │   └── README.md         # Example usage scenarios
 │
 ├── hooks/                # Git hooks
-│   ├── pre-commit        # Pre-commit checks (fmt, clippy, tests)
-│   └── README.md         # Hook documentation
+│   ├── commit-msg        # Commit message validation
+│   └── pre-commit        # Pre-commit checks (fmt, clippy, tests)
 │
 ├── scripts/              # Installation and utility scripts
 │   ├── homebrew/         # Homebrew formula
