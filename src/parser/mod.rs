@@ -15,7 +15,7 @@ pub use formats::{ApacheParser, JsonParser, NginxParser, PlainTextParser, Syslog
 pub use metadata::MetadataExtractor;
 pub use parallel::ParallelParser;
 pub use stack_trace::StackTraceParser;
-pub use statistics::ParsingStatistics;
+pub use statistics::{ParsingContext, ParsingStatistics};
 pub use timestamp::TimestampParser;
 
 /// Trait for log parsers
