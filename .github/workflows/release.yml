@@ -89,8 +89,8 @@ jobs:
             ${{ matrix.asset_name }}.zip
           if-no-files-found: error
 
-  create-release:
-    name: Create Release
+  upload-release-assets:
+    name: Upload Release Assets
     needs: build-release
     runs-on: ubuntu-latest
     steps:
@@ -101,12 +101,9 @@ jobs:
         with:
           path: artifacts
       
-      - name: Create release
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
-          draft: false
-          prerelease: false
-          generate_release_notes: true
           files: |
             artifacts/**/*.tar.gz
             artifacts/**/*.zip
@@ -115,7 +112,7 @@ jobs:
 
   publish-crates:
     name: Publish to crates.io
-    needs: create-release
+    needs: upload-release-assets
     runs-on: ubuntu-latest
     if: github.repository == 'ranjan-mohanty/logai'
     steps:
@@ -133,7 +130,7 @@ jobs:
 
   update-homebrew:
     name: Update Homebrew Formula
-    needs: create-release
+    needs: upload-release-assets
     runs-on: ubuntu-latest
     if: github.repository == 'ranjan-mohanty/logai'
     steps:
