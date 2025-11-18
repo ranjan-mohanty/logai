@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.0-beta.1] - 2025-11-18
+
 ### Added
 
 - JSON and plain text log parsing with auto-detection
@@ -28,5 +30,9 @@ and this project adheres to
 - CLI flags: `--no-mcp`, `--mcp-config` for MCP control
 - Enhanced AI analysis with MCP tool results
 - Graceful degradation when MCP tools are unavailable
+- Comprehensive MCP documentation and examples
 
-[Unreleased]: https://github.com/ranjan-mohanty/logai/commits/main
+[Unreleased]:
+  https://github.com/ranjan-mohanty/logai/compare/v0.1.0-beta.1...HEAD
+[0.1.0-beta.1]:
+  https://github.com/ranjan-mohanty/logai/releases/tag/v0.1.0-beta.1

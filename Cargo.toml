@@ -1,6 +1,6 @@
 [package]
 name = "logai"
-version = "0.2.0"
+version = "0.1.0-beta.1"
 edition = "2021"
 authors = ["Ranjan Mohanty <ranjan@duck.com>"]
 description = "AI-powered log analyzer with MCP integration - Groups errors, suggests fixes, and connects external tools"
