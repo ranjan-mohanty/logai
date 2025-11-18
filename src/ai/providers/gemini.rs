@@ -155,6 +155,47 @@ impl AIProvider for GeminiProvider {
         self.parse_response(&response)
     }
 
+    async fn analyze_with_tools(
+        &self,
+        group: &ErrorGroup,
+        mcp_client: Option<&crate::mcp::MCPClient>,
+    ) -> Result<ErrorAnalysis> {
+        // If no MCP client, fall back to regular analysis
+        let Some(client) = mcp_client else {
+            return self.analyze(group).await;
+        };
+
+        // Build base prompt
+        let base_prompt = build_analysis_prompt(group);
+
+        // Invoke relevant MCP tools and collect results
+        let tool_results = crate::ai::mcp_helper::invoke_relevant_tools(client, group).await;
+
+        // Augment prompt with tool results
+        let prompt = crate::ai::mcp_helper::augment_prompt_with_tools(base_prompt, &tool_results);
+
+        // Call AI with enhanced prompt
+        let response = self.call_api(prompt).await?;
+        let mut analysis = self.parse_response(&response)?;
+
+        // Add tool invocation summaries
+        analysis.tool_invocations = tool_results
+            .into_iter()
+            .map(|r| crate::mcp::ToolInvocationSummary {
+                tool: r.tool_name,
+                status: if r.result.success {
+                    "success".to_string()
+                } else {
+                    "failure".to_string()
+                },
+                duration_ms: r.duration_ms,
+                contributed_to: vec![],
+            })
+            .collect();
+
+        Ok(analysis)
+    }
+
     fn name(&self) -> &str {
         "gemini"
     }
