@@ -1,99 +1,73 @@
-.PHONY: help install build test fmt lint check clean run install-hooks fmt-md
+.PHONY: help setup build test fmt lint check clean run docs
 
 # Default target
 help:
 	@echo "LogAI Development Commands"
 	@echo ""
 	@echo "Setup:"
-	@echo "  make install        Install dependencies"
-	@echo "  make install-hooks  Install Git hooks"
+	@echo "  make setup          Setup development environment (hooks + deps)"
 	@echo ""
 	@echo "Development:"
-	@echo "  make build          Build the project"
+	@echo "  make build          Build release binary"
 	@echo "  make test           Run tests"
-	@echo "  make fmt            Format Rust code"
-	@echo "  make fmt-md         Format markdown files"
+	@echo "  make fmt            Format code (Rust + Markdown)"
 	@echo "  make lint           Run clippy"
 	@echo "  make check          Run all checks (fmt, lint, test)"
-	@echo "  make run            Run logai with sample logs"
+	@echo "  make run            Run with example logs"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  make docs           Generate and open Rust docs"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean          Clean build artifacts"
 
-# Install dependencies
-install:
-	@echo "📦 Installing dependencies..."
-	cargo fetch
-
-# Install Git hooks
-install-hooks:
-	@echo "🪝 Configuring Git hooks..."
+# Setup development environment
+setup:
+	@echo "🚀 Setting up development environment..."
 	@git config core.hooksPath hooks
 	@chmod +x hooks/pre-commit
-	@echo "✅ Git hooks configured! Hooks will run from hooks/ directory"
+	@cargo fetch
+	@echo "✅ Setup complete! Git hooks configured and dependencies fetched."
 
-# Build the project
+# Build release binary
 build:
-	@echo "🔨 Building..."
-	cargo build --release
+	@echo "🔨 Building release binary..."
+	@cargo build --release
 
 # Run tests
 test:
 	@echo "🧪 Running tests..."
-	cargo test --all-features
+	@cargo test --all-features
 
-# Format code
+# Format code (Rust + Markdown)
 fmt:
-	@echo "📝 Formatting code..."
-	cargo fmt --all
-
-# Format markdown
-fmt-md:
-	@echo "📄 Formatting markdown..."
-	prettier --write "*.md" "docs/*.md"
+	@echo "📝 Formatting Rust code..."
+	@cargo fmt --all
+	@if command -v prettier >/dev/null 2>&1; then \
+		echo "📄 Formatting markdown..."; \
+		prettier --write "*.md" "docs/*.md" "examples/*.md" "scripts/*.md" 2>/dev/null || true; \
+	fi
 
 # Run clippy
 lint:
 	@echo "🔧 Running clippy..."
-	cargo clippy --all-targets --all-features -- -D warnings
+	@cargo clippy --all-targets --all-features -- -D warnings
 
-# Run all checks
+# Run all checks (used by CI)
 check: fmt lint test
 	@echo "✅ All checks passed!"
 
 # Clean build artifacts
 clean:
 	@echo "🧹 Cleaning..."
-	cargo clean
+	@cargo clean
 
-# Run logai with sample logs
+# Run with example logs
 run:
-	@echo "🔍 Running logai..."
-	cargo run -- investigate tests/fixtures/sample.log
+	@echo "🔍 Running logai with example logs..."
+	@cargo run -- investigate examples/logs/nginx-sample.log --ai none
 
-# Run with AI (requires OPENAI_API_KEY)
-run-ai:
-	@echo "🤖 Running sherlog with AI..."
-	cargo run -- investigate tests/fixtures/sample.log --ai openai --limit 2
-
-# Watch for changes and run tests
-watch:
-	@echo "👀 Watching for changes..."
-	cargo watch -x test
-
-# Generate documentation
+# Generate and open documentation
 docs:
 	@echo "📚 Generating documentation..."
-	cargo doc --no-deps --open
-
-# Benchmark
-bench:
-	@echo "⚡ Running benchmarks..."
-	cargo bench
-
-# Install pre-commit (Python tool)
-install-pre-commit:
-	@echo "🐍 Installing pre-commit..."
-	pip install pre-commit
-	pre-commit install
-	pre-commit install --hook-type commit-msg
+	@cargo doc --no-deps --open

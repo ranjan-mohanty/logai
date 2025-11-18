@@ -1,6 +1,6 @@
 # LogAI Project Structure
 
-```
+```text
 logai/
 ├── .github/              # GitHub configuration
 │   ├── ISSUE_TEMPLATE/   # Issue templates
