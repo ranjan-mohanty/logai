@@ -35,11 +35,17 @@ pub struct AIConfig {
     #[serde(default)]
     pub providers: HashMap<String, ProviderConfig>,
     #[serde(default)]
-    pub default_provider: Option<String>,
+    pub ai: AISettings,
     #[serde(default)]
     pub mcp: MCPSettings,
     #[serde(default)]
     pub analysis: AnalysisSettings,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct AISettings {
+    #[serde(default)]
+    pub provider: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -342,8 +348,8 @@ impl AIConfig {
                         .map_err(|_| anyhow::anyhow!("Invalid temperature value: {}", value))?,
                 );
             }
-            ["default_provider"] => {
-                self.default_provider = Some(value.to_string());
+            ["ai", "provider"] => {
+                self.ai.provider = Some(value.to_string());
             }
             _ => {
                 return Err(anyhow::anyhow!("Unknown configuration key: {}", key));
@@ -373,10 +379,12 @@ impl AIConfig {
         output.push_str("LogAI Configuration\n");
         output.push_str("===================\n\n");
 
-        // Default provider
-        if let Some(provider) = &self.default_provider {
-            output.push_str(&format!("Default Provider: {}\n\n", provider));
+        // AI Settings
+        output.push_str("AI Settings:\n");
+        if let Some(provider) = &self.ai.provider {
+            output.push_str(&format!("  provider: {}\n", provider));
         }
+        output.push('\n');
 
         // MCP settings
         output.push_str("MCP Settings:\n");
@@ -506,6 +514,19 @@ mod tests {
         assert_eq!(analysis_config.max_concurrency, 10);
         assert!(!analysis_config.enable_retry);
         assert_eq!(analysis_config.max_retries, 5);
+    }
+
+    #[test]
+    fn test_set_ai_provider() {
+        let mut config = AIConfig::default();
+
+        // Test setting via ai.provider
+        config.set_value("ai.provider", "bedrock").unwrap();
+        assert_eq!(config.ai.provider, Some("bedrock".to_string()));
+
+        // Test changing provider
+        config.set_value("ai.provider", "ollama").unwrap();
+        assert_eq!(config.ai.provider, Some("ollama".to_string()));
     }
 
     #[test]

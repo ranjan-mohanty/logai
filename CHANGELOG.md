@@ -25,6 +25,7 @@ and this project adheres to
 - **Region configuration** via CLI flag (--region), config file, or environment
   variable
 - **Bedrock-specific configuration** (region, model, max_tokens, temperature)
+- **Default AI provider configuration** via `ai.provider` config key
 - Parallel AI analysis with configurable concurrency
 - Automatic retry with exponential backoff
 - Response caching

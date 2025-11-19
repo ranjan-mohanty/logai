@@ -32,8 +32,8 @@ impl ConfigCommand {
         }
         println!("  default_timeout: {}s\n", config.mcp.default_timeout);
 
-        if let Some(default) = &config.default_provider {
-            println!("Default Provider: {}", default);
+        if let Some(provider) = &config.ai.provider {
+            println!("Default Provider: {}", provider);
         }
 
         if config.providers.is_empty() {
@@ -48,8 +48,10 @@ impl ConfigCommand {
     fn show_example_config() {
         println!("\nNo providers configured.");
         println!("\nExample configuration:");
+        println!("  logai config set ai.provider bedrock");
         println!("  logai config set ollama.model llama3.1:8b");
         println!("  logai config set openai.api_key sk-...");
+        println!("  logai config set bedrock.region us-east-1");
         println!("  logai config set mcp.enabled true");
         println!("  logai config set mcp.config_path ~/.logai/mcp.toml");
     }

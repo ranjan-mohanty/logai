@@ -195,8 +195,9 @@ logai investigate app.log --ai ollama --concurrency 1
 Create `~/.logai/config.toml` to set defaults:
 
 ```toml
-# Default AI provider
-default_provider = "ollama"
+# AI Settings
+[ai]
+provider = "ollama"  # Default AI provider
 
 # Analysis settings
 [analysis]
