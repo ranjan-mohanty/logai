@@ -24,64 +24,34 @@ impl ConfigCommand {
         println!("📝 LogAI Configuration");
         println!("   Location: {}\n", config_path.display());
 
-        // Display MCP settings
-        println!("MCP Settings:");
-        println!("  enabled: {}", config.mcp.enabled);
-        if let Some(path) = &config.mcp.config_path {
-            println!("  config_path: {}", path);
-        }
-        println!("  default_timeout: {}s\n", config.mcp.default_timeout);
+        // Serialize config to TOML for display
+        let toml_str = toml::to_string_pretty(&config)
+            .map_err(|e| anyhow::anyhow!("Failed to serialize config: {}", e))?;
 
-        if let Some(provider) = &config.ai.provider {
-            println!("Default Provider: {}", provider);
-        }
+        // Mask API keys in the output
+        let masked_toml = Self::mask_api_keys(&toml_str);
+
+        println!("{}", masked_toml);
 
         if config.providers.is_empty() {
-            Self::show_example_config();
-        } else {
-            Self::show_providers(&config);
+            println!("\n💡 Example configuration:");
+            println!("  logai config set ai.provider bedrock");
+            println!("  logai config set ollama.model llama3.1:8b");
+            println!("  logai config set openai.api_key sk-...");
+            println!("  logai config set bedrock.region us-east-1");
+            println!("  logai config set output.path ./reports");
+            println!("  logai config set output.format html");
+            println!("  logai config set output.logs_dir ./logs");
+            println!("  logai config set analysis.max_concurrency 10");
         }
 
         Ok(())
     }
 
-    fn show_example_config() {
-        println!("\nNo providers configured.");
-        println!("\nExample configuration:");
-        println!("  logai config set ai.provider bedrock");
-        println!("  logai config set ollama.model llama3.1:8b");
-        println!("  logai config set openai.api_key sk-...");
-        println!("  logai config set bedrock.region us-east-1");
-        println!("  logai config set output.path ./reports");
-        println!("  logai config set output.format html");
-        println!("  logai config set mcp.enabled true");
-        println!("  logai config set mcp.config_path ~/.logai/mcp.toml");
-    }
-
-    fn show_providers(config: &AIConfig) {
-        println!("\nProviders:");
-        for (name, provider) in &config.providers {
-            println!("\n  [{}]", name);
-            if let Some(model) = &provider.model {
-                println!("    model: {}", model);
-            }
-            if let Some(host) = &provider.host {
-                println!("    host: {}", host);
-            }
-            if let Some(region) = &provider.region {
-                println!("    region: {}", region);
-            }
-            if let Some(max_tokens) = provider.max_tokens {
-                println!("    max_tokens: {}", max_tokens);
-            }
-            if let Some(temperature) = provider.temperature {
-                println!("    temperature: {}", temperature);
-            }
-            if provider.api_key.is_some() {
-                println!("    api_key: ***");
-            }
-            println!("    enabled: {}", provider.enabled);
-        }
+    fn mask_api_keys(toml: &str) -> String {
+        // Replace API key values with ***
+        let re = regex::Regex::new(r#"api_key = "([^"]+)""#).unwrap();
+        re.replace_all(toml, r#"api_key = "***""#).to_string()
     }
 
     fn set_config(key: &str, value: &str) -> Result<()> {
