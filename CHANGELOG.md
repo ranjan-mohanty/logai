@@ -10,6 +10,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.1.1] - 2024-11-19
+
+### Fixed
+
+- **Amazon Linux 2 compatibility** - Added musl static builds for AL2 and older
+  Linux distributions
+- Build on Ubuntu 20.04 for better glibc compatibility (2.31 vs 2.39)
+- Added platform-specific installation instructions for AL2
+
+### Changed
+
+- Release workflow now builds both standard and musl variants for Linux
+- Updated documentation with AL2 installation guide and troubleshooting
+
 ## [0.1.0] - 2024-11-19
 
 ### Added

@@ -76,7 +76,7 @@ Download from
 **Amazon Linux 2:**
 
 ```bash
-wget https://github.com/ranjan-mohanty/logai/releases/download/v0.1.0/logai-linux-x86_64-musl.tar.gz
+wget https://github.com/ranjan-mohanty/logai/releases/latest/download/logai-linux-x86_64-musl.tar.gz
 tar -xzf logai-linux-x86_64-musl.tar.gz
 sudo mv logai /usr/local/bin/
 ```
