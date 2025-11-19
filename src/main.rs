@@ -38,6 +38,16 @@ async fn main() -> Result<()> {
             mcp_config,
             concurrency,
         } => {
+            // If no AI provider specified via CLI, check config file
+            let ai_provider = if ai_provider == "none" {
+                logai::ai::AIConfig::load()
+                    .ok()
+                    .and_then(|config| config.ai.provider)
+                    .unwrap_or_else(|| "none".to_string())
+            } else {
+                ai_provider
+            };
+
             InvestigateCommand::execute(InvestigateOptions {
                 files,
                 log_format,
