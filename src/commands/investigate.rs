@@ -59,7 +59,9 @@ impl InvestigateCommand {
         let mut all_entries = Vec::new();
         let mut total_lines = 0;
         let mut parse_errors = 0;
-        let start_time = std::time::Instant::now();
+        let parse_start = std::time::Instant::now();
+
+        eprintln!("📖 Parsing logs...");
 
         // Read logs from all files
         for file_path in files {
@@ -78,14 +80,24 @@ impl InvestigateCommand {
             all_entries.extend(entries);
         }
 
-        // Display parsing statistics if requested
-        if stats {
-            Self::display_parsing_stats(total_lines, all_entries.len(), parse_errors, start_time);
-        }
+        let parse_duration = parse_start.elapsed();
 
         if all_entries.is_empty() {
+            eprintln!("✅ Parsed {} lines, found 0 log entries\n", total_lines);
             println!("No log entries found.");
             return Ok(());
+        }
+
+        // Display parsing summary
+        if stats {
+            Self::display_parsing_stats(
+                total_lines,
+                all_entries.len(),
+                parse_errors,
+                parse_duration,
+            );
+        } else {
+            eprintln!("✅ Parsed {} log entries\n", all_entries.len());
         }
 
         // Analyze logs
@@ -116,6 +128,7 @@ impl InvestigateCommand {
                 ollama_host,
                 region,
                 concurrency,
+                stats,
             )
             .await?;
         }
@@ -140,20 +153,22 @@ impl InvestigateCommand {
         total_lines: usize,
         parsed_entries: usize,
         parse_errors: usize,
-        start_time: std::time::Instant,
+        duration: std::time::Duration,
     ) {
-        let duration = start_time.elapsed();
-        println!("\n📊 Parsing Statistics:");
-        println!("  Total lines: {}", total_lines);
-        println!("  Parsed entries: {}", parsed_entries);
-        println!("  Parse errors: {}", parse_errors);
-        println!("  Duration: {:?}", duration);
-        println!(
-            "  Throughput: {:.2} lines/sec\n",
+        eprintln!("✅ Parsed {} log entries\n", parsed_entries);
+        eprintln!("📊 Parsing Statistics:");
+        eprintln!("  Total lines: {}", total_lines);
+        eprintln!("  Parsed entries: {}", parsed_entries);
+        eprintln!("  Parse errors: {}", parse_errors);
+        eprintln!("  Duration: {:.2}s", duration.as_secs_f64());
+        eprintln!(
+            "  Throughput: {:.2} lines/sec",
             total_lines as f64 / duration.as_secs_f64()
         );
+        eprintln!();
     }
 
+    #[allow(clippy::too_many_arguments)]
     async fn run_ai_analysis(
         groups: &mut [crate::types::ErrorGroup],
         ai_provider: &str,
@@ -162,19 +177,28 @@ impl InvestigateCommand {
         ollama_host: Option<String>,
         region: Option<String>,
         concurrency: usize,
+        stats: bool,
     ) -> Result<()> {
-        let model_display = model.as_deref().unwrap_or("default");
-        eprintln!(
-            "🤖 Analyzing {} error groups with {} ({})...\n",
-            groups.len(),
-            ai_provider,
-            model_display
-        );
-
-        let provider = ai::create_provider(ai_provider, api_key, model, ollama_host, region)?;
+        let provider_name = ai_provider.to_string();
+        eprintln!("🤖 Analyzing error groups...");
 
         // Load configuration from file and merge with CLI flags
         let ai_config = ai::AIConfig::load().unwrap_or_default();
+
+        // Get the actual model being used (from CLI or config)
+        let model_display = if let Some(ref m) = model {
+            m.clone()
+        } else {
+            // Try to get model from config for the provider
+            ai_config
+                .providers
+                .get(ai_provider)
+                .and_then(|p| p.model.clone())
+                .unwrap_or_else(|| "default".to_string())
+        };
+
+        let provider = ai::create_provider(ai_provider, api_key, model, ollama_host, region)?;
+
         let mut config = ai_config.get_analysis_config();
         config.max_concurrency = concurrency;
 
@@ -193,13 +217,23 @@ impl InvestigateCommand {
             .await?;
 
         // Clear progress line and show completion
-        eprintln!("\r\x1b[K");
+        eprint!("\r\x1b[K");
         let analysis_duration = analysis_start.elapsed();
-        eprintln!(
-            "✅ Analysis complete in {:.1}s ({:.1} groups/sec)\n",
-            analysis_duration.as_secs_f64(),
-            groups.len() as f64 / analysis_duration.as_secs_f64()
-        );
+        let throughput = groups.len() as f64 / analysis_duration.as_secs_f64();
+
+        if stats {
+            eprintln!("✅ Analyzed {} error groups\n", groups.len());
+            eprintln!("📊 Analysis Statistics:");
+            eprintln!("  AI Provider: {}", provider_name);
+            eprintln!("  Model: {}", model_display);
+            eprintln!("  Error groups: {}", groups.len());
+            eprintln!("  Duration: {:.2}s", analysis_duration.as_secs_f64());
+            eprintln!("  Throughput: {:.2} groups/sec", throughput);
+            eprintln!("  Concurrency: {}", concurrency);
+            eprintln!();
+        } else {
+            eprintln!("✅ Analyzed {} error groups\n", groups.len());
+        }
 
         Ok(())
     }
@@ -241,7 +275,7 @@ impl InvestigateCommand {
                 let file_url = format!("file://{}", canonical_path.display());
 
                 // Use OSC 8 hyperlink escape sequence for clickable link
-                println!("📊 HTML report generated: {}", filepath.display());
+                println!("📊 Report: {}", filepath.display());
                 println!(
                     "   \x1b]8;;{}\x1b\\Click to open in browser\x1b]8;;\x1b\\",
                     file_url

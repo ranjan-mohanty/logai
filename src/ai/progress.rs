@@ -36,7 +36,7 @@ impl ProgressUpdate {
             0
         };
 
-        let bar_width = 40;
+        let bar_width = 30;
         let filled = if self.total > 0 {
             (bar_width * self.current) / self.total
         } else {
@@ -46,55 +46,25 @@ impl ProgressUpdate {
 
         let bar = format!("[{}{}]", "█".repeat(filled), "░".repeat(empty));
 
-        let eta = self.calculate_eta();
-
-        let truncated_pattern = if self.pattern.len() > 60 {
-            format!("{}...", &self.pattern[..60])
+        // Calculate ETA
+        let eta = if self.throughput > 0.0 && self.current < self.total {
+            let remaining = self.total - self.current;
+            let eta_secs = remaining as f64 / self.throughput;
+            let minutes = (eta_secs / 60.0) as usize;
+            let seconds = (eta_secs % 60.0) as usize;
+            if minutes > 0 {
+                format!(" - ETA {}m{}s", minutes, seconds)
+            } else {
+                format!(" - ETA {}s", seconds)
+            }
         } else {
-            self.pattern.clone()
+            String::new()
         };
 
         format!(
-            "{} {} / {} ({}%)\nCurrent: \"{}\"\nElapsed: {} | Throughput: {:.1} groups/sec | {}",
-            bar,
-            self.current,
-            self.total,
-            percentage,
-            truncated_pattern,
-            self.format_duration(self.elapsed),
-            self.throughput,
-            eta
+            "{} {}/{} ({}%){}",
+            bar, self.current, self.total, percentage, eta
         )
-    }
-
-    /// Calculate estimated time to completion
-    fn calculate_eta(&self) -> String {
-        if self.throughput > 0.0 && self.current < self.total {
-            let remaining = self.total - self.current;
-            let eta_secs = remaining as f64 / self.throughput;
-            let eta_duration = Duration::from_secs_f64(eta_secs);
-            format!("ETA: {}", self.format_duration(eta_duration))
-        } else if self.current >= self.total {
-            "Complete".to_string()
-        } else {
-            "ETA: calculating...".to_string()
-        }
-    }
-
-    /// Format duration as human-readable string
-    fn format_duration(&self, duration: Duration) -> String {
-        let total_secs = duration.as_secs();
-        let hours = total_secs / 3600;
-        let minutes = (total_secs % 3600) / 60;
-        let seconds = total_secs % 60;
-
-        if hours > 0 {
-            format!("{}h {}m {}s", hours, minutes, seconds)
-        } else if minutes > 0 {
-            format!("{}m {}s", minutes, seconds)
-        } else {
-            format!("{}s", seconds)
-        }
     }
 
     /// Get completion percentage
@@ -166,53 +136,6 @@ mod tests {
     }
 
     #[test]
-    fn test_format_duration_seconds() {
-        let update = ProgressUpdate::new(1, 100, "Test".to_string(), Duration::from_secs(45));
-
-        assert_eq!(update.format_duration(Duration::from_secs(45)), "45s");
-    }
-
-    #[test]
-    fn test_format_duration_minutes() {
-        let update = ProgressUpdate::new(1, 100, "Test".to_string(), Duration::from_secs(125));
-
-        assert_eq!(update.format_duration(Duration::from_secs(125)), "2m 5s");
-    }
-
-    #[test]
-    fn test_format_duration_hours() {
-        let update = ProgressUpdate::new(1, 100, "Test".to_string(), Duration::from_secs(3665));
-
-        assert_eq!(
-            update.format_duration(Duration::from_secs(3665)),
-            "1h 1m 5s"
-        );
-    }
-
-    #[test]
-    fn test_calculate_eta() {
-        let update = ProgressUpdate::new(50, 100, "Test".to_string(), Duration::from_secs(60));
-
-        let eta = update.calculate_eta();
-        assert!(eta.contains("ETA:"));
-        assert!(eta.contains("m") || eta.contains("s"));
-    }
-
-    #[test]
-    fn test_calculate_eta_complete() {
-        let update = ProgressUpdate::new(100, 100, "Test".to_string(), Duration::from_secs(60));
-
-        assert_eq!(update.calculate_eta(), "Complete");
-    }
-
-    #[test]
-    fn test_calculate_eta_zero_throughput() {
-        let update = ProgressUpdate::new(0, 100, "Test".to_string(), Duration::from_secs(0));
-
-        assert_eq!(update.calculate_eta(), "ETA: calculating...");
-    }
-
-    #[test]
     fn test_format_terminal() {
         let update = ProgressUpdate::new(
             50,
@@ -222,10 +145,8 @@ mod tests {
         );
 
         let formatted = update.format_terminal();
-        assert!(formatted.contains("50 / 100"));
+        assert!(formatted.contains("50/100"));
         assert!(formatted.contains("50%"));
-        assert!(formatted.contains("Test error pattern"));
-        assert!(formatted.contains("Throughput"));
         assert!(formatted.contains("ETA"));
     }
 
@@ -235,9 +156,9 @@ mod tests {
         let update = ProgressUpdate::new(10, 100, long_pattern, Duration::from_secs(10));
 
         let formatted = update.format_terminal();
-        // Should be truncated to 60 chars + "..."
-        assert!(formatted.contains("..."));
-        assert!(!formatted.contains(&"A".repeat(100)));
+        // Pattern is no longer shown in the compact format
+        assert!(formatted.contains("10/100"));
+        assert!(formatted.contains("10%"));
     }
 
     #[test]
