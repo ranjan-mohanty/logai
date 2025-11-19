@@ -111,6 +111,14 @@ JSON output:
 logai investigate app.log --format json
 ```
 
+Enable verbose/debug logging:
+
+```bash
+logai --verbose investigate app.log
+# or
+logai -v investigate app.log --ai bedrock
+```
+
 ## AI-Powered Analysis
 
 Analyze with OpenAI:

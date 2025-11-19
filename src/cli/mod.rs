@@ -6,6 +6,10 @@ use clap::{Parser, Subcommand};
 #[command(version = env!("CARGO_PKG_VERSION"))]
 #[command(author = env!("CARGO_PKG_AUTHORS"))]
 pub struct Cli {
+    /// Enable verbose/debug logging
+    #[arg(long, short = 'v', global = true)]
+    pub verbose: bool,
+
     #[command(subcommand)]
     pub command: Commands,
 }

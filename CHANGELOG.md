@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # Changelog
 
 All notable changes to LogAI will be documented in this file.
@@ -26,6 +28,7 @@ and this project adheres to
   variable
 - **Bedrock-specific configuration** (region, model, max_tokens, temperature)
 - **Default AI provider configuration** via `ai.provider` config key
+- **Verbose/debug logging** via `--verbose` or `-v` flag
 - Parallel AI analysis with configurable concurrency
 - Automatic retry with exponential backoff
 - Response caching

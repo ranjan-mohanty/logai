@@ -7,10 +7,16 @@ use logai::{
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Initialize logger
-    env_logger::init();
-
     let cli = Cli::parse();
+
+    // Initialize logger with appropriate level based on verbose flag
+    env_logger::Builder::from_default_env()
+        .filter_level(if cli.verbose {
+            log::LevelFilter::Debug
+        } else {
+            log::LevelFilter::Info
+        })
+        .init();
 
     match cli.command {
         Commands::Investigate {
