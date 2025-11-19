@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use LogAI in your research or project, please cite it as below."
+type: software
+title: "LogAI: AI-Powered Log Analysis Tool"
+version: 0.1.0
+date-released: 2024-01-15
+url: "https://github.com/ranjan-mohanty/logai"
+repository-code: "https://github.com/ranjan-mohanty/logai"
+license: MIT
+authors:
+  - family-names: "Mohanty"
+    given-names: "Ranjan"
+    email: "ranjan@duck.com"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+keywords:
+  - log analysis
+  - artificial intelligence
+  - debugging
+  - error detection
+  - command-line tool
+  - rust
+abstract: >
+  LogAI is an AI-powered log analysis tool that automatically parses,
+  groups, and analyzes application logs. It uses artificial intelligence
+  to identify error patterns, explain root causes, and suggest solutions,
+  significantly reducing debugging time for developers and operations teams.

@@ -1,0 +1,28 @@
+# Code Owners for LogAI
+# These owners will be automatically requested for review when someone opens a pull request.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @ranjan-mohanty
+
+# Documentation
+/docs/ @ranjan-mohanty
+*.md @ranjan-mohanty
+
+# CI/CD and workflows
+/.github/ @ranjan-mohanty
+/.github/workflows/ @ranjan-mohanty
+
+# Security-sensitive files
+/SECURITY.md @ranjan-mohanty
+/CODE_OF_CONDUCT.md @ranjan-mohanty
+
+# Core source code
+/src/ @ranjan-mohanty
+
+# Tests
+/tests/ @ranjan-mohanty
+
+# Configuration
+/Cargo.toml @ranjan-mohanty
+/Cargo.lock @ranjan-mohanty

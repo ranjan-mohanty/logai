@@ -121,35 +121,218 @@ docs: update README with new examples
 
 ### Adding a New Log Parser
 
-1. Create a new file in `src/parser/`
-2. Implement the `LogParser` trait
-3. Add tests
+1. Create a new file in `src/parser/formats/your_format.rs`
+2. Implement the `LogParser` trait:
+
+   ```rust
+   pub struct YourFormatParser;
+
+   impl LogParser for YourFormatParser {
+       fn parse_line(&self, line: &str) -> Result<Option<LogEntry>> {
+           // Your parsing logic
+       }
+
+       fn supports_multiline(&self) -> bool {
+           false  // or true if format supports multi-line
+       }
+   }
+   ```
+
+3. Add comprehensive tests with real log examples
 4. Update `detector.rs` to recognize the format
-5. Update documentation
+5. Add to `formats/mod.rs` exports
+6. Update documentation and README
+
+**Example PR**: See existing parsers in `src/parser/formats/`
 
 ### Adding a New AI Provider
 
-1. Create a new file in `src/ai/`
-2. Implement the `AIProvider` trait
+1. Create a new file in `src/ai/providers/your_provider.rs`
+2. Implement the `AIProvider` trait:
+
+   ```rust
+   pub struct YourProvider {
+       api_key: String,
+       model: Option<String>,
+   }
+
+   #[async_trait]
+   impl AIProvider for YourProvider {
+       async fn analyze(&self, group: &ErrorGroup) -> Result<ErrorAnalysis> {
+           // Your API call logic
+       }
+
+       fn name(&self) -> &str {
+           "your_provider"
+       }
+   }
+   ```
+
 3. Add to `create_provider()` in `src/ai/mod.rs`
-4. Update CLI help text
-5. Update README with usage examples
+4. Add configuration support in `src/ai/config.rs`
+5. Update CLI help text in `src/cli/mod.rs`
+6. Add tests with mock responses
+7. Update README with usage examples and API key setup
+
+**Example PR**: See existing providers in `src/ai/providers/`
+
+### Adding a New Output Format
+
+1. Create a new file in `src/output/your_format.rs`
+2. Implement the `OutputFormatter` trait:
+
+   ```rust
+   pub struct YourFormatter;
+
+   impl OutputFormatter for YourFormatter {
+       fn format(&self, groups: &[ErrorGroup]) -> Result<String> {
+           // Your formatting logic
+       }
+   }
+   ```
+
+3. Add to output format matching in `src/commands/investigate.rs`
+4. Add tests with expected output
+5. Update CLI help text
+6. Update documentation
+
+**Example PR**: See `src/output/terminal.rs`
+
+### Adding a New Command
+
+1. Create a new file in `src/commands/your_command.rs`
+2. Implement command struct and execute method:
+
+   ```rust
+   pub struct YourCommand;
+
+   impl YourCommand {
+       pub async fn execute(opts: YourOptions) -> Result<()> {
+           // Command logic
+       }
+   }
+   ```
+
+3. Add command to `src/cli/mod.rs`
+4. Add to main.rs command matching
+5. Add tests
+6. Update documentation
+
+**Example PR**: See `src/commands/investigate.rs`
+
+## Good First Issues
+
+Looking for a place to start? Check out issues labeled `good first issue`:
+
+**Easy Contributions**:
+
+- Add new log format parsers (CSV, XML, etc.)
+- Improve error messages
+- Add more test cases
+- Fix typos in documentation
+- Add examples to docs
+
+**Medium Contributions**:
+
+- Add new output formats (HTML, CSV)
+- Improve AI prompts
+- Add new metadata extractors
+- Performance optimizations
+
+**Advanced Contributions**:
+
+- Add new AI providers
+- Implement watch mode
+- Add anomaly detection
+- Build web UI
+
+## Architecture Overview
+
+Before contributing, familiarize yourself with the architecture:
+
+- **Parser Layer**: Converts raw logs to structured data
+- **Analyzer Layer**: Groups similar errors
+- **AI Layer**: Analyzes errors with AI providers
+- **Commands Layer**: Business logic for CLI commands
+- **Output Layer**: Formats results for display
+
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture
+documentation.
 
 ## Testing
 
-- Unit tests: Test individual functions
-- Integration tests: Test complete workflows
-- Add test fixtures in `tests/fixtures/`
+### Unit Tests
+
+Test individual functions and methods:
+
+```bash
+cargo test --lib
+```
+
+### Integration Tests
+
+Test complete workflows:
+
+```bash
+cargo test --test '*'
+```
+
+### Doc Tests
+
+Test documentation examples:
+
+```bash
+cargo test --doc
+```
+
+### Test Coverage
+
+We aim for >80% test coverage. Add tests for:
+
+- New features
+- Bug fixes
+- Edge cases
+- Error handling
+
+### Test Fixtures
+
+Add sample log files to `tests/fixtures/` for integration tests.
 
 ## Documentation
 
+### Code Documentation
+
+- Add rustdoc comments to public APIs
+- Include examples in doc comments
+- Explain complex logic with inline comments
+
+### User Documentation
+
 - Update README.md for user-facing changes
-- Add inline documentation for public APIs
-- Include examples in documentation
+- Update docs/ for detailed guides
+- Add examples to examples/ directory
+
+### Architecture Documentation
+
+- Update ARCHITECTURE.md for structural changes
+- Document design decisions
+- Explain trade-offs
+
+## Code of Conduct
+
+This project follows the
+[Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating,
+you agree to uphold this code. Please report unacceptable behavior to
+conduct@logai.dev.
 
 ## Questions?
 
-Open an issue or discussion on GitHub!
+- **General Questions**:
+  [GitHub Discussions](https://github.com/ranjan-mohanty/logai/discussions)
+- **Bug Reports**:
+  [GitHub Issues](https://github.com/ranjan-mohanty/logai/issues)
+- **Security Issues**: See [SECURITY.md](SECURITY.md)
+- **Support**: See [.github/SUPPORT.md](.github/SUPPORT.md)
 
 ## License
 

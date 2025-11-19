@@ -17,9 +17,9 @@ through massive log files and let LogAI do the detective work.
 
 ## Features
 
-✅ Parse JSON and plain text logs  
-✅ Auto-detect log format  
-✅ Group similar errors intelligently  
+✅ **Multiple log formats** - JSON, plain text, Apache, Nginx, Syslog  
+✅ **Auto-detect log format** - Automatically identifies format  
+✅ **Group similar errors intelligently** - Pattern-based grouping  
 ✅ Deduplicate repeated errors  
 ✅ Beautiful terminal output  
 ✅ Track error frequency and timing  
@@ -37,7 +37,7 @@ data sources
 🚧 Built-in MCP tools (search_docs, check_metrics, search_code)  
 🚧 Watch mode for real-time analysis  
 🚧 HTML reports  
-🚧 Advanced log format support (Apache, Nginx, Syslog)
+🚧 Additional log formats (Docker, Kubernetes, custom formats)
 
 ## Quick Start
 
@@ -303,7 +303,11 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for more details.
   `timestamp`
 - **Plain text logs** - Traditional text logs with timestamps and severity
   levels
-- More formats coming soon (syslog, etc.)
+- **Apache logs** - Apache HTTP server access and error logs (Common and
+  Combined formats)
+- **Nginx logs** - Nginx web server access and error logs
+- **Syslog** - System logs in RFC3164 and RFC5424 formats
+- **Auto-detection** - Automatically detects format from log content
 
 ## Development
 
@@ -359,15 +363,42 @@ cargo run -- investigate tests/fixtures/sample.log
 
 ## Documentation
 
-- [Usage Guide](docs/USAGE.md) - Comprehensive usage examples
-- [Compatibility](docs/COMPATIBILITY.md) - Supported log formats
-- [Contributing](CONTRIBUTING.md) - How to contribute
-- [Changelog](CHANGELOG.md) - Version history
+### Getting Started
+
+- **[Quick Start Guide](docs/QUICK_START.md)** - Get up and running in 5 minutes
+- **[Usage Guide](docs/USAGE.md)** - Comprehensive usage examples
+- **[Examples](examples/)** - Sample logs and real-world scenarios
+- **[FAQ](docs/FAQ.md)** - Frequently asked questions
+
+### For Developers
+
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and architecture
+- **[API Documentation](docs/API.md)** - Using LogAI as a library
+- **[Development Guide](docs/DEVELOPMENT.md)** - Setting up development
+  environment
+- **[Contributing](CONTRIBUTING.md)** - How to contribute to the project
+
+### Operations
+
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment strategies
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Security Policy](SECURITY.md)** - Security best practices and reporting
+
+### Reference
+
+- **[Compatibility](docs/COMPATIBILITY.md)** - Supported log formats
+- **[Changelog](CHANGELOG.md)** - Version history
+- **[MCP Integration](docs/MCP_INTEGRATION.md)** - Model Context Protocol guide
+
+### Community
+
+- **[Contributors](CONTRIBUTORS.md)** - Recognition for contributors
+- **[Maintainers](MAINTAINERS.md)** - Project maintainers and governance
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for
-guidelines.
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
+and [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Future Plans
 

@@ -2,6 +2,7 @@
 /target/
 **/*.rs.bk
 *.pdb
+Cargo.lock
 
 # IDE
 .vscode/
@@ -9,10 +10,12 @@
 *.swp
 *.swo
 *~
+.helix/
 
 # OS
 .DS_Store
 Thumbs.db
+*.log
 
 # Config
 .logai/
@@ -25,7 +28,20 @@ Thumbs.db
 examples/test-error.log
 tests/mock_mcp_server.sh
 
-# Temporary cleanup files
-CLEANUP_SUMMARY.md
-READY_TO_PUSH.md
-PRE_PUSH_CHECKLIST.md
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# Coverage
+*.profraw
+*.profdata
+/coverage/
+/tarpaulin-report.html
+
+# Benchmarks
+/criterion/
+
+# Documentation build
+/book/
