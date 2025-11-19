@@ -5,7 +5,7 @@ This document describes how to create a new release of logai.
 ## Prerequisites
 
 1. **GitHub Secrets**: Ensure these secrets are configured in your repository:
-   - `CARGO_TOKEN`: Your crates.io API token (get from https://crates.io/me)
+   - `CARGO_TOKEN`: Your crates.io API token (get from <https://crates.io/me>)
    - `GITHUB_TOKEN`: Automatically provided by GitHub Actions
 
 2. **Permissions**: You need write access to the repository
@@ -96,7 +96,7 @@ Once the release is published, GitHub Actions will automatically:
 
 ### 1. Verify crates.io Publication
 
-Visit https://crates.io/crates/logai to confirm the new version is live.
+Visit <https://crates.io/crates/logai> to confirm the new version is live.
 
 ### 2. Test Homebrew Installation
 
