@@ -143,6 +143,44 @@ limitations.
 - RFC 5424 format may need testing
 - Facility/priority codes are treated as text
 
+## Platform Compatibility
+
+### Linux Distributions
+
+LogAI provides multiple Linux builds for maximum compatibility:
+
+#### Modern Linux (glibc 2.31+)
+
+- **Binary**: `logai-linux-x86_64.tar.gz`
+- **Works on**: Ubuntu 20.04+, Debian 11+, RHEL 8+, Fedora 32+, Amazon Linux
+  2023
+
+#### Older Linux / Amazon Linux 2 (glibc 2.17+)
+
+- **Binary**: `logai-linux-x86_64-musl.tar.gz` (static binary)
+- **Works on**: Amazon Linux 2, CentOS 7, RHEL 7, Ubuntu 18.04, any Linux with
+  glibc 2.17+
+- **Note**: Fully static binary with no external dependencies
+
+**Amazon Linux 2 Installation:**
+
+```bash
+# Download musl binary (static, works on AL2)
+wget https://github.com/ranjan-mohanty/logai/releases/download/v0.1.0/logai-linux-x86_64-musl.tar.gz
+tar -xzf logai-linux-x86_64-musl.tar.gz
+sudo mv logai /usr/local/bin/
+chmod +x /usr/local/bin/logai
+
+# Verify
+logai --version
+```
+
+**Troubleshooting glibc errors:** If you see `GLIBC_X.XX not found` errors, use
+the musl binary instead:
+
+- Standard binary requires glibc 2.31+
+- Musl binary works on any Linux with glibc 2.17+ (including AL2)
+
 ## ❌ Not Supported
 
 ### 1. Binary Formats
