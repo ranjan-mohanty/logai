@@ -24,6 +24,8 @@ impl HtmlFormatter {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogAI Analysis Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * {{
             margin: 0;
@@ -32,15 +34,15 @@ impl HtmlFormatter {
         }}
         
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
             min-height: 100vh;
-            padding: 20px;
-            transition: background 0.3s ease;
+            padding: 24px;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode {{
-            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            background: #121212;
         }}
         
         .container {{
@@ -50,67 +52,76 @@ impl HtmlFormatter {
         
         .header {{
             background: white;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
             position: relative;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .header {{
-            background: #2d3748;
+            background: #1e1e1e;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
         }}
         
         .header h1 {{
-            color: #2d3748;
-            font-size: 32px;
-            margin-bottom: 10px;
-            transition: color 0.3s ease;
+            color: #1a1a1a;
+            font-size: 34px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .header h1 {{
-            color: #e2e8f0;
+            color: #ffffff;
         }}
         
         .header .subtitle {{
-            color: #718096;
+            color: #757575;
             font-size: 14px;
-            transition: color 0.3s ease;
+            font-weight: 400;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .header .subtitle {{
-            color: #a0aec0;
+            color: #b0b0b0;
         }}
         
         .theme-toggle {{
             position: absolute;
-            top: 30px;
-            right: 30px;
-            background: #667eea;
-            color: white;
+            top: 32px;
+            right: 32px;
+            background: transparent;
+            color: #1a1a1a;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
+            font-size: 24px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
         }}
         
         .theme-toggle:hover {{
-            background: #5a67d8;
+            background: rgba(0, 0, 0, 0.04);
         }}
         
         body.dark-mode .theme-toggle {{
-            background: #4a5568;
+            color: #ffffff;
         }}
         
         body.dark-mode .theme-toggle:hover {{
-            background: #2d3748;
+            background: rgba(255, 255, 255, 0.08);
+        }}
+        
+        .material-icons {{
+            font-size: 24px;
         }}
         
         .stats {{
@@ -122,55 +133,61 @@ impl HtmlFormatter {
         
         .stat-card {{
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background 0.3s ease;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .stat-card {{
-            background: #2d3748;
+            background: #1e1e1e;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
         }}
         
         .stat-card .label {{
-            color: #718096;
-            transition: color 0.3s ease;
+            color: #757575;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .stat-card .label {{
-            color: #a0aec0;
-            font-size: 14px;
-            margin-bottom: 5px;
+            color: #b0b0b0;
         }}
         
         .stat-card .value {{
-            color: #2d3748;
-            font-size: 28px;
-            font-weight: bold;
-            transition: color 0.3s ease;
+            color: #1a1a1a;
+            font-size: 32px;
+            font-weight: 500;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .stat-card .value {{
-            color: #e2e8f0;
+            color: #ffffff;
         }}
         
         .error-group {{
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.3s ease;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            border-left: 4px solid #f44336;
         }}
         
         body.dark-mode .error-group {{
-            background: #2d3748;
+            background: #1e1e1e;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
         }}
         
         .error-group:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }}
         
         .error-header {{
@@ -182,26 +199,28 @@ impl HtmlFormatter {
         
         .error-title {{
             flex: 1;
-            color: #2d3748;
-            font-size: 18px;
-            font-weight: 600;
-            line-height: 1.4;
-            transition: color 0.3s ease;
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.5;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .error-title {{
-            color: #e2e8f0;
+            color: #ffffff;
         }}
         
         .error-badge {{
-            background: #fc8181;
+            background: #f44336;
             color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-left: 15px;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 16px;
             white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }}
         
         .error-meta {{
@@ -212,37 +231,38 @@ impl HtmlFormatter {
         }}
         
         .meta-item {{
-            color: #718096;
+            color: #757575;
             font-size: 14px;
-            transition: color 0.3s ease;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .meta-item {{
-            color: #a0aec0;
+            color: #b0b0b0;
         }}
         
         .meta-item strong {{
-            color: #4a5568;
-            transition: color 0.3s ease;
+            color: #424242;
+            font-weight: 500;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .meta-item strong {{
-            color: #cbd5e0;
+            color: #e0e0e0;
         }}
         
         .error-example {{
-            background: #f7fafc;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            background: #fafafa;
+            border-left: 4px solid #2196f3;
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 16px;
+            margin-bottom: 16px;
             display: none;
-            transition: background 0.3s ease;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .error-example {{
-            background: #1a202c;
+            background: #2a2a2a;
         }}
         
         .error-example.expanded {{
@@ -250,28 +270,29 @@ impl HtmlFormatter {
         }}
         
         .error-example pre {{
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-family: 'Roboto Mono', 'Monaco', 'Menlo', monospace;
             font-size: 13px;
-            color: #2d3748;
+            color: #424242;
             white-space: pre-wrap;
             word-wrap: break-word;
-            transition: color 0.3s ease;
+            line-height: 1.6;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .error-example pre {{
-            color: #e2e8f0;
+            color: #e0e0e0;
         }}
         
         .analysis-section {{
             display: none;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-            transition: border-color 0.3s ease;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+            transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .analysis-section {{
-            border-top-color: #4a5568;
+            border-top-color: #424242;
         }}
         
         .analysis-section.expanded {{
@@ -280,16 +301,16 @@ impl HtmlFormatter {
         
         .occurrences-section {{
             display: none;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
             max-height: 400px;
             overflow-y: auto;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .occurrences-section {{
-            border-top-color: #4a5568;
+            border-top-color: #424242;
         }}
         
         .occurrences-section.expanded {{
@@ -297,16 +318,16 @@ impl HtmlFormatter {
         }}
         
         .occurrence-item {{
-            background: #f7fafc;
-            border-left: 3px solid #667eea;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            transition: background 0.3s ease;
+            background: #fafafa;
+            border-left: 3px solid #2196f3;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .occurrence-item {{
-            background: #1a202c;
+            background: #2a2a2a;
         }}
         
         .occurrence-header {{
@@ -317,54 +338,55 @@ impl HtmlFormatter {
         }}
         
         .occurrence-number {{
-            color: #667eea;
-            font-weight: 600;
+            color: #2196f3;
+            font-weight: 500;
         }}
         
         .occurrence-time {{
-            color: #718096;
-            transition: color 0.3s ease;
+            color: #757575;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .occurrence-time {{
-            color: #a0aec0;
+            color: #b0b0b0;
         }}
         
         .occurrence-message {{
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 12px;
-            color: #2d3748;
+            font-family: 'Roboto Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #424242;
             white-space: pre-wrap;
             word-wrap: break-word;
             margin: 0;
-            transition: color 0.3s ease;
+            line-height: 1.6;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .occurrence-message {{
-            color: #e2e8f0;
+            color: #e0e0e0;
         }}
         
         .analysis-title {{
-            color: #4a5568;
+            color: #424242;
             font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            transition: color 0.3s ease;
+            font-weight: 500;
+            margin-bottom: 12px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .analysis-title {{
-            color: #cbd5e0;
+            color: #e0e0e0;
         }}
         
         .analysis-content {{
-            color: #2d3748;
+            color: #424242;
             line-height: 1.6;
-            margin-bottom: 15px;
-            transition: color 0.3s ease;
+            margin-bottom: 16px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .analysis-content {{
-            color: #e2e8f0;
+            color: #e0e0e0;
         }}
         
         .suggestions {{
@@ -372,107 +394,129 @@ impl HtmlFormatter {
         }}
         
         .suggestion {{
-            background: #f0fff4;
-            border-left: 4px solid #48bb78;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 4px;
         }}
         
         .suggestion-priority {{
             display: inline-block;
-            background: #48bb78;
+            background: #4caf50;
             color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 500;
             margin-right: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }}
         
         .suggestion-priority.high {{
-            background: #f56565;
+            background: #f44336;
         }}
         
         .suggestion-priority.medium {{
-            background: #ed8936;
+            background: #ff9800;
         }}
         
         .code-example {{
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 8px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #263238;
+            color: #aed581;
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 12px;
+            font-family: 'Roboto Mono', 'Monaco', 'Menlo', monospace;
             font-size: 13px;
             overflow-x: auto;
+            line-height: 1.6;
         }}
         
         .expand-btn {{
-            background: #667eea;
+            background: #2196f3;
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: background 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }}
         
         .expand-btn:hover {{
-            background: #5a67d8;
+            background: #1976d2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }}
+        
+        .expand-btn:active {{
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }}
         
         .search-box {{
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background 0.3s ease;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
         
         body.dark-mode .search-box {{
-            background: #2d3748;
+            background: #1e1e1e;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
         }}
         
         .search-input {{
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 16px;
+            border: none;
+            border-bottom: 2px solid #e0e0e0;
+            border-radius: 4px 4px 0 0;
             font-size: 16px;
-            transition: border-color 0.2s, background 0.3s ease, color 0.3s ease;
-            background: white;
-            color: #2d3748;
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fafafa;
+            color: #1a1a1a;
         }}
         
         body.dark-mode .search-input {{
-            background: #1a202c;
-            border-color: #4a5568;
-            color: #e2e8f0;
+            background: #2a2a2a;
+            border-bottom-color: #424242;
+            color: #ffffff;
         }}
         
         .search-input:focus {{
             outline: none;
-            border-color: #667eea;
+            border-bottom-color: #2196f3;
+            background: white;
+        }}
+        
+        body.dark-mode .search-input:focus {{
+            background: #1e1e1e;
         }}
         
         .no-results {{
             text-align: center;
-            padding: 40px;
-            color: #718096;
+            padding: 48px;
+            color: #757575;
+        }}
+        
+        body.dark-mode .no-results {{
+            color: #b0b0b0;
         }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <span id="themeIcon">🌙</span>
-                <span id="themeText">Dark Mode</span>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                <span id="themeIcon" class="material-icons">dark_mode</span>
             </button>
             <h1>🤖 LogAI Analysis Report</h1>
             <div class="subtitle">Generated on {timestamp}</div>
@@ -512,12 +556,10 @@ impl HtmlFormatter {
             body.classList.toggle('dark-mode');
             
             if (body.classList.contains('dark-mode')) {{
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Light Mode';
+                themeIcon.textContent = 'light_mode';
                 localStorage.setItem('theme', 'dark');
             }} else {{
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Dark Mode';
+                themeIcon.textContent = 'dark_mode';
                 localStorage.setItem('theme', 'light');
             }}
         }}
@@ -527,8 +569,7 @@ impl HtmlFormatter {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {{
                 document.body.classList.add('dark-mode');
-                document.getElementById('themeIcon').textContent = '☀️';
-                document.getElementById('themeText').textContent = 'Light Mode';
+                document.getElementById('themeIcon').textContent = 'light_mode';
             }}
         }});
         
