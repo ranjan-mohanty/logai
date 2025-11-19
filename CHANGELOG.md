@@ -10,7 +10,7 @@ and this project adheres to
 
 ## [Unreleased]
 
-> These changes will be released as v0.1.0 (first stable release)
+## [0.1.0] - 2024-11-19
 
 ### Added
 
