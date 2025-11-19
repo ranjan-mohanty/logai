@@ -68,9 +68,9 @@ Download from
 
 - macOS (Intel & Apple Silicon)
 - Linux (x86_64 & ARM64)
-  - Standard: `logai-linux-x86_64.tar.gz` (Ubuntu 20.04+, RHEL 8+, AL2023)
-  - Musl: `logai-linux-x86_64-musl.tar.gz` (Amazon Linux 2, CentOS 7, older
-    distros)
+  - Standard: `logai-linux-x86_64.tar.gz` (Ubuntu 22.04+, RHEL 9+, AL2023)
+  - Musl: `logai-linux-x86_64-musl.tar.gz` (Amazon Linux 2, Ubuntu 20.04+,
+    CentOS 7+, any Linux)
 - Windows (x86_64)
 
 **Amazon Linux 2:**

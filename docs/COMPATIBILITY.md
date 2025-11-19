@@ -149,18 +149,19 @@ limitations.
 
 LogAI provides multiple Linux builds for maximum compatibility:
 
-#### Modern Linux (glibc 2.31+)
+#### Modern Linux (glibc 2.35+)
 
 - **Binary**: `logai-linux-x86_64.tar.gz`
-- **Works on**: Ubuntu 20.04+, Debian 11+, RHEL 8+, Fedora 32+, Amazon Linux
+- **Works on**: Ubuntu 22.04+, Debian 12+, RHEL 9+, Fedora 36+, Amazon Linux
   2023
 
-#### Older Linux / Amazon Linux 2 (glibc 2.17+)
+#### Universal Linux / Amazon Linux 2 (any glibc)
 
 - **Binary**: `logai-linux-x86_64-musl.tar.gz` (static binary)
-- **Works on**: Amazon Linux 2, CentOS 7, RHEL 7, Ubuntu 18.04, any Linux with
-  glibc 2.17+
-- **Note**: Fully static binary with no external dependencies
+- **Works on**: Amazon Linux 2, Ubuntu 20.04+, CentOS 7+, RHEL 7+, any Linux
+  distribution
+- **Note**: Fully static binary with no external dependencies - **recommended
+  for maximum compatibility**
 
 **Amazon Linux 2 Installation:**
 
