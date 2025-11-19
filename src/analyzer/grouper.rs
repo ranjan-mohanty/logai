@@ -22,17 +22,20 @@ impl ErrorGrouper {
                 # Timestamps (various formats)
                 \d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?  # ISO timestamps
                 |\d{4}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}                             # Nginx-style timestamps
+                |\d{2}\s+\w{3}\s+\d{4}\s+\d{2}:\d{2}:\d{2},\d{3}                  # Log4j timestamps
                 # UUIDs and IDs
                 |\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b  # UUIDs
-                |\b\d{5,}\b                                                         # Numbers with 5+ digits (IDs, timestamps)
+                |\b[A-Za-z0-9+/]{20,}={0,2}\#\d+\b                                 # Base64-like IDs with hash
+                |\b\d{5,}\b                                                         # Numbers with 5+ digits
                 |\b0x[0-9a-fA-F]+\b                                                # Hex numbers
+                |\bWorker\d+\b                                                     # Worker IDs
                 # Network
                 |https?://[^\s]+                                                   # URLs
                 |\b\d+\.\d+\.\d+\.\d+\b                                           # IP addresses
                 # Paths and threads
                 |/[\w/.-]+:\d+                                                     # File paths with line numbers
-                |\[[\w-]+-\d+\]                                                    # Thread names like [nio-8080-exec-1]
-                |\bexec-\d+\b                                                      # Thread IDs like exec-1
+                |\[[\w-]+-\d+\]                                                    # Thread names
+                |\bexec-\d+\b                                                      # Thread IDs
                 "
             ).unwrap(),
         }
