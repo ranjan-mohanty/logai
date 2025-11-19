@@ -1,8 +1,13 @@
 # 🤖 LogAI
 
 [![CI](https://github.com/ranjan-mohanty/logai/workflows/CI/badge.svg)](https://github.com/ranjan-mohanty/logai/actions)
+[![Release](https://github.com/ranjan-mohanty/logai/workflows/Release/badge.svg)](https://github.com/ranjan-mohanty/logai/actions/workflows/release.yml)
 [![Crates.io](https://img.shields.io/crates/v/logai.svg)](https://crates.io/crates/logai)
+[![Downloads](https://img.shields.io/crates/d/logai.svg)](https://crates.io/crates/logai)
+[![GitHub Release](https://img.shields.io/github/v/release/ranjan-mohanty/logai)](https://github.com/ranjan-mohanty/logai/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Rust Version](https://img.shields.io/badge/rust-1.70%2B-blue.svg)](https://www.rust-lang.org)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg)](https://github.com/ranjan-mohanty/logai/releases/latest)
 
 **AI-powered log analysis** - Parse, group, and understand your logs with AI.
 
