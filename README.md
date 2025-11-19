@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/ranjan-mohanty/logai/workflows/CI/badge.svg)](https://github.com/ranjan-mohanty/logai/actions)
 [![Release](https://github.com/ranjan-mohanty/logai/workflows/Release/badge.svg)](https://github.com/ranjan-mohanty/logai/actions/workflows/release.yml)
+[![codecov](https://codecov.io/gh/ranjan-mohanty/logai/branch/main/graph/badge.svg)](https://codecov.io/gh/ranjan-mohanty/logai)
 [![Crates.io](https://img.shields.io/crates/v/logai.svg)](https://crates.io/crates/logai)
 [![Downloads](https://img.shields.io/crates/d/logai.svg)](https://crates.io/crates/logai)
 [![GitHub Release](https://img.shields.io/github/v/release/ranjan-mohanty/logai)](https://github.com/ranjan-mohanty/logai/releases/latest)
