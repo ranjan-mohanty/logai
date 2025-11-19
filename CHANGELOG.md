@@ -14,15 +14,27 @@ and this project adheres to
 
 - Multiple log format support (JSON, plain text, Apache, Nginx, Syslog)
 - Automatic format detection
-- AI-powered error analysis (OpenAI, Claude, Gemini, Ollama)
+- AI-powered error analysis (OpenAI, Claude, Gemini, Ollama, AWS Bedrock)
+- **AWS Bedrock integration** with support for:
+  - Claude 3.5 Sonnet (anthropic.claude-3-5-sonnet-20241022-v2:0)
+  - Claude 3 Haiku (anthropic.claude-3-haiku-20240307-v1:0)
+  - Llama 3.2 90B (meta.llama3-2-90b-instruct-v1:0)
+  - Titan Text Premier (amazon.titan-text-premier-v1:0)
+- **AWS credentials support** via environment variables, ~/.aws/credentials, and
+  IAM roles
+- **Region configuration** via CLI flag (--region), config file, or environment
+  variable
+- **Bedrock-specific configuration** (region, model, max_tokens, temperature)
 - Parallel AI analysis with configurable concurrency
 - Automatic retry with exponential backoff
 - Response caching
 - Configuration file support (~/.logai/config.toml)
+- Configuration CLI commands (set/show) for easy setup
 - MCP (Model Context Protocol) integration
 - Rich terminal output with colors and formatting
 - Comprehensive documentation (Quick Start, API, Deployment, FAQ, etc.)
-- 175+ tests (unit + integration)
+- 13 Bedrock tests (8 unit + 5 integration)
+- Debug logging for troubleshooting
 
 ### Changed
 

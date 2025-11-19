@@ -31,7 +31,7 @@ pub enum Commands {
         #[arg(long)]
         stats: bool,
 
-        /// AI provider to use (openai, claude, gemini, ollama, none)
+        /// AI provider to use (openai, claude, gemini, ollama, bedrock, none)
         #[arg(long, default_value = "none")]
         ai: String,
 
@@ -46,6 +46,10 @@ pub enum Commands {
         /// Ollama host (default: http://localhost:11434)
         #[arg(long)]
         ollama_host: Option<String>,
+
+        /// AWS region for Bedrock (e.g., us-east-1, us-west-2)
+        #[arg(long)]
+        region: Option<String>,
 
         /// Disable response caching
         #[arg(long)]

@@ -46,6 +46,23 @@ export OPENAI_API_KEY="sk-your-key-here"
 export ANTHROPIC_API_KEY="sk-ant-your-key-here"
 ```
 
+### Option 4: AWS Bedrock
+
+```bash
+# Configure AWS credentials (choose one method):
+
+# Method 1: Environment variables
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+export AWS_REGION="us-east-1"
+
+# Method 2: AWS CLI (recommended)
+aws configure
+
+# Method 3: IAM role (when running on EC2/ECS)
+# No configuration needed - uses instance role
+```
+
 ## Your First Analysis
 
 ### 1. Create a Sample Log File

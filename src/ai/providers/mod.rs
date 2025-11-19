@@ -5,12 +5,15 @@
 //! - Claude (Anthropic)
 //! - Gemini (Google)
 //! - Ollama (Local models)
+//! - Bedrock (AWS)
 
+mod bedrock;
 mod claude;
 mod gemini;
 mod ollama;
 mod openai;
 
+pub use bedrock::BedrockProvider;
 pub use claude::ClaudeProvider;
 pub use gemini::GeminiProvider;
 pub use ollama::OllamaProvider;

@@ -25,6 +25,7 @@ pub struct InvestigateOptions {
     pub model: Option<String>,
     pub api_key: Option<String>,
     pub ollama_host: Option<String>,
+    pub region: Option<String>,
     pub format: String,
     pub limit: usize,
     pub no_mcp: bool,
@@ -47,6 +48,7 @@ impl InvestigateCommand {
             model,
             api_key,
             ollama_host,
+            region,
             format,
             limit,
             no_mcp,
@@ -112,6 +114,7 @@ impl InvestigateCommand {
                 model,
                 api_key,
                 ollama_host,
+                region,
                 concurrency,
             )
             .await?;
@@ -147,6 +150,7 @@ impl InvestigateCommand {
         model: Option<String>,
         api_key: Option<String>,
         ollama_host: Option<String>,
+        region: Option<String>,
         concurrency: usize,
     ) -> Result<()> {
         let model_display = model.as_deref().unwrap_or("default");
@@ -157,7 +161,7 @@ impl InvestigateCommand {
             model_display
         );
 
-        let provider = ai::create_provider(ai_provider, api_key, model, ollama_host)?;
+        let provider = ai::create_provider(ai_provider, api_key, model, ollama_host, region)?;
 
         // Load configuration from file and merge with CLI flags
         let ai_config = ai::AIConfig::load().unwrap_or_default();

@@ -59,7 +59,9 @@ pub mod types {
     pub struct ErrorAnalysis {
         pub explanation: String,
         pub root_cause: Option<String>,
+        #[serde(default)]
         pub suggestions: Vec<Suggestion>,
+        #[serde(default)]
         pub related_resources: Vec<Resource>,
         #[serde(skip_serializing_if = "Vec::is_empty", default)]
         pub tool_invocations: Vec<crate::mcp::ToolInvocationSummary>,

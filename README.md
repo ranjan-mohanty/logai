@@ -23,7 +23,7 @@ through massive log files and let LogAI do the detective work.
 ✅ Deduplicate repeated errors  
 ✅ Beautiful terminal output  
 ✅ Track error frequency and timing  
-✅ AI-powered error explanations (OpenAI, Claude, Gemini, Ollama)  
+✅ AI-powered error explanations (OpenAI, Claude, Gemini, Ollama, AWS Bedrock)  
 ✅ **Parallel AI analysis** - Process multiple errors concurrently (5x faster)  
 ✅ **Automatic retry** - Exponential backoff for transient failures  
 ✅ Solution suggestions with code examples  
@@ -143,6 +143,20 @@ Analyze with Ollama (local, free):
 # Make sure Ollama is running: ollama serve
 logai investigate app.log --ai ollama
 logai investigate app.log --ai ollama --model llama3.2
+```
+
+Analyze with AWS Bedrock:
+
+```bash
+# With region flag (recommended)
+logai investigate app.log --ai bedrock --region us-east-1
+
+# With specific model
+logai investigate app.log --ai bedrock --region us-east-1 --model anthropic.claude-3-haiku-20240307-v1:0
+
+# Or set region via environment variable
+export AWS_REGION=us-east-1
+logai investigate app.log --ai bedrock
 ```
 
 Disable caching (force fresh analysis):
@@ -331,12 +345,13 @@ cargo run -- investigate tests/fixtures/sample.log
 
 ## Supported AI Providers
 
-| Provider   | Models                   | Cost | Speed  | Setup            |
-| ---------- | ------------------------ | ---- | ------ | ---------------- |
-| **OpenAI** | GPT-4, GPT-4o-mini       | Paid | Fast   | API key required |
-| **Claude** | Claude 3.5 Sonnet/Haiku  | Paid | Fast   | API key required |
-| **Gemini** | Gemini 1.5 Flash/Pro     | Paid | Fast   | API key required |
-| **Ollama** | Llama 3.2, Mistral, etc. | Free | Medium | Local install    |
+| Provider    | Models                   | Cost | Speed  | Setup            |
+| ----------- | ------------------------ | ---- | ------ | ---------------- |
+| **OpenAI**  | GPT-4, GPT-4o-mini       | Paid | Fast   | API key required |
+| **Claude**  | Claude 3.5 Sonnet/Haiku  | Paid | Fast   | API key required |
+| **Gemini**  | Gemini 1.5 Flash/Pro     | Paid | Fast   | API key required |
+| **Bedrock** | Claude, Llama, Titan     | Paid | Fast   | AWS credentials  |
+| **Ollama**  | Llama 3.2, Mistral, etc. | Free | Medium | Local install    |
 
 ## How It Works
 

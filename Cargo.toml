@@ -39,6 +39,11 @@ toml = "0.8"
 # HTTP client for AI APIs
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
 
+# AWS SDK for Bedrock
+aws-config = "1.1"
+aws-sdk-bedrockruntime = "1.13"
+aws-types = "1.1"
+
 # Database
 rusqlite = { version = "0.37", features = ["bundled"] }
 

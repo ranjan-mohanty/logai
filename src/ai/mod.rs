@@ -17,7 +17,7 @@
 //! # async fn example() -> anyhow::Result<()> {
 //! # let mut groups = vec![];
 //! // Create AI provider
-//! let provider = ai::create_provider("ollama", None, Some("llama3.2".to_string()), None)?;
+//! let provider = ai::create_provider("ollama", None, Some("llama3.2".to_string()), None, None)?;
 //!
 //! // Configure parallel analysis
 //! let config = AnalysisConfig::default();
@@ -62,7 +62,9 @@ pub use json_extractor::EnhancedJsonExtractor;
 pub use parallel::{AnalysisConfig, ParallelAnalyzer};
 pub use progress::ProgressUpdate;
 pub use provider::{AIProvider, NoAI};
-pub use providers::{ClaudeProvider, GeminiProvider, OllamaProvider, OpenAIProvider};
+pub use providers::{
+    BedrockProvider, ClaudeProvider, GeminiProvider, OllamaProvider, OpenAIProvider,
+};
 pub use retry::RetryableAnalyzer;
 pub use statistics::AnalysisStatistics;
 
@@ -74,6 +76,7 @@ pub fn create_provider(
     api_key: Option<String>,
     model: Option<String>,
     host: Option<String>,
+    region: Option<String>,
 ) -> Result<Arc<dyn AIProvider>> {
     // Load config file
     let config = AIConfig::load().unwrap_or_default();
@@ -109,9 +112,27 @@ pub fn create_provider(
             let model = model.or_else(|| provider_config.and_then(|c| c.model.clone()));
             Ok(Arc::new(OllamaProvider::new(host, model)))
         }
+        "bedrock" => {
+            let model = model.or_else(|| provider_config.and_then(|c| c.model.clone()));
+            // Priority: CLI flag > config file > environment variable
+            let region = region
+                .or_else(|| provider_config.and_then(|c| c.region.clone()))
+                .or_else(|| std::env::var("AWS_REGION").ok())
+                .or_else(|| std::env::var("AWS_DEFAULT_REGION").ok());
+            let max_tokens = provider_config.and_then(|c| c.max_tokens);
+            let temperature = provider_config.and_then(|c| c.temperature);
+
+            let provider = tokio::task::block_in_place(|| {
+                tokio::runtime::Handle::current().block_on(async {
+                    BedrockProvider::new(model, region, max_tokens, temperature).await
+                })
+            })?;
+
+            Ok(Arc::new(provider))
+        }
         "none" => Ok(Arc::new(NoAI)),
         _ => Err(anyhow::anyhow!(
-            "Unknown AI provider: {}. Supported: openai, claude, gemini, ollama, none",
+            "Unknown AI provider: {}. Supported: openai, claude, gemini, ollama, bedrock, none",
             provider_name
         )),
     }

@@ -64,6 +64,15 @@ impl ConfigCommand {
             if let Some(host) = &provider.host {
                 println!("    host: {}", host);
             }
+            if let Some(region) = &provider.region {
+                println!("    region: {}", region);
+            }
+            if let Some(max_tokens) = provider.max_tokens {
+                println!("    max_tokens: {}", max_tokens);
+            }
+            if let Some(temperature) = provider.temperature {
+                println!("    temperature: {}", temperature);
+            }
             if provider.api_key.is_some() {
                 println!("    api_key: ***");
             }

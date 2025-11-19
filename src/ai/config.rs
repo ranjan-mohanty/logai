@@ -123,6 +123,10 @@ pub struct ProviderConfig {
     pub host: Option<String>,
     #[serde(default)]
     pub enabled: bool,
+    // Bedrock-specific fields
+    pub region: Option<String>,
+    pub max_tokens: Option<i32>,
+    pub temperature: Option<f32>,
 }
 
 impl AIConfig {
@@ -232,6 +236,9 @@ impl AIConfig {
                         model: None,
                         host: None,
                         enabled: false,
+                        region: None,
+                        max_tokens: None,
+                        temperature: None,
                     });
                 config.api_key = Some(value.to_string());
             }
@@ -244,6 +251,9 @@ impl AIConfig {
                         model: None,
                         host: None,
                         enabled: false,
+                        region: None,
+                        max_tokens: None,
+                        temperature: None,
                     });
                 config.model = Some(value.to_string());
             }
@@ -256,6 +266,9 @@ impl AIConfig {
                         model: None,
                         host: None,
                         enabled: false,
+                        region: None,
+                        max_tokens: None,
+                        temperature: None,
                     });
                 config.host = Some(value.to_string());
             }
@@ -268,10 +281,66 @@ impl AIConfig {
                         model: None,
                         host: None,
                         enabled: false,
+                        region: None,
+                        max_tokens: None,
+                        temperature: None,
                     });
                 config.enabled = value
                     .parse()
                     .map_err(|_| anyhow::anyhow!("Invalid boolean value: {}", value))?;
+            }
+            [provider, "region"] => {
+                let config = self
+                    .providers
+                    .entry(provider.to_string())
+                    .or_insert_with(|| ProviderConfig {
+                        api_key: None,
+                        model: None,
+                        host: None,
+                        enabled: false,
+                        region: None,
+                        max_tokens: None,
+                        temperature: None,
+                    });
+                config.region = Some(value.to_string());
+            }
+            [provider, "max_tokens"] => {
+                let config = self
+                    .providers
+                    .entry(provider.to_string())
+                    .or_insert_with(|| ProviderConfig {
+                        api_key: None,
+                        model: None,
+                        host: None,
+                        enabled: false,
+                        region: None,
+                        max_tokens: None,
+                        temperature: None,
+                    });
+                config.max_tokens = Some(
+                    value
+                        .parse()
+                        .map_err(|_| anyhow::anyhow!("Invalid max_tokens value: {}", value))?,
+                );
+            }
+            [provider, "temperature"] => {
+                let config = self
+                    .providers
+                    .entry(provider.to_string())
+                    .or_insert_with(|| ProviderConfig {
+                        api_key: None,
+                        model: None,
+                        host: None,
+                        enabled: false,
+                        region: None,
+                        max_tokens: None,
+                        temperature: None,
+                    });
+                config.temperature = Some(
+                    value
+                        .parse()
+                        .map_err(|_| anyhow::anyhow!("Invalid temperature value: {}", value))?,
+                );
             }
             ["default_provider"] => {
                 self.default_provider = Some(value.to_string());
