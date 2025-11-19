@@ -1,3 +1,4 @@
+pub mod html;
 pub mod terminal;
 
 use crate::types::ErrorGroup;

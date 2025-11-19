@@ -111,6 +111,14 @@ JSON output:
 logai investigate app.log --format json
 ```
 
+Interactive HTML report:
+
+```bash
+logai investigate app.log --format html > report.html
+# With AI analysis
+logai investigate app.log --ai bedrock --format html > report.html
+```
+
 Enable verbose/debug logging:
 
 ```bash

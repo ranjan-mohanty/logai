@@ -52,6 +52,8 @@ impl ConfigCommand {
         println!("  logai config set ollama.model llama3.1:8b");
         println!("  logai config set openai.api_key sk-...");
         println!("  logai config set bedrock.region us-east-1");
+        println!("  logai config set output.path ./reports");
+        println!("  logai config set output.format html");
         println!("  logai config set mcp.enabled true");
         println!("  logai config set mcp.config_path ~/.logai/mcp.toml");
     }

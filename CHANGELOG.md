@@ -29,6 +29,7 @@ and this project adheres to
 - **Bedrock-specific configuration** (region, model, max_tokens, temperature)
 - **Default AI provider configuration** via `ai.provider` config key
 - **Verbose/debug logging** via `--verbose` or `-v` flag
+- **Interactive HTML report** with search, expandable details, and AI analysis
 - Parallel AI analysis with configurable concurrency
 - Automatic retry with exponential backoff
 - Response caching
@@ -45,6 +46,10 @@ and this project adheres to
 - Improved error grouping algorithm
 - Enhanced JSON extraction from AI responses
 - Better progress tracking with ETA
+- Removed duplicate count from "Show All Occurrences" button (count already
+  displayed in error badge)
+- Improved terminal output with clickable hyperlink to open HTML report in
+  browser
 
 ## [0.1.0-beta.1] - 2025-11-18
 

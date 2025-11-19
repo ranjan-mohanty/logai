@@ -40,12 +40,22 @@ pub struct AIConfig {
     pub mcp: MCPSettings,
     #[serde(default)]
     pub analysis: AnalysisSettings,
+    #[serde(default)]
+    pub output: OutputSettings,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AISettings {
     #[serde(default)]
     pub provider: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct OutputSettings {
+    #[serde(default)]
+    pub path: Option<String>,
+    #[serde(default)]
+    pub format: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -233,6 +243,19 @@ impl AIConfig {
                     .parse()
                     .map_err(|_| anyhow::anyhow!("Invalid truncate length value: {}", value))?;
             }
+            ["output", "path"] => {
+                self.output.path = Some(value.to_string());
+            }
+            ["output", "format"] => {
+                // Validate format
+                if !["terminal", "json", "html"].contains(&value) {
+                    return Err(anyhow::anyhow!(
+                        "Invalid output format: {}. Valid options: terminal, json, html",
+                        value
+                    ));
+                }
+                self.output.format = Some(value.to_string());
+            }
             [provider, "api_key"] => {
                 let config = self
                     .providers
@@ -383,6 +406,16 @@ impl AIConfig {
         output.push_str("AI Settings:\n");
         if let Some(provider) = &self.ai.provider {
             output.push_str(&format!("  provider: {}\n", provider));
+        }
+        output.push('\n');
+
+        // Output settings
+        output.push_str("Output Settings:\n");
+        if let Some(path) = &self.output.path {
+            output.push_str(&format!("  path: {}\n", path));
+        }
+        if let Some(format) = &self.output.format {
+            output.push_str(&format!("  format: {}\n", format));
         }
         output.push('\n');
 

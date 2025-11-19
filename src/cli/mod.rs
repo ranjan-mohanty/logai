@@ -60,7 +60,7 @@ pub enum Commands {
         no_cache: bool,
 
         /// Output format (terminal, json, html)
-        #[arg(long, short = 'f', default_value = "terminal")]
+        #[arg(long, short = 'f', default_value = "html")]
         format: String,
 
         /// Save output to file

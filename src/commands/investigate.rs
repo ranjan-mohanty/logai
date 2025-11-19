@@ -6,7 +6,7 @@
 use crate::{
     ai,
     analyzer::Analyzer,
-    output::{terminal::TerminalFormatter, OutputFormatter},
+    output::{html::HtmlFormatter, terminal::TerminalFormatter, OutputFormatter},
     parser::detector::FormatDetector,
     types::LogEntry,
     Result,
@@ -120,8 +120,18 @@ impl InvestigateCommand {
             .await?;
         }
 
+        // Priority: CLI flag > config > fallback to html
+        let config = crate::ai::AIConfig::load().unwrap_or_default();
+        let output_format = if format != "html" {
+            // CLI flag was explicitly set to something other than default
+            format
+        } else {
+            // Use config or fallback to html
+            config.output.format.unwrap_or_else(|| "html".to_string())
+        };
+
         // Format and display output
-        Self::display_output(&groups, &format, limit)?;
+        Self::display_output(&groups, &output_format, limit)?;
 
         Ok(())
     }
@@ -154,7 +164,7 @@ impl InvestigateCommand {
         concurrency: usize,
     ) -> Result<()> {
         let model_display = model.as_deref().unwrap_or("default");
-        println!(
+        eprintln!(
             "🤖 Analyzing {} error groups with {} ({})...\n",
             groups.len(),
             ai_provider,
@@ -173,8 +183,8 @@ impl InvestigateCommand {
         // Create progress callback
         let analysis_start = std::time::Instant::now();
         let progress_callback = move |update: ai::ProgressUpdate| {
-            print!("\r\x1b[K{}", update.format_terminal());
-            std::io::Write::flush(&mut std::io::stdout()).unwrap();
+            eprint!("\r\x1b[K{}", update.format_terminal());
+            std::io::Write::flush(&mut std::io::stderr()).unwrap();
         };
 
         // Run parallel analysis
@@ -183,9 +193,9 @@ impl InvestigateCommand {
             .await?;
 
         // Clear progress line and show completion
-        println!("\r\x1b[K");
+        eprintln!("\r\x1b[K");
         let analysis_duration = analysis_start.elapsed();
-        println!(
+        eprintln!(
             "✅ Analysis complete in {:.1}s ({:.1} groups/sec)\n",
             analysis_duration.as_secs_f64(),
             groups.len() as f64 / analysis_duration.as_secs_f64()
@@ -210,7 +220,32 @@ impl InvestigateCommand {
                 println!("{}", json);
             }
             "html" => {
-                println!("HTML output coming soon!");
+                let formatter = HtmlFormatter::new(limit);
+                let output = formatter.format(groups)?;
+
+                // Generate filename based on timestamp
+                let timestamp = chrono::Utc::now().format("%Y%m%d-%H%M%S");
+                let filename = format!("logai-report-{}.html", timestamp);
+
+                // Get report path from config or use default
+                let config = crate::ai::AIConfig::load().unwrap_or_default();
+                let report_dir = config.output.path.unwrap_or_else(|| "reports".to_string());
+
+                // Create directory if it doesn't exist
+                std::fs::create_dir_all(&report_dir)?;
+
+                let filepath = std::path::Path::new(&report_dir).join(&filename);
+                std::fs::write(&filepath, output)?;
+
+                let canonical_path = filepath.canonicalize()?;
+                let file_url = format!("file://{}", canonical_path.display());
+
+                // Use OSC 8 hyperlink escape sequence for clickable link
+                println!("📊 HTML report generated: {}", filepath.display());
+                println!(
+                    "   \x1b]8;;{}\x1b\\Click to open in browser\x1b]8;;\x1b\\",
+                    file_url
+                );
             }
             _ => {
                 eprintln!("Unknown format: {}", format);
