@@ -1,7 +1,7 @@
 use clap::Parser;
 use logai::{
     cli::{Cli, Commands},
-    commands::{ConfigCommand, InvestigateCommand, InvestigateOptions},
+    commands::{CleanCommand, ConfigCommand, InvestigateCommand, InvestigateOptions},
     Result,
 };
 
@@ -71,6 +71,9 @@ async fn main() -> Result<()> {
         }
         Commands::Config { action } => {
             ConfigCommand::execute(action)?;
+        }
+        Commands::Clean { force } => {
+            CleanCommand::execute(force)?;
         }
     }
 

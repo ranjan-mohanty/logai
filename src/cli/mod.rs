@@ -99,6 +99,13 @@ pub enum Commands {
         #[command(subcommand)]
         action: ConfigAction,
     },
+
+    /// Clean up generated reports
+    Clean {
+        /// Skip confirmation prompt
+        #[arg(long, short = 'f')]
+        force: bool,
+    },
 }
 
 #[derive(Subcommand)]
