@@ -3,7 +3,7 @@ use crate::ai::prompts::build_enhanced_analysis_prompt;
 use crate::ai::provider::AIProvider;
 use crate::types::{ErrorAnalysis, ErrorGroup};
 use crate::Result;
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use async_trait::async_trait;
 use aws_sdk_bedrockruntime::config::ProvideCredentials;
 use aws_sdk_bedrockruntime::types::{ContentBlock, ConversationRole, Message};
@@ -231,13 +231,40 @@ impl AIProvider for BedrockProvider {
         log::debug!("Received response ({} chars)", response_text.len());
 
         // Extract and parse JSON from response
-        let json_str = EnhancedJsonExtractor::extract(&response_text)
-            .context("Failed to extract JSON from Bedrock response")?;
-        log::debug!("Extracted JSON ({} chars)", json_str.len());
+        let json_str = match EnhancedJsonExtractor::extract(&response_text) {
+            Ok(json) => {
+                log::debug!("Extracted JSON ({} chars)", json.len());
+                json
+            }
+            Err(e) => {
+                log::debug!(
+                    "Failed to extract JSON from Bedrock response for group {}: {}",
+                    group.id,
+                    e
+                );
+                log::debug!("Full Bedrock response text:\n{}", response_text);
+                return Err(anyhow!(
+                    "Failed to extract JSON from Bedrock response: {}",
+                    e
+                ));
+            }
+        };
 
-        let analysis: ErrorAnalysis =
-            serde_json::from_str(&json_str).context("Failed to parse JSON into ErrorAnalysis")?;
-        log::debug!("Successfully parsed ErrorAnalysis");
+        let analysis: ErrorAnalysis = match serde_json::from_str(&json_str) {
+            Ok(analysis) => {
+                log::debug!("Successfully parsed ErrorAnalysis");
+                analysis
+            }
+            Err(e) => {
+                log::debug!(
+                    "Failed to parse JSON into ErrorAnalysis for group {}: {}",
+                    group.id,
+                    e
+                );
+                log::debug!("Extracted JSON string:\n{}", json_str);
+                return Err(anyhow!("Failed to parse JSON into ErrorAnalysis: {}", e));
+            }
+        };
 
         Ok(analysis)
     }

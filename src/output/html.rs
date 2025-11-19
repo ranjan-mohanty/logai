@@ -15,7 +15,11 @@ impl HtmlFormatter {
     fn generate_html(&self, groups: &[ErrorGroup]) -> String {
         let timestamp = Utc::now().format("%Y-%m-%d %H:%M:%S UTC");
         let total_errors: usize = groups.iter().map(|g| g.count).sum();
-        let groups_to_show = groups.iter().take(self.limit).collect::<Vec<_>>();
+        let groups_to_show = if self.limit == 0 {
+            groups.iter().collect::<Vec<_>>()
+        } else {
+            groups.iter().take(self.limit).collect::<Vec<_>>()
+        };
 
         format!(
             r#"<!DOCTYPE html>

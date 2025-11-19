@@ -30,7 +30,7 @@ pub struct InvestigateOptions {
     pub limit: usize,
     pub no_mcp: bool,
     pub mcp_config: Option<String>,
-    pub concurrency: usize,
+    pub concurrency: Option<usize>,
 }
 
 /// Investigate command implementation
@@ -176,7 +176,7 @@ impl InvestigateCommand {
         api_key: Option<String>,
         ollama_host: Option<String>,
         region: Option<String>,
-        concurrency: usize,
+        concurrency: Option<usize>,
         stats: bool,
     ) -> Result<()> {
         let provider_name = ai_provider.to_string();
@@ -200,8 +200,13 @@ impl InvestigateCommand {
         let provider = ai::create_provider(ai_provider, api_key, model, ollama_host, region)?;
 
         let mut config = ai_config.get_analysis_config();
-        config.max_concurrency = concurrency;
+        // Priority: CLI param > Config value > Default (already in config)
+        if let Some(cli_concurrency) = concurrency {
+            config.max_concurrency = cli_concurrency;
+        }
+        // else: config.max_concurrency already has the value from config file or default
 
+        let actual_concurrency = config.max_concurrency;
         let parallel_analyzer = ai::ParallelAnalyzer::new(provider, config);
 
         // Create progress callback
@@ -229,7 +234,7 @@ impl InvestigateCommand {
             eprintln!("  Error groups: {}", groups.len());
             eprintln!("  Duration: {:.2}s", analysis_duration.as_secs_f64());
             eprintln!("  Throughput: {:.2} groups/sec", throughput);
-            eprintln!("  Concurrency: {}", concurrency);
+            eprintln!("  Concurrency: {}", actual_concurrency);
             eprintln!();
         } else {
             eprintln!("✅ Analyzed {} error groups\n", groups.len());

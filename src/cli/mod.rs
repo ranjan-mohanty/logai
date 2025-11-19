@@ -67,8 +67,8 @@ pub enum Commands {
         #[arg(long, short = 'o')]
         output: Option<String>,
 
-        /// Maximum number of error groups to show
-        #[arg(long, default_value = "20")]
+        /// Maximum number of error groups to show (0 = unlimited)
+        #[arg(long, default_value = "0")]
         limit: usize,
 
         /// Filter by severity (error, warn, info)
@@ -83,9 +83,9 @@ pub enum Commands {
         #[arg(long)]
         mcp_config: Option<String>,
 
-        /// Maximum concurrent AI analysis requests (1-20)
-        #[arg(long, default_value = "5")]
-        concurrency: usize,
+        /// Maximum concurrent AI analysis requests (1-100)
+        #[arg(long)]
+        concurrency: Option<usize>,
     },
 
     /// Watch and analyze logs in real-time

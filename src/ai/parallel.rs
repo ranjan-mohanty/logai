@@ -34,7 +34,7 @@ use tokio::sync::{Mutex, Semaphore};
 /// Configuration for parallel analysis
 #[derive(Debug, Clone)]
 pub struct AnalysisConfig {
-    /// Maximum number of concurrent analysis requests (1-20)
+    /// Maximum number of concurrent analysis requests (1-100)
     pub max_concurrency: usize,
     /// Enable retry logic for failed requests
     pub enable_retry: bool,
@@ -67,9 +67,9 @@ impl Default for AnalysisConfig {
 impl AnalysisConfig {
     /// Create a new configuration with validation
     pub fn new(max_concurrency: usize) -> Result<Self> {
-        if !(1..=20).contains(&max_concurrency) {
+        if !(1..=100).contains(&max_concurrency) {
             return Err(anyhow::anyhow!(
-                "Concurrency must be between 1 and 20, got {}",
+                "Concurrency must be between 1 and 100, got {}",
                 max_concurrency
             ));
         }
@@ -168,7 +168,16 @@ impl ParallelAnalyzer {
             if let Ok(analysis) = result {
                 groups[index].analysis = Some(analysis);
             } else if let Err(e) = result {
-                log::warn!("Failed to analyze group {}: {}", groups[index].id, e);
+                let group = &groups[index];
+                log::debug!(
+                    "Failed to analyze group {} (pattern: {}, count: {}): {}",
+                    group.id,
+                    group.pattern,
+                    group.count,
+                    e
+                );
+                // Log the full error chain for debugging
+                log::debug!("Error chain for group {}: {:?}", group.id, e);
             }
         }
 
@@ -185,7 +194,8 @@ mod tests {
         assert!(AnalysisConfig::new(5).is_ok());
         assert!(AnalysisConfig::new(1).is_ok());
         assert!(AnalysisConfig::new(20).is_ok());
+        assert!(AnalysisConfig::new(100).is_ok());
         assert!(AnalysisConfig::new(0).is_err());
-        assert!(AnalysisConfig::new(21).is_err());
+        assert!(AnalysisConfig::new(101).is_err());
     }
 }

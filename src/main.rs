@@ -2,21 +2,18 @@ use clap::Parser;
 use logai::{
     cli::{Cli, Commands},
     commands::{CleanCommand, ConfigCommand, InvestigateCommand, InvestigateOptions},
-    Result,
+    logging, Result,
 };
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    // Initialize logger with appropriate level based on verbose flag
-    env_logger::Builder::from_default_env()
-        .filter_level(if cli.verbose {
-            log::LevelFilter::Debug
-        } else {
-            log::LevelFilter::Info
-        })
-        .init();
+    // Initialize logging with file output
+    logging::init_logging(cli.verbose)?;
+
+    // Clean up old log files (keep last 10)
+    let _ = logging::cleanup_old_logs(10);
 
     match cli.command {
         Commands::Investigate {

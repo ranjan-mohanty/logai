@@ -109,6 +109,9 @@ impl EnhancedJsonExtractor {
     fn repair_json(json: &str) -> String {
         let mut repaired = json.to_string();
 
+        // Sanitize control characters in string values
+        repaired = Self::sanitize_control_characters(&repaired);
+
         // Fix missing commas between object properties
         // This is a simple heuristic - look for }\n{ or ]\n[ patterns
         repaired = repaired.replace("}\n{", "},\n{");
@@ -127,6 +130,47 @@ impl EnhancedJsonExtractor {
         repaired = repaired.replace(", ]", " ]");
 
         repaired
+    }
+
+    /// Sanitize control characters within JSON string values
+    fn sanitize_control_characters(json: &str) -> String {
+        let mut result = String::with_capacity(json.len());
+        let mut in_string = false;
+        let mut escape_next = false;
+        let mut chars = json.chars().peekable();
+
+        #[allow(clippy::while_let_on_iterator)]
+        while let Some(ch) = chars.next() {
+            if escape_next {
+                result.push(ch);
+                escape_next = false;
+                continue;
+            }
+
+            match ch {
+                '\\' if in_string => {
+                    result.push(ch);
+                    escape_next = true;
+                }
+                '"' => {
+                    result.push(ch);
+                    in_string = !in_string;
+                }
+                // Handle control characters inside strings
+                '\n' if in_string => result.push_str("\\n"),
+                '\r' if in_string => result.push_str("\\r"),
+                '\t' if in_string => result.push_str("\\t"),
+                '\x08' if in_string => result.push_str("\\b"),
+                '\x0C' if in_string => result.push_str("\\f"),
+                // Handle other control characters (0x00-0x1F)
+                c if in_string && c.is_control() && (c as u32) < 0x20 => {
+                    result.push_str(&format!("\\u{:04x}", c as u32));
+                }
+                _ => result.push(ch),
+            }
+        }
+
+        result
     }
 
     /// Validate extracted JSON structure
@@ -354,5 +398,37 @@ Hope this helps!"#;
         let text = "Some text\n```\n{\"key\": \"value\"}\n```\nMore text";
         let result = EnhancedJsonExtractor::strip_markdown(text);
         assert_eq!(result, r#"{"key": "value"}"#);
+    }
+
+    #[test]
+    fn test_sanitize_control_characters() {
+        // Test newlines in string values
+        let json = r#"{"description": "Line 1
+Line 2"}"#;
+        let sanitized = EnhancedJsonExtractor::sanitize_control_characters(json);
+        assert_eq!(sanitized, r#"{"description": "Line 1\nLine 2"}"#);
+
+        // Test tabs
+        let json = r#"{"description": "Tab	here"}"#;
+        let sanitized = EnhancedJsonExtractor::sanitize_control_characters(json);
+        assert_eq!(sanitized, r#"{"description": "Tab\there"}"#);
+
+        // Test multiple control characters
+        let json = r#"{"text": "First
+Second	Third"}"#;
+        let sanitized = EnhancedJsonExtractor::sanitize_control_characters(json);
+        assert_eq!(sanitized, r#"{"text": "First\nSecond\tThird"}"#);
+    }
+
+    #[test]
+    fn test_extract_with_control_characters() {
+        // Simulate Bedrock response with unescaped newlines
+        let response = r#"{"explanation": "This is line 1
+This is line 2", "suggestions": []}"#;
+
+        let result = EnhancedJsonExtractor::extract(response);
+        assert!(result.is_ok());
+        let json = result.unwrap();
+        assert!(json.contains("\\n"));
     }
 }
