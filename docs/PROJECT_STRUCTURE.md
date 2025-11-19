@@ -28,18 +28,24 @@ logai/
 │   └── README.md         # Installation guide
 │
 ├── src/                  # Source code
-│   ├── ai/               # AI provider integrations
+│   ├── ai/               # AI provider integrations & analysis
 │   │   ├── providers/    # AI provider implementations
 │   │   │   ├── claude.rs     # Claude provider
 │   │   │   ├── gemini.rs     # Gemini provider
 │   │   │   ├── ollama.rs     # Ollama provider
 │   │   │   ├── openai.rs     # OpenAI provider
 │   │   │   └── mod.rs        # Providers module
-│   │   ├── cache.rs      # Analysis caching
-│   │   ├── config.rs     # Configuration management
-│   │   ├── mod.rs        # AI module
-│   │   ├── prompts.rs    # Shared prompts
-│   │   └── provider.rs   # Provider trait
+│   │   ├── cache.rs          # Analysis caching
+│   │   ├── config.rs         # Configuration management
+│   │   ├── json_extractor.rs # Enhanced JSON extraction
+│   │   ├── mcp_helper.rs     # MCP integration helper
+│   │   ├── parallel.rs       # Parallel analysis infrastructure
+│   │   ├── progress.rs       # Progress tracking
+│   │   ├── prompts.rs        # Shared prompts
+│   │   ├── provider.rs       # Provider trait
+│   │   ├── retry.rs          # Retry logic with backoff
+│   │   ├── statistics.rs     # Analysis statistics
+│   │   └── mod.rs            # AI module
 │   │
 │   ├── analyzer/         # Log analysis
 │   │   ├── grouper.rs    # Error grouping logic
@@ -48,15 +54,35 @@ logai/
 │   ├── cli/              # Command-line interface
 │   │   └── mod.rs        # CLI definitions
 │   │
+│   ├── mcp/              # Model Context Protocol integration
+│   │   ├── client.rs     # MCP client implementation
+│   │   ├── config.rs     # MCP configuration
+│   │   ├── error.rs      # MCP error types
+│   │   ├── protocol.rs   # MCP protocol types
+│   │   ├── transport.rs  # MCP transport layer
+│   │   └── mod.rs        # MCP module
+│   │
 │   ├── output/           # Output formatters
 │   │   ├── terminal.rs   # Terminal output
 │   │   └── mod.rs        # Output module
 │   │
 │   ├── parser/           # Log parsers
-│   │   ├── detector.rs   # Format detection
-│   │   ├── json.rs       # JSON parser
-│   │   ├── plain.rs      # Plain text parser
-│   │   └── mod.rs        # Parser module
+│   │   ├── formats/      # Format-specific parsers
+│   │   │   ├── apache.rs     # Apache log parser
+│   │   │   ├── json.rs       # JSON log parser
+│   │   │   ├── nginx.rs      # Nginx log parser
+│   │   │   ├── plain.rs      # Plain text parser
+│   │   │   ├── syslog.rs     # Syslog parser
+│   │   │   └── mod.rs        # Formats module
+│   │   ├── config.rs         # Parser configuration
+│   │   ├── detector.rs       # Format detection
+│   │   ├── encoding.rs       # Encoding handling
+│   │   ├── metadata.rs       # Metadata extraction
+│   │   ├── parallel.rs       # Parallel parsing
+│   │   ├── stack_trace.rs    # Stack trace parsing
+│   │   ├── statistics.rs     # Parsing statistics
+│   │   ├── timestamp.rs      # Timestamp parsing
+│   │   └── mod.rs            # Parser module
 │   │
 │   ├── search/           # Search functionality (future)
 │   ├── storage/          # Storage layer (future)
@@ -85,11 +111,26 @@ logai/
 
 Core application code organized by functionality:
 
-- **ai/** - AI provider integrations with shared prompts and config
+- **ai/** - AI provider integrations, parallel analysis, retry logic, and
+  progress tracking
+  - `providers/` - AI provider implementations (OpenAI, Claude, Gemini, Ollama)
+  - `parallel.rs` - Parallel analysis infrastructure with concurrency control
+  - `retry.rs` - Retry logic with exponential backoff
+  - `progress.rs` - Real-time progress tracking
+  - `statistics.rs` - Analysis statistics and metrics
+  - `json_extractor.rs` - Enhanced JSON extraction from AI responses
+  - `config.rs` - Configuration management for AI and analysis settings
 - **analyzer/** - Log analysis and error grouping
 - **cli/** - Command-line interface definitions
+- **mcp/** - Model Context Protocol integration for external tools
 - **output/** - Output formatting (terminal, JSON, HTML)
 - **parser/** - Log format detection and parsing
+  - `formats/` - Format-specific parsers (Apache, Nginx, Syslog, JSON, Plain)
+  - `parallel.rs` - Parallel log parsing
+  - `detector.rs` - Automatic format detection
+  - `metadata.rs` - Metadata extraction (file, line, thread, etc.)
+  - `stack_trace.rs` - Stack trace parsing
+  - `timestamp.rs` - Timestamp parsing with multiple format support
 
 ### `/docs`
 
@@ -131,6 +172,36 @@ GitHub-specific configuration:
 - **.gitignore** - Git ignore patterns
 - **hooks/pre-commit** - Git pre-commit checks
 
+## Recent Improvements
+
+### AI Analysis Optimization (v0.1.0-beta.1)
+
+- **Parallel Processing** - Process multiple error groups concurrently (5x
+  faster)
+- **Retry Logic** - Automatic retry with exponential backoff for transient
+  failures
+- **Progress Tracking** - Real-time progress updates with throughput and ETA
+- **Statistics** - Comprehensive analysis metrics and reporting
+- **Configuration** - File-based configuration with CLI overrides
+
+### Code Organization
+
+- **Total Lines:** ~8,300
+- **Modules:** 8 main modules
+- **Submodules:** 2 (ai/providers, parser/formats)
+- **Tests:** 203 tests (161 unit + 42 integration)
+- **Test Coverage:** Comprehensive coverage of core functionality
+
+## Future Improvements
+
+See [REFACTORING_PLAN.md](REFACTORING_PLAN.md) for planned structural
+improvements:
+
+1. **Phase 1:** Extract commands from main.rs (reduce from 527 to ~100 lines)
+2. **Phase 2:** Split ai/config.rs into focused modules
+3. **Phase 3:** Reorganize AI module with subdirectories
+4. **Phase 4:** Reorganize parser module with subdirectories
+
 ## Development Workflow
 
 1. Make changes in `/src`
@@ -139,3 +210,11 @@ GitHub-specific configuration:
 4. Create PR with tests
 5. CI runs on all platforms
 6. Merge triggers release workflow
+
+## Architecture Principles
+
+- **Modularity** - Clear separation of concerns
+- **Testability** - Comprehensive unit and integration tests
+- **Documentation** - Module-level docs and examples
+- **Performance** - Parallel processing where beneficial
+- **Maintainability** - Clean code with clear ownership

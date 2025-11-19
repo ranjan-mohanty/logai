@@ -1,6 +1,7 @@
 pub mod ai;
 pub mod analyzer;
 pub mod cli;
+pub mod commands;
 pub mod mcp;
 pub mod output;
 pub mod parser;
