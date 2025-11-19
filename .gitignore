@@ -20,6 +20,9 @@ Thumbs.db
 # Config
 .logai/
 
+# Logs
+logs/
+
 # Development/Planning (internal docs)
 .dev/
 .kiro/

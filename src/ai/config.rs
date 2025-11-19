@@ -56,6 +56,8 @@ pub struct OutputSettings {
     pub path: Option<String>,
     #[serde(default)]
     pub format: Option<String>,
+    #[serde(default)]
+    pub logs_dir: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -256,6 +258,9 @@ impl AIConfig {
                 }
                 self.output.format = Some(value.to_string());
             }
+            ["output", "logs_dir"] => {
+                self.output.logs_dir = Some(value.to_string());
+            }
             [provider, "api_key"] => {
                 let config = self
                     .providers
@@ -416,6 +421,9 @@ impl AIConfig {
         }
         if let Some(format) = &self.output.format {
             output.push_str(&format!("  format: {}\n", format));
+        }
+        if let Some(logs_dir) = &self.output.logs_dir {
+            output.push_str(&format!("  logs_dir: {}\n", logs_dir));
         }
         output.push('\n');
 

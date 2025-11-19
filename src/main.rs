@@ -9,12 +9,6 @@ use logai::{
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    // Initialize logging with file output
-    logging::init_logging(cli.verbose)?;
-
-    // Clean up old log files (keep last 10)
-    let _ = logging::cleanup_old_logs(10);
-
     match cli.command {
         Commands::Investigate {
             files,
@@ -35,6 +29,12 @@ async fn main() -> Result<()> {
             mcp_config,
             concurrency,
         } => {
+            // Enable file logging for investigate command
+            let log_file_path = logging::init_logging(cli.verbose)?;
+
+            // Clean up old log files (keep last 10)
+            let _ = logging::cleanup_old_logs(10);
+
             // If no AI provider specified via CLI, check config file
             let ai_provider = if ai_provider == "none" {
                 logai::ai::AIConfig::load()
@@ -62,14 +62,44 @@ async fn main() -> Result<()> {
                 concurrency,
             })
             .await?;
+
+            // Print log file location at the end
+            eprintln!("\n📋 Detailed logs: {}", log_file_path.display());
         }
         Commands::Watch { file: _ } => {
+            // Initialize basic console logging for other commands
+            env_logger::Builder::from_default_env()
+                .filter_level(if cli.verbose {
+                    log::LevelFilter::Debug
+                } else {
+                    log::LevelFilter::Info
+                })
+                .init();
+
             println!("Watch mode coming soon!");
         }
         Commands::Config { action } => {
+            // Initialize basic console logging for other commands
+            env_logger::Builder::from_default_env()
+                .filter_level(if cli.verbose {
+                    log::LevelFilter::Debug
+                } else {
+                    log::LevelFilter::Info
+                })
+                .init();
+
             ConfigCommand::execute(action)?;
         }
         Commands::Clean { force } => {
+            // Initialize basic console logging for other commands
+            env_logger::Builder::from_default_env()
+                .filter_level(if cli.verbose {
+                    log::LevelFilter::Debug
+                } else {
+                    log::LevelFilter::Info
+                })
+                .init();
+
             CleanCommand::execute(force)?;
         }
     }

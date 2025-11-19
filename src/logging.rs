@@ -66,11 +66,18 @@ impl log::Log for DualLogger {
 
 /// Get the log file path
 fn get_log_file_path() -> Result<PathBuf> {
-    let home = std::env::var("HOME")
-        .or_else(|_| std::env::var("USERPROFILE"))
-        .map_err(|_| anyhow::anyhow!("Could not determine home directory"))?;
-
-    let log_dir = PathBuf::from(home).join(".logai");
+    // Try to load config to get logs_dir
+    let log_dir = if let Ok(config) = crate::ai::AIConfig::load() {
+        if let Some(logs_dir) = config.output.logs_dir {
+            PathBuf::from(logs_dir)
+        } else {
+            // Default: current directory + logs/
+            std::env::current_dir()?.join("logs")
+        }
+    } else {
+        // Default: current directory + logs/
+        std::env::current_dir()?.join("logs")
+    };
 
     // Create directory if it doesn't exist
     fs::create_dir_all(&log_dir)?;
@@ -83,7 +90,8 @@ fn get_log_file_path() -> Result<PathBuf> {
 }
 
 /// Initialize logging with both console and file output
-pub fn init_logging(verbose: bool) -> Result<()> {
+/// Returns the path to the log file
+pub fn init_logging(verbose: bool) -> Result<PathBuf> {
     let console_level = if verbose {
         LevelFilter::Debug
     } else {
@@ -111,16 +119,21 @@ pub fn init_logging(verbose: bool) -> Result<()> {
     // Log the file location at startup
     log::info!("Logging to file: {}", log_file_path.display());
 
-    Ok(())
+    Ok(log_file_path)
 }
 
 /// Clean up old log files (keep last N files)
 pub fn cleanup_old_logs(keep_count: usize) -> Result<()> {
-    let home = std::env::var("HOME")
-        .or_else(|_| std::env::var("USERPROFILE"))
-        .map_err(|_| anyhow::anyhow!("Could not determine home directory"))?;
-
-    let log_dir = PathBuf::from(home).join(".logai");
+    // Try to load config to get logs_dir
+    let log_dir = if let Ok(config) = crate::ai::AIConfig::load() {
+        if let Some(logs_dir) = config.output.logs_dir {
+            PathBuf::from(logs_dir)
+        } else {
+            std::env::current_dir()?.join("logs")
+        }
+    } else {
+        std::env::current_dir()?.join("logs")
+    };
 
     if !log_dir.exists() {
         return Ok(());
