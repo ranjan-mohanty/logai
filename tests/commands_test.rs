@@ -222,3 +222,90 @@ async fn test_investigate_html_output() {
     // Verify HTML file was created
     assert!(std::path::Path::new("reports").exists());
 }
+
+use logai::cli::ConfigAction;
+use logai::commands::config::ConfigCommand;
+
+#[test]
+fn test_config_show() {
+    let result = ConfigCommand::execute(ConfigAction::Show);
+    // Should succeed even if config doesn't exist (uses default)
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_config_set_valid_key() {
+    let result = ConfigCommand::execute(ConfigAction::Set {
+        key: "ai.provider".to_string(),
+        value: "openai".to_string(),
+    });
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_config_set_analysis_concurrency() {
+    let result = ConfigCommand::execute(ConfigAction::Set {
+        key: "analysis.max_concurrency".to_string(),
+        value: "5".to_string(),
+    });
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_config_set_output_format() {
+    let result = ConfigCommand::execute(ConfigAction::Set {
+        key: "output.format".to_string(),
+        value: "json".to_string(),
+    });
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_config_set_invalid_key() {
+    let result = ConfigCommand::execute(ConfigAction::Set {
+        key: "invalid.key.path".to_string(),
+        value: "value".to_string(),
+    });
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_config_set_invalid_concurrency_value() {
+    let result = ConfigCommand::execute(ConfigAction::Set {
+        key: "analysis.max_concurrency".to_string(),
+        value: "not_a_number".to_string(),
+    });
+    assert!(result.is_err());
+}
+
+use logai::commands::clean::CleanCommand;
+use std::fs;
+
+#[test]
+fn test_clean_with_no_reports() {
+    // Clean when no reports exist
+    let result = CleanCommand::execute(true);
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_clean_with_force() {
+    // Create a test report directory
+    let report_dir = "reports";
+    fs::create_dir_all(report_dir).ok();
+
+    // Create a test HTML file
+    let test_file = format!("{}/test-report.html", report_dir);
+    fs::write(&test_file, "<html></html>").ok();
+
+    // Clean with force
+    let result = CleanCommand::execute(true);
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_clean_creates_no_errors_on_missing_dirs() {
+    // Should not error even if directories don't exist
+    let result = CleanCommand::execute(true);
+    assert!(result.is_ok());
+}
