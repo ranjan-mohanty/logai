@@ -1,3 +1,5 @@
+mod common;
+
 use logai::{
     analyzer::Analyzer,
     parser::detector::FormatDetector,
