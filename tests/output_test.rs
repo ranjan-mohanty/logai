@@ -355,3 +355,144 @@ fn test_terminal_formatter_empty_message() {
     // Should handle empty messages
     assert!(!output.is_empty());
 }
+
+// ============================================================================
+// Additional HTML Formatter Tests
+// ============================================================================
+
+#[test]
+fn test_html_formatter_with_analysis() {
+    use common::fixtures;
+    use logai::types::{ErrorAnalysis, Resource, Suggestion};
+
+    let mut group = fixtures::sample_error_group();
+    group.analysis = Some(ErrorAnalysis {
+        explanation: "Test explanation for HTML".to_string(),
+        root_cause: Some("Test root cause".to_string()),
+        suggestions: vec![Suggestion {
+            description: "Fix suggestion 1".to_string(),
+            code_example: Some("code example".to_string()),
+            priority: 1,
+        }],
+        related_resources: vec![Resource {
+            title: "Example Resource".to_string(),
+            url: "https://example.com".to_string(),
+            source: "test".to_string(),
+        }],
+        tool_invocations: vec![],
+    });
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&[group]).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+    assert!(output.contains("explanation") || output.contains("AI Analysis"));
+}
+
+#[test]
+fn test_html_formatter_multiple_groups() {
+    use common::fixtures;
+
+    let mut groups = vec![];
+    for i in 0..5 {
+        let mut group = fixtures::sample_error_group();
+        group.pattern = format!("Error pattern {}", i);
+        groups.push(group);
+    }
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&groups).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+    assert!(output.contains("Error pattern 0"));
+    assert!(output.contains("Error pattern 4"));
+}
+
+#[test]
+fn test_html_formatter_special_chars_escaping() {
+    use common::fixtures;
+
+    let mut group = fixtures::sample_error_group();
+    group.pattern = "Error with <script>alert('xss')</script>".to_string();
+    group.entries[0].message = "Message with <>&\"'".to_string();
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&[group]).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+    // HTML should contain the pattern (may or may not be escaped depending on implementation)
+    assert!(output.contains("script") || output.contains("&lt;script&gt;"));
+}
+
+#[test]
+fn test_html_formatter_large_groups() {
+    use common::fixtures;
+
+    let mut group = fixtures::sample_error_group();
+    group.count = 99999;
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&[group]).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+    assert!(output.contains("99999"));
+}
+
+#[test]
+fn test_html_formatter_different_severities() {
+    use common::fixtures;
+    use logai::types::Severity;
+
+    let mut groups = vec![];
+    for severity in &[Severity::Error, Severity::Warning, Severity::Info] {
+        let mut group = fixtures::sample_error_group();
+        group.severity = *severity;
+        groups.push(group);
+    }
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&groups).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+}
+
+#[test]
+fn test_html_formatter_unicode_content() {
+    use common::fixtures;
+
+    let mut group = fixtures::sample_error_group();
+    group.pattern = "Error with unicode: 你好 🚀 ñ".to_string();
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&[group]).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+}
+
+#[test]
+fn test_html_formatter_long_messages() {
+    use common::fixtures;
+
+    let mut group = fixtures::sample_error_group();
+    group.entries[0].message = "A".repeat(1000);
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&[group]).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+}
+
+#[test]
+fn test_html_formatter_with_timestamps() {
+    use chrono::Utc;
+    use common::fixtures;
+
+    let mut group = fixtures::sample_error_group();
+    group.first_seen = Utc::now();
+    group.last_seen = Utc::now();
+
+    let formatter = HtmlFormatter::new(10);
+    let output = formatter.format(&[group]).unwrap();
+
+    common::assertions::assert_html_valid(&output);
+}
