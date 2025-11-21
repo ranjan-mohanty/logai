@@ -23,27 +23,89 @@ through massive log files and let LogAI do the detective work.
 
 ## Features
 
+### 🔍 **Log Analysis & Parsing**
+
 ✅ **Multiple log formats** - JSON, plain text, Apache, Nginx, Syslog  
-✅ **Auto-detect log format** - Automatically identifies format  
-✅ **Group similar errors intelligently** - Pattern-based grouping  
-✅ Deduplicate repeated errors  
-✅ Beautiful terminal output  
-✅ Track error frequency and timing  
-✅ AI-powered error explanations (OpenAI, Claude, Gemini, Ollama, AWS Bedrock)  
+✅ **Auto-detect log format** - Automatically identifies format from content  
+✅ **Smart error grouping** - Pattern-based clustering with dynamic value
+normalization  
+✅ **Multiline log support** - Stack traces, JSON objects, and continuation
+lines  
+✅ **Metadata extraction** - File paths, line numbers, function names, request
+IDs  
+✅ **Parallel processing** - Multi-threaded parsing for large files  
+✅ **Streaming support** - Process logs from stdin or pipes
+
+### 🤖 **AI-Powered Intelligence**
+
+✅ **Multiple AI providers** - OpenAI, Claude, Gemini, Ollama, AWS Bedrock  
 ✅ **Parallel AI analysis** - Process multiple errors concurrently (5x faster)  
 ✅ **Automatic retry** - Exponential backoff for transient failures  
-✅ Solution suggestions with code examples  
-✅ Response caching to reduce API costs  
-✅ **Configuration file** - Customize analysis behavior  
-✅ **MCP (Model Context Protocol) integration** - Connect external tools and
-data sources
+✅ **Response caching** - Reduce API costs with intelligent caching  
+✅ **Solution suggestions** - Code examples and fix recommendations  
+✅ **Configurable concurrency** - Control API request rate (1-20 concurrent)  
+✅ **Progress tracking** - Real-time analysis progress with ETA
+
+### 📊 **Output & Reporting**
+
+✅ **Beautiful terminal output** - Color-coded, formatted results  
+✅ **HTML reports** - Interactive web reports with charts and filtering  
+✅ **JSON output** - Machine-readable format for automation  
+✅ **Statistics mode** - Detailed metrics and analysis summaries  
+✅ **Flexible formatting** - Customizable output templates  
+✅ **Error frequency tracking** - Time-based occurrence patterns
+
+### ⚙️ **Configuration & Integration**
+
+✅ **Configuration file** - TOML-based settings with profiles  
+✅ **MCP (Model Context Protocol)** - Connect external tools and data sources  
+✅ **Environment variables** - Flexible configuration options  
+✅ **CLI argument validation** - Comprehensive input validation  
+✅ **Cross-platform support** - Linux, macOS, Windows  
+✅ **CI/CD friendly** - Exit codes and automation support
+
+### 🛠️ **Developer Experience**
+
+✅ **Comprehensive testing** - 166+ unit tests with high coverage  
+✅ **Clean command** - Manage generated reports and logs  
+✅ **Verbose logging** - Debug mode for troubleshooting  
+✅ **Error handling** - Graceful degradation and informative errors  
+✅ **Performance optimization** - Memory-efficient processing  
+✅ **Documentation** - Extensive guides and examples
 
 ## Coming Soon
 
-🚧 Built-in MCP tools (search_docs, check_metrics, search_code)  
-🚧 Watch mode for real-time analysis  
-🚧 HTML reports  
-🚧 Additional log formats (Docker, Kubernetes, custom formats)
+### 🚀 **Enhanced Analysis**
+
+🚧 **Anomaly detection** - Identify unusual patterns and outliers  
+🚧 **Trend analysis** - Historical pattern recognition  
+🚧 **Custom log formats** - User-defined parsing rules  
+🚧 **Log correlation** - Cross-service error tracking  
+🚧 **Performance metrics** - Response time and throughput analysis
+
+### 🔧 **Built-in MCP Tools**
+
+🚧 **search_docs** - Search documentation and knowledge bases  
+🚧 **check_metrics** - Query monitoring systems (Prometheus, DataDog)  
+🚧 **search_code** - Search codebases for related issues  
+🚧 **query_logs** - Search log aggregation systems (ELK, Splunk)  
+🚧 **check_status** - Query service health endpoints
+
+### 📈 **Advanced Features**
+
+🚧 **Watch mode** - Real-time log monitoring and analysis  
+🚧 **Dashboard mode** - Live updating web interface  
+🚧 **Alert integration** - Slack, PagerDuty, webhook notifications  
+🚧 **Log shipping** - Direct integration with log collectors  
+🚧 **Machine learning** - Custom model training for specific domains
+
+### 🌐 **Enterprise Features**
+
+🚧 **Team collaboration** - Shared analysis and annotations  
+🚧 **Role-based access** - User permissions and audit logs  
+🚧 **API server mode** - REST API for programmatic access  
+🚧 **Database storage** - Persistent analysis history  
+🚧 **SSO integration** - Enterprise authentication support
 
 ## Quick Start
 
@@ -400,15 +462,40 @@ cargo run -- investigate tests/fixtures/sample.log
 
 ## Roadmap
 
-- [x] Core parsing and grouping
-- [x] AI integration (OpenAI, Claude, Gemini, Ollama)
-- [x] Response caching
+### ✅ **Completed (v0.1.x)**
+
+- [x] Core parsing and grouping with smart pattern recognition
+- [x] Multi-format support (JSON, plain text, Apache, Nginx, Syslog)
+- [x] AI integration (OpenAI, Claude, Gemini, Ollama, AWS Bedrock)
+- [x] Parallel processing and concurrent AI analysis
+- [x] Response caching and retry mechanisms
+- [x] HTML and JSON output formats
 - [x] MCP (Model Context Protocol) integration
-- [ ] Built-in MCP tools (search_docs, check_metrics, search_code, query_logs)
-- [ ] Watch mode for real-time analysis
-- [ ] HTML reports
-- [ ] Advanced log format support (Apache, Nginx, Syslog)
-- [ ] Anomaly detection and trend analysis
+- [x] Comprehensive configuration system
+- [x] Cross-platform support and CI/CD compatibility
+
+### 🚧 **In Progress (v0.2.x)**
+
+- [ ] Built-in MCP tools (search_docs, check_metrics, search_code)
+- [ ] Enhanced error correlation and pattern analysis
+- [ ] Performance optimizations for large log files
+- [ ] Advanced filtering and search capabilities
+
+### 🎯 **Planned (v0.3.x)**
+
+- [ ] Watch mode for real-time log monitoring
+- [ ] Dashboard web interface with live updates
+- [ ] Anomaly detection using statistical analysis
+- [ ] Custom log format definitions
+- [ ] Alert and notification integrations
+
+### 🌟 **Future (v1.0+)**
+
+- [ ] Machine learning for domain-specific analysis
+- [ ] Enterprise features (SSO, RBAC, audit logs)
+- [ ] API server mode for programmatic access
+- [ ] Team collaboration and shared analysis
+- [ ] Advanced visualization and reporting
 
 ## Documentation
 
