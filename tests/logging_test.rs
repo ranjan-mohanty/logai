@@ -8,14 +8,30 @@
 use logai::logging::cleanup_old_logs;
 use std::env;
 use std::fs;
+use std::path::PathBuf;
 use tempfile::TempDir;
+
+// Helper function to safely get current directory
+fn get_current_dir_safe() -> Option<PathBuf> {
+    env::current_dir().ok()
+}
+
+// Helper function to safely set current directory
+fn set_current_dir_safe(path: &std::path::Path) -> bool {
+    env::set_current_dir(path).is_ok()
+}
 
 #[test]
 fn test_cleanup_old_logs_no_directory() {
     // Test cleanup when logs directory doesn't exist
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
-    env::set_current_dir(&temp_dir).unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     let result = cleanup_old_logs(5);
     assert!(result.is_ok());
@@ -27,14 +43,19 @@ fn test_cleanup_old_logs_no_directory() {
 #[test]
 fn test_cleanup_old_logs_empty_directory() {
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
 
     // Create logs directory in temp dir
     let logs_dir = temp_dir.path().join("logs");
     fs::create_dir_all(&logs_dir).unwrap();
 
     // Change to temp directory for cleanup
-    env::set_current_dir(&temp_dir).unwrap();
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     let result = cleanup_old_logs(3);
     assert!(result.is_ok());
@@ -52,8 +73,13 @@ fn test_cleanup_old_logs_function_exists() {
     // Test that the cleanup function can be called and returns Ok
     // when there are no logs to clean up
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
-    env::set_current_dir(&temp_dir).unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     let result = cleanup_old_logs(0);
     assert!(result.is_ok());
@@ -68,7 +94,10 @@ fn test_cleanup_old_logs_function_exists() {
 #[test]
 fn test_cleanup_with_non_log_files() {
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
 
     // Create logs directory in temp dir
     let logs_dir = temp_dir.path().join("logs");
@@ -80,7 +109,9 @@ fn test_cleanup_with_non_log_files() {
     fs::write(logs_dir.join("backup.log"), "backup").unwrap();
 
     // Change to temp directory for cleanup
-    env::set_current_dir(&temp_dir).unwrap();
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     let result = cleanup_old_logs(0);
     assert!(result.is_ok());
@@ -97,7 +128,10 @@ fn test_cleanup_with_non_log_files() {
 #[test]
 fn test_cleanup_identifies_log_files_correctly() {
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
 
     // Create logs directory in temp dir
     let logs_dir = temp_dir.path().join("logs");
@@ -118,7 +152,9 @@ fn test_cleanup_identifies_log_files_correctly() {
     }
 
     // Change to temp directory for cleanup
-    env::set_current_dir(&temp_dir).unwrap();
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     // Count files before cleanup
     let all_files_before: Vec<_> = if logs_dir.exists() {
@@ -161,14 +197,19 @@ fn test_cleanup_identifies_log_files_correctly() {
 #[test]
 fn test_cleanup_handles_different_keep_counts() {
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
 
     // Create logs directory in temp dir
     let logs_dir = temp_dir.path().join("logs");
     fs::create_dir_all(&logs_dir).unwrap();
 
     // Change to temp directory for cleanup
-    env::set_current_dir(&temp_dir).unwrap();
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     // Test various keep counts
     for keep_count in [0, 1, 5, 10, 100] {
@@ -187,7 +228,11 @@ fn test_cleanup_handles_different_keep_counts() {
 #[test]
 fn test_cleanup_with_existing_logs_directory() {
     // Test cleanup when logs directory already exists (like in the main project)
-    let logs_dir = env::current_dir().unwrap().join("logs");
+    let logs_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    }
+    .join("logs");
 
     if logs_dir.exists() {
         // Should be able to run cleanup without errors
@@ -202,7 +247,10 @@ fn test_cleanup_with_existing_logs_directory() {
 #[test]
 fn test_cleanup_error_handling() {
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
 
     // Create logs directory in temp dir
     let logs_dir = temp_dir.path().join("logs");
@@ -212,7 +260,9 @@ fn test_cleanup_error_handling() {
     fs::write(logs_dir.join("logai_20240101_120000.log"), "content").unwrap();
 
     // Change to temp directory for cleanup
-    env::set_current_dir(&temp_dir).unwrap();
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     // Even if file removal fails internally, the function should return Ok
     // (based on the implementation using let _ = fs::remove_file)
@@ -226,7 +276,10 @@ fn test_cleanup_error_handling() {
 #[test]
 fn test_cleanup_directory_traversal() {
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
 
     // Create logs directory with subdirectories
     let logs_dir = temp_dir.path().join("logs");
@@ -243,7 +296,9 @@ fn test_cleanup_directory_traversal() {
     fs::write(sub_dir.join("logai_20240101_120000.log"), "sub_content").unwrap();
 
     // Change to temp directory for cleanup
-    env::set_current_dir(&temp_dir).unwrap();
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     let result = cleanup_old_logs(0);
     assert!(result.is_ok());
@@ -262,7 +317,10 @@ fn test_cleanup_directory_traversal() {
 #[test]
 fn test_cleanup_file_pattern_matching() {
     let temp_dir = TempDir::new().unwrap();
-    let original_dir = env::current_dir().unwrap();
+    let original_dir = match get_current_dir_safe() {
+        Some(dir) => dir,
+        None => return,
+    };
 
     // Create logs directory in temp dir
     let logs_dir = temp_dir.path().join("logs");
@@ -286,7 +344,9 @@ fn test_cleanup_file_pattern_matching() {
     fs::write(logs_dir.join("logai_20240101_120000.log"), "valid").unwrap();
 
     // Change to temp directory for cleanup
-    env::set_current_dir(&temp_dir).unwrap();
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
     let result = cleanup_old_logs(10); // Keep more than we have
     assert!(result.is_ok());

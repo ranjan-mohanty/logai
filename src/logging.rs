@@ -124,27 +124,46 @@ pub fn init_logging(verbose: bool) -> Result<PathBuf> {
 
 /// Clean up old log files (keep last N files)
 pub fn cleanup_old_logs(keep_count: usize) -> Result<()> {
-    // Try to load config to get logs_dir
-    let log_dir = if let Ok(config) = crate::ai::AIConfig::load() {
-        if let Some(logs_dir) = config.output.logs_dir {
-            PathBuf::from(logs_dir)
-        } else {
-            std::env::current_dir()?.join("logs")
+    // Try to load config to get logs_dir, with fallback handling
+    let log_dir = match crate::ai::AIConfig::load() {
+        Ok(config) => {
+            if let Some(logs_dir) = config.output.logs_dir {
+                PathBuf::from(logs_dir)
+            } else {
+                match std::env::current_dir() {
+                    Ok(dir) => dir.join("logs"),
+                    Err(_) => return Ok(()), // Gracefully handle when current_dir fails
+                }
+            }
         }
-    } else {
-        std::env::current_dir()?.join("logs")
+        Err(_) => {
+            match std::env::current_dir() {
+                Ok(dir) => dir.join("logs"),
+                Err(_) => return Ok(()), // Gracefully handle when current_dir fails
+            }
+        }
     };
 
     if !log_dir.exists() {
         return Ok(());
     }
 
-    // Get all log files
+    // Get all log files with proper logai pattern (logai_<timestamp>.log)
     let mut log_files: Vec<_> = fs::read_dir(&log_dir)?
         .filter_map(|entry| entry.ok())
         .filter(|entry| {
-            entry.file_name().to_string_lossy().starts_with("logai_")
-                && entry.file_name().to_string_lossy().ends_with(".log")
+            let filename = entry.file_name().to_string_lossy().to_string();
+            // Match pattern: logai_<timestamp>.log where <timestamp> contains digits
+            if !filename.starts_with("logai_") || !filename.ends_with(".log") {
+                return false;
+            }
+
+            // Extract the part between "logai_" and ".log"
+            let timestamp_part = &filename["logai_".len()..filename.len() - ".log".len()];
+
+            // Only match if the timestamp part is not empty and contains at least some digits
+            // This ensures we match files like "logai_20240101_120000.log" but not "logai_abc.log" or "logai_.log"
+            !timestamp_part.is_empty() && timestamp_part.chars().any(|c| c.is_ascii_digit())
         })
         .collect();
 

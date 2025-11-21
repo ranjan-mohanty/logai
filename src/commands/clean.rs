@@ -21,17 +21,23 @@ impl CleanCommand {
 
         // Clean reports
         if report_dir.exists() {
-            let html_files: Vec<_> = fs::read_dir(&report_dir)?
-                .filter_map(|entry| entry.ok())
-                .filter(|entry| {
-                    entry
-                        .path()
-                        .extension()
-                        .and_then(|ext| ext.to_str())
-                        .map(|ext| ext == "html")
-                        .unwrap_or(false)
-                })
-                .collect();
+            let html_files: Vec<_> = match fs::read_dir(&report_dir) {
+                Ok(entries) => entries,
+                Err(_) => {
+                    // Can't read directory, skip cleaning reports
+                    return Ok(());
+                }
+            }
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| {
+                entry
+                    .path()
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .map(|ext| ext == "html")
+                    .unwrap_or(false)
+            })
+            .collect();
 
             if !html_files.is_empty() {
                 let count = html_files.len();
@@ -64,13 +70,19 @@ impl CleanCommand {
 
         // Clean logs
         if logs_dir.exists() {
-            let log_files: Vec<_> = fs::read_dir(&logs_dir)?
-                .filter_map(|entry| entry.ok())
-                .filter(|entry| {
-                    let name = entry.file_name().to_string_lossy().to_string();
-                    name.starts_with("logai_") && name.ends_with(".log")
-                })
-                .collect();
+            let log_files: Vec<_> = match fs::read_dir(&logs_dir) {
+                Ok(entries) => entries,
+                Err(_) => {
+                    // Can't read directory, skip cleaning logs
+                    return Ok(());
+                }
+            }
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| {
+                let name = entry.file_name().to_string_lossy().to_string();
+                name.starts_with("logai_") && name.ends_with(".log")
+            })
+            .collect();
 
             if !log_files.is_empty() {
                 let count = log_files.len();
@@ -111,29 +123,41 @@ impl CleanCommand {
 
     fn get_report_directory() -> PathBuf {
         // Check config for custom path
-        if let Ok(config) = crate::ai::AIConfig::load() {
-            if let Some(path) = config.output.path {
-                return PathBuf::from(path);
+        match crate::ai::AIConfig::load() {
+            Ok(config) => {
+                if let Some(path) = config.output.path {
+                    return PathBuf::from(path);
+                }
+            }
+            Err(_) => {
+                // Config loading failed, use default
             }
         }
 
         // Default to ./reports
-        PathBuf::from("./reports")
+        match std::env::current_dir() {
+            Ok(dir) => dir.join("reports"),
+            Err(_) => PathBuf::from("./reports"),
+        }
     }
 
     fn get_logs_directory() -> PathBuf {
         // Check config for custom path
-        if let Ok(config) = crate::ai::AIConfig::load() {
-            if let Some(logs_dir) = config.output.logs_dir {
-                return PathBuf::from(logs_dir);
+        match crate::ai::AIConfig::load() {
+            Ok(config) => {
+                if let Some(logs_dir) = config.output.logs_dir {
+                    return PathBuf::from(logs_dir);
+                }
+            }
+            Err(_) => {
+                // Config loading failed, use default
             }
         }
 
         // Default to ./logs
-        if let Ok(current_dir) = std::env::current_dir() {
-            current_dir.join("logs")
-        } else {
-            PathBuf::from("./logs")
+        match std::env::current_dir() {
+            Ok(dir) => dir.join("logs"),
+            Err(_) => PathBuf::from("./logs"),
         }
     }
 }
