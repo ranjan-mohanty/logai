@@ -227,21 +227,31 @@ fn test_cleanup_handles_different_keep_counts() {
 
 #[test]
 fn test_cleanup_with_existing_logs_directory() {
-    // Test cleanup when logs directory already exists (like in the main project)
-    let logs_dir = match get_current_dir_safe() {
+    // Ensure a logs directory exists in a controlled temporary directory and run cleanup
+    let temp_dir = TempDir::new().unwrap();
+    let original_dir = match get_current_dir_safe() {
         Some(dir) => dir,
         None => return,
-    }
-    .join("logs");
+    };
 
-    if logs_dir.exists() {
-        // Should be able to run cleanup without errors
-        let result = cleanup_old_logs(10);
-        assert!(result.is_ok());
+    // Change to temp directory
+    if !set_current_dir_safe(temp_dir.path()) {
+        return;
+    };
 
-        // Directory should still exist
-        assert!(logs_dir.exists());
-    }
+    // Create logs directory in temp dir (mimics project logs dir)
+    let logs_dir = temp_dir.path().join("logs");
+    fs::create_dir_all(&logs_dir).unwrap();
+
+    // Should be able to run cleanup without errors
+    let result = cleanup_old_logs(10);
+    assert!(result.is_ok());
+
+    // Directory should still exist
+    assert!(logs_dir.exists());
+
+    // Restore original directory
+    let _ = env::set_current_dir(original_dir);
 }
 
 #[test]
