@@ -28,7 +28,7 @@ indicatif = "0.18"
 comfy-table = "7.1"
 
 # Async runtime
-tokio = { version = "1.40", features = ["full"] }
+tokio = { version = "1.49", features = ["full"] }
 async-trait = "0.1"
 
 # Serialization
