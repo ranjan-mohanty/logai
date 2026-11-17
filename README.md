@@ -15,6 +15,12 @@
 LogAI analyzes your application logs, groups similar errors, and uses AI to
 explain what went wrong and how to fix it.
 
+> **Debugging a failed CI run?** Try
+> [whatbroke](https://github.com/mintwork/whatbroke), which grew out of LogAI.
+> It compares a failed GitHub Actions job with its last passing run and shows
+> only the lines that are new, failure first: in your terminal
+> (`npx -y @mintwork/whatbroke`), as a PR comment, or for a coding agent.
+
 ## What is LogAI?
 
 LogAI is a CLI tool that analyzes application logs, groups similar errors, and
